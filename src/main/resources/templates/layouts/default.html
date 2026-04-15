@@ -7,6 +7,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title th:replace="${title}">PICKKASSO</title>
 
+  <!-- Global Base Styles (fonts, design tokens) — Tailwind보다 먼저 로드 -->
+  <link rel="stylesheet" th:href="@{/css/global.css}">
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -24,23 +27,6 @@
 
   <!-- Page-specific head content -->
   <th:block th:replace="${headExtra}" />
-
-  <!-- Local Fonts -->
-  <style>
-      @font-face {
-          font-family: 'Pretendard';
-          src: url('/fonts/PretendardVariable.woff2') format('woff2');
-          font-weight: 100 900;
-          font-style: normal;
-      }
-
-      @font-face {
-          font-family: 'WhiteAngelica';
-          src: url('/fonts/WhiteAngelica.ttf') format('truetype');
-          font-weight: normal;
-          font-style: normal;
-      }
-  </style>
 </head>
 <body class="bg-[#F9FAFC] text-[#1A1A1A] font-sans">
 

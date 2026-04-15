@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      th:replace="~{layouts/default :: layout(~{::title}, ~{::pageStyles}, ~{::main})}">
+<head>
+  <title>회원가입 — PICKKASSO</title>
+  <th:block th:fragment="pageStyles"></th:block>
+</head>
+<body>
+  <main class="flex flex-col items-center justify-center min-h-[60vh] px-4 text-center">
+
+    <!-- 아이콘 -->
+    <div class="w-16 h-16 rounded-full bg-[#D3DEF2] flex items-center justify-center mb-6">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+           stroke-width="1.5" stroke="#1D3CFF" class="w-8 h-8">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+      </svg>
+    </div>
+
+    <h2 class="text-2xl font-semibold text-[#1A1A1A] mb-3">회원가입 기능 준비 중</h2>
+    <p class="text-[#888] text-[15px] mb-8 max-w-sm leading-relaxed">
+      회원가입 기능은 현재 개발 중입니다.<br>
+      곧 이용하실 수 있습니다.
+    </p>
+
+    <!-- TODO(backend): 실제 POST 처리 구현 후 이 페이지 제거, 성공 시 /login?signup=success 로 redirect -->
+    <div class="flex gap-3">
+      <a th:href="@{/}"
+         class="px-6 py-2.5 border border-[#1D3CFF] text-[#1D3CFF] hover:bg-[#1D3CFF] hover:text-white font-semibold rounded-lg transition-colors no-underline text-sm">
+        메인으로
+      </a>
+      <a th:href="@{/signup/user}"
+         class="px-6 py-2.5 bg-[#1D3CFF] text-white hover:bg-[#1530E0] font-semibold rounded-lg transition-colors no-underline text-sm">
+        회원가입으로 돌아가기
+      </a>
+    </div>
+
+  </main>
+</body>
+</html>

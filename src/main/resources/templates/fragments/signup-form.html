@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<body>
+
+<th:block th:fragment="signup-form(activeRole)">
+
+  <!-- 회원 유형 선택 카드 -->
+  <div class="grid grid-cols-2 gap-4">
+
+    <!-- 일반회원 카드 -->
+    <a th:href="@{/signup/user}"
+       th:class="${activeRole == 'user'}
+         ? 'flex items-center gap-4 bg-white border-2 border-[#1D3CFF] rounded-2xl p-5 no-underline transition-colors'
+         : 'flex items-center gap-4 bg-white border-2 border-[#CCC] rounded-2xl p-5 no-underline transition-colors hover:border-[#888]'">
+      <div th:class="${activeRole == 'user'} ? 'text-[#1D3CFF]' : 'text-[#888]'"
+           class="flex-shrink-0">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+             stroke-width="1.5" stroke="currentColor" class="w-10 h-10">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
+        </svg>
+      </div>
+      <div>
+        <p th:class="${activeRole == 'user'} ? 'font-semibold text-[15px] text-[#1D3CFF] mb-1' : 'font-semibold text-[15px] text-[#1A1A1A] mb-1'">
+          일반회원
+        </p>
+        <p class="text-xs text-[#888] leading-relaxed">
+          당신의 소중한 순간을 함께 할<br>작가를 만나보세요.
+        </p>
+      </div>
+    </a>
+
+    <!-- 작가회원 카드 -->
+    <a th:href="@{/signup/photographer}"
+       th:class="${activeRole == 'photographer'}
+         ? 'flex items-center gap-4 bg-white border-2 border-[#1D3CFF] rounded-2xl p-5 no-underline transition-colors'
+         : 'flex items-center gap-4 bg-white border-2 border-[#CCC] rounded-2xl p-5 no-underline transition-colors hover:border-[#888]'">
+      <div th:class="${activeRole == 'photographer'} ? 'text-[#1D3CFF]' : 'text-[#888]'"
+           class="flex-shrink-0">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+             stroke-width="1.5" stroke="currentColor" class="w-10 h-10">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z"/>
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z"/>
+        </svg>
+      </div>
+      <div>
+        <p th:class="${activeRole == 'photographer'} ? 'font-semibold text-[15px] text-[#1D3CFF] mb-1' : 'font-semibold text-[15px] text-[#1A1A1A] mb-1'">
+          작가회원
+        </p>
+        <p class="text-xs text-[#888] leading-relaxed">
+          당신의 시선을 통해 특별한<br>이야기를 기록하세요.
+        </p>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- 회원가입 폼 -->
+  <form id="signup-form"
+        th:action="@{/signup/{r}(r=${activeRole})}"
+        method="post">
+
+    <!-- 폼 카드 -->
+    <div class="bg-white border border-[#CCC] rounded-2xl p-8">
+
+      <h2 class="text-2xl font-semibold text-[#1A1A1A] mb-7">회원가입</h2>
+
+      <!-- 회원정보 섹션 -->
+      <div class="mb-6">
+        <h3 class="text-sm font-semibold text-[#888] mb-4">회원정보</h3>
+
+        <!-- 아이디 -->
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-[#444] mb-1.5">아이디</label>
+          <input type="text" name="username" id="username"
+                 required minlength="4" maxlength="20"
+                 placeholder="4~20자"
+                 class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-3 text-[#1A1A1A] placeholder-[#AAA] text-[15px] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]"/>
+        </div>
+
+        <!-- 비밀번호 + 비밀번호 확인 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-sm font-medium text-[#444] mb-1.5">비밀번호</label>
+            <input type="password" name="password" id="password"
+                   required minlength="8" maxlength="30"
+                   placeholder="8~30자"
+                   class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-3 text-[#1A1A1A] placeholder-[#AAA] text-[15px] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]"/>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-[#444] mb-1.5">비밀번호 확인</label>
+            <input type="password" name="passwordConfirm" id="passwordConfirm"
+                   required minlength="8" maxlength="30"
+                   placeholder="비밀번호 재입력"
+                   class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-3 text-[#1A1A1A] placeholder-[#AAA] text-[15px] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]"/>
+          </div>
+        </div>
+
+        <!-- 이메일 -->
+        <div>
+          <label class="block text-sm font-medium text-[#444] mb-1.5">이메일</label>
+          <input type="email" name="email" id="email"
+                 required
+                 placeholder="example@email.com"
+                 class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-3 text-[#1A1A1A] placeholder-[#AAA] text-[15px] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]"/>
+        </div>
+      </div>
+
+      <!-- 구분선 -->
+      <hr class="border-[#EEE] mb-6"/>
+
+      <!-- 개인정보 섹션 -->
+      <div>
+        <h3 class="text-sm font-semibold text-[#888] mb-4">개인정보</h3>
+
+        <!-- 이름 + 성별 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-sm font-medium text-[#444] mb-1.5">이름</label>
+            <input type="text" name="name" id="name"
+                   required maxlength="20"
+                   placeholder="8~30자"
+                   class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-3 text-[#1A1A1A] placeholder-[#AAA] text-[15px] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]"/>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-[#444] mb-1.5">성별</label>
+            <select name="gender" id="gender"
+                    required
+                    class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-3 text-[#1A1A1A] text-[15px] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+              <option value="" disabled selected class="text-[#AAA]">선택</option>
+              <option value="MALE">남성</option>
+              <option value="FEMALE">여성</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 생년월일 + 전화번호 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-[#444] mb-1.5">생년월일</label>
+            <input type="date" name="birthDate" id="birthDate"
+                   required
+                   class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-3 text-[#1A1A1A] text-[15px] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]"/>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-[#444] mb-1.5">전화번호</label>
+            <input type="tel" name="phone" id="phone"
+                   required
+                   pattern="01[016789]-?\d{3,4}-?\d{4}"
+                   placeholder="010-0000-0000"
+                   class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-3 text-[#1A1A1A] placeholder-[#AAA] text-[15px] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]"/>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <!-- // 폼 카드 -->
+
+    <!-- 가입하기 버튼 카드 -->
+    <div class="bg-white border border-[#CCC] rounded-2xl p-5 mt-4">
+      <button type="submit"
+              class="w-full py-3.5 rounded-full bg-[#1D3CFF] text-white font-semibold text-[16px] hover:bg-[#1530E0] active:bg-[#1020C0] transition-colors cursor-pointer">
+        가입하기
+      </button>
+    </div>
+
+  </form>
+  <!-- // 회원가입 폼 -->
+
+  <!-- 비밀번호 확인 일치 검증 -->
+  <script>
+    document.getElementById('signup-form').addEventListener('submit', function (e) {
+      const pw = document.getElementById('password').value;
+      const pwc = document.getElementById('passwordConfirm').value;
+      if (pw !== pwc) {
+        e.preventDefault();
+        alert('비밀번호가 일치하지 않습니다.');
+        document.getElementById('passwordConfirm').focus();
+      }
+    });
+  </script>
+
+</th:block>
+
+</body>
+</html>

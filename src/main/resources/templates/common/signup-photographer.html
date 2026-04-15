@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      th:replace="~{layouts/default :: layout(~{::title}, ~{::pageStyles}, ~{::main})}">
+<head>
+  <title>작가 회원가입 — PICKKASSO</title>
+  <th:block th:fragment="pageStyles"></th:block>
+</head>
+<body>
+  <main class="max-w-[760px] w-full mx-auto px-4 py-10 flex flex-col gap-4"
+        th:insert="~{fragments/signup-form :: signup-form('photographer')}">
+  </main>
+</body>
+</html>
