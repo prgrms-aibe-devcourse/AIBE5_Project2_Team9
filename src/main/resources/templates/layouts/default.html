@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      th:fragment="layout(title, headExtra, content)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:replace="${title}">PICKKASSO</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Pretendard', 'sans-serif'],
+                        angelica: ['WhiteAngelica', 'cursive'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- Page-specific head content -->
+    <th:block th:replace="${headExtra}" />
+
+    <!-- Local Fonts -->
+    <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('/fonts/PretendardVariable.woff2') format('woff2');
+            font-weight: 100 900;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'WhiteAngelica';
+            src: url('/fonts/WhiteAngelica.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+    </style>
+</head>
+<body class="bg-[#F9FAFC] text-[#1A1A1A] font-sans">
+
+    <th:block th:replace="~{fragments/header :: header}" />
+
+    <main th:replace="${content}">
+        <!-- page content -->
+    </main>
+
+    <th:block th:replace="~{fragments/footer :: footer}" />
+
+</body>
+</html>
