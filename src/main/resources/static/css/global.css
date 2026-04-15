@@ -1,0 +1,68 @@
+/* ============================================================
+   PICKKASSO — Global Base Styles
+   Tailwind CDN 방식에서 @layer base 역할을 대체하는 전역 CSS
+   ============================================================ */
+
+/* ----------------------------------------------------------
+   Fonts
+   ---------------------------------------------------------- */
+@font-face {
+  font-family: 'Pretendard';
+  src: url('/fonts/PretendardVariable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'WhiteAngelica';
+  src: url('/fonts/WhiteAngelica.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* ----------------------------------------------------------
+   Design Token — CSS Custom Properties
+   Tailwind arbitrary value([#hex])와 병행 사용 가능
+   ---------------------------------------------------------- */
+:root {
+  /* 강조색 */
+  --color-accent:           #0097FF;
+  --color-primary:          #1D3CFF;
+  --color-primary-hover:    #1530E0;
+
+  /* 배경 */
+  --color-bg:               #F9FAFC;
+  --color-bg-sub:           #D3DEF2;
+
+  /* 테두리 */
+  --color-border:           #CCCCCC;
+
+  /* 텍스트 */
+  --color-text-primary:     #1A1A1A;
+  --color-text-body:        #444444;
+  --color-text-sub:         #888888;
+  --color-text-disabled:    #AAAAAA;
+}
+
+/* ----------------------------------------------------------
+   Base Reset / Element Defaults
+   ---------------------------------------------------------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: 'Pretendard', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
