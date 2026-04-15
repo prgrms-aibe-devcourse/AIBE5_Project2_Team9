@@ -10,23 +10,23 @@ import java.time.LocalDateTime;
 
 @MappedSuperclass
 @Getter
-public class BasicInfo {
+public class UserBasicInfo {
     @Column(name = "email")
-    private String email;
+    protected String email;
 
     @Column(name = "name")
-    private String name;
+    protected String name;
 
     @Column(name = "gender")
     @Enumerated(EnumType.STRING)
-    private Gender gender;
+    protected Gender gender;
 
     @Column(name = "phone")
-    private String phone;
+    protected String phone;
 
     @Column(name = "cache")
-    private Integer cache;
+    protected Integer cache;
 
     @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
+    protected LocalDateTime deletedAt;
 }
