@@ -15,12 +15,12 @@ import java.util.Map;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PhotographerProfile {
     @Id
-    @Column(name = "id_profile")
+    @Column(name = "profile_id")
     private Long id;
 
     @MapsId
     @OneToOne
-    @JoinColumn(name = "id_profile", referencedColumnName = "id_photographer")
+    @JoinColumn(name = "profile_id", referencedColumnName = "photographer_id")
     private Photographer photographer;
 
     @Column(name = "img_url")

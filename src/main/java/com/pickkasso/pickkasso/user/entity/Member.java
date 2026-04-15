@@ -13,12 +13,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member extends UserBasicInfo {
     @Id
-    @Column(name = "id_member")
+    @Column(name = "member_id")
     private Long id;
 
     @MapsId
     @OneToOne
-    @JoinColumn(name = "id_member", referencedColumnName = "id_account")
+    @JoinColumn(name = "member_id", referencedColumnName = "account_id")
     private Account account;
 
     private Member(
