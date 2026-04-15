@@ -2,559 +2,538 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layouts/default :: layout(~{::title}, ~{::pageStyles}, ~{::main})}">
 <head>
-    <title>PICKKASSO - 소중한 순간, 색감 있는 작가를 만나보세요</title>
-    <th:block th:fragment="pageStyles">
-        <style>
-            /* 작가 카드 썸네일 그라디언트 플레이스홀더 */
-            .thumb-grad-1  { background: linear-gradient(135deg, #c9d6df, #e2ebf0); }
-            .thumb-grad-2  { background: linear-gradient(135deg, #a8c5a0, #c8dfc5); }
-            .thumb-grad-3  { background: linear-gradient(135deg, #b8c8d8, #d5e0ea); }
-            .thumb-grad-4  { background: linear-gradient(135deg, #d4c5b8, #e8ddd5); }
-            .thumb-grad-5  { background: linear-gradient(135deg, #c5b8cc, #ddd5e8); }
-            .thumb-grad-6  { background: linear-gradient(135deg, #b8c5c8, #d5e0e2); }
-            .thumb-grad-7  { background: linear-gradient(135deg, #c8c5a0, #e2dfbb); }
-            .thumb-grad-8  { background: linear-gradient(135deg, #c5c8b8, #dfe2d5); }
-            .thumb-grad-9  { background: linear-gradient(135deg, #b8c8c5, #d5e2e0); }
-            .thumb-grad-10 { background: linear-gradient(135deg, #c8b8c5, #e2d5df); }
-            /* CTA 작가 카드 썸네일 */
-            .cta-card-thumb { background: linear-gradient(135deg, #b8c8d8 0%, #c5d5e5 50%, #d5e5f5 100%); }
-            /* 날짜 스트립 스크롤바 숨김 */
-            .date-strip::-webkit-scrollbar { display: none; }
-            /* 날짜 아이템 공통 스타일 + 상태 */
-            .date-item {
-                flex-shrink: 0; width: 2.75rem; height: 2.75rem;
-                display: flex; align-items: center; justify-content: center;
-                border-radius: 9999px; font-size: 0.875rem; font-weight: 500;
-                color: #444; cursor: pointer; transition: background 0.15s, color 0.15s;
-            }
-            .date-item:hover { background: #D3DEF2; color: #1D3CFF; }
-            .date-item.today { background: #1D3CFF; color: #fff; font-weight: 700; }
-            /* 카테고리 태그 공통 스타일 + 활성 상태 */
-            .cat-tag {
-                font-size: 0.8125rem; font-weight: 500; color: #444;
-                background: #F9FAFC; border: 1.5px solid #CCC; border-radius: 20px;
-                padding: 6px 16px; cursor: pointer; transition: all 0.15s;
-            }
-            .cat-tag:hover, .cat-tag.active { background: #1D3CFF; border-color: #1D3CFF; color: #fff; }
-        </style>
-    </th:block>
+  <title>PICKKASSO - 소중한 순간, 색감 있는 작가를 만나보세요</title>
+  <th:block th:fragment="pageStyles">
+    <style>
+        /* 작가 카드 썸네일 그라디언트 플레이스홀더 */
+        .thumb-grad-1  { background: linear-gradient(135deg, #c9d6df, #e2ebf0); }
+        .thumb-grad-2  { background: linear-gradient(135deg, #a8c5a0, #c8dfc5); }
+        .thumb-grad-3  { background: linear-gradient(135deg, #b8c8d8, #d5e0ea); }
+        .thumb-grad-4  { background: linear-gradient(135deg, #d4c5b8, #e8ddd5); }
+        .thumb-grad-5  { background: linear-gradient(135deg, #c5b8cc, #ddd5e8); }
+        .thumb-grad-6  { background: linear-gradient(135deg, #b8c5c8, #d5e0e2); }
+        .thumb-grad-7  { background: linear-gradient(135deg, #c8c5a0, #e2dfbb); }
+        .thumb-grad-8  { background: linear-gradient(135deg, #c5c8b8, #dfe2d5); }
+        .thumb-grad-9  { background: linear-gradient(135deg, #b8c8c5, #d5e2e0); }
+        .thumb-grad-10 { background: linear-gradient(135deg, #c8b8c5, #e2d5df); }
+        /* CTA 작가 카드 썸네일 */
+        .cta-card-thumb { background: linear-gradient(135deg, #b8c8d8 0%, #c5d5e5 50%, #d5e5f5 100%); }
+        /* 날짜 스트립 스크롤바 숨김 */
+        .date-strip::-webkit-scrollbar { display: none; }
+        /* 날짜 아이템 공통 스타일 + 상태 */
+        .date-item {
+            flex-shrink: 0; width: 2.75rem; height: 2.75rem;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 9999px; font-size: 0.875rem; font-weight: 500;
+            color: #444; cursor: pointer; transition: background 0.15s, color 0.15s;
+        }
+        .date-item:hover { background: #D3DEF2; color: #1D3CFF; }
+        .date-item.today { background: #1D3CFF; color: #fff; font-weight: 700; }
+        /* 카테고리 태그 공통 스타일 + 활성 상태 */
+        .cat-tag {
+            font-size: 0.8125rem; font-weight: 500; color: #444;
+            background: #F9FAFC; border: 1.5px solid #CCC; border-radius: 20px;
+            padding: 6px 16px; cursor: pointer; transition: all 0.15s;
+        }
+        .cat-tag:hover, .cat-tag.active { background: #1D3CFF; border-color: #1D3CFF; color: #fff; }
+    </style>
+  </th:block>
 </head>
 <body>
 <main>
 
-    <!-- ═══════════════════════════════════════════
-         HERO
-    ════════════════════════════════════════════ -->
-    <section class="h-[480px] bg-[#D3DEF2] flex flex-col items-center justify-center gap-7 px-6">
-            <h1 class="font-angelica text-[38px] text-[#1A1A1A] text-center tracking-tight leading-[1.3]">
-                소중한 순간, 색감 있는 작가를 만나보세요
-            </h1>
+  <!-- ═══════════════════════════════════════════
+       HERO
+  ════════════════════════════════════════════ -->
+  <section class="h-[480px] bg-[#D3DEF2] flex flex-col items-center justify-center gap-7 px-6">
+    <h1 class="font-angelica text-[38px] text-[#1A1A1A] text-center tracking-tight leading-[1.3]">
+      소중한 순간, 색감 있는 작가를 만나보세요
+    </h1>
 
-            <!-- 검색 바 (AI 추천 포함 한 줄) -->
-            <div class="bg-white rounded-[50px] flex items-center w-full max-w-[780px] shadow-[0_8px_32px_rgba(0,0,0,0.18)] pl-5 pr-1.5 py-1.5">
-                <!-- 지역 -->
-                <div class="flex items-center gap-2 px-4 py-1.5 flex-1 border-r border-[#E8E8E8] cursor-pointer hover:text-[#1D3CFF] transition-colors">
-                    <svg class="text-[#0097FF] shrink-0" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                    <span class="text-sm text-[#555] whitespace-nowrap">지역선택</span>
-                </div>
-                <!-- 카테고리 -->
-                <div class="flex items-center gap-2 px-4 py-1.5 flex-1 border-r border-[#E8E8E8] cursor-pointer hover:text-[#1D3CFF] transition-colors">
-                    <svg class="text-[#0097FF] shrink-0" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                    <span class="text-sm text-[#555] whitespace-nowrap">촬영유형</span>
-                </div>
-                <!-- 날짜 -->
-                <div class="flex items-center gap-2 px-4 py-1.5 flex-1 border-r border-[#E8E8E8] cursor-pointer hover:text-[#1D3CFF] transition-colors">
-                    <svg class="text-[#0097FF] shrink-0" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                        <line x1="16" y1="2" x2="16" y2="6"/>
-                        <line x1="8" y1="2" x2="8" y2="6"/>
-                        <line x1="3" y1="10" x2="21" y2="10"/>
-                    </svg>
-                    <span class="text-sm text-[#555] whitespace-nowrap">날짜</span>
-                </div>
-                <!-- 검색 아이콘 -->
-                <button class="p-2 mx-1 text-[#888] hover:text-[#1D3CFF] transition-colors shrink-0 bg-transparent border-0" aria-label="검색">
-                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <circle cx="11" cy="11" r="8"/>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                    </svg>
-                </button>
-                <!-- AI 추천 버튼 -->
-                <a th:href="@{/ai-pick}"
-                   class="inline-flex items-center gap-1.5 bg-[#1D3CFF] text-white text-sm font-bold rounded-[50px] px-[18px] py-2.5 hover:bg-[#1530E0] transition-colors no-underline shrink-0">
-                    <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17H4a2 2 0 01-2-2V5a2 2 0 012-2h16a2 2 0 012 2v10a2 2 0 01-2 2h-1"/>
-                    </svg>
-                    AI PICK
-                </a>
-            </div>
-    </section>
+    <!-- 검색 바 (AI 추천 포함 한 줄) -->
+    <div class="bg-white rounded-[50px] flex items-center w-full max-w-[780px] shadow-[0_8px_32px_rgba(0,0,0,0.18)] pl-5 pr-1.5 py-1.5">
+      <!-- 지역 -->
+      <div class="flex items-center gap-2 px-4 py-1.5 flex-1 border-r border-[#E8E8E8] cursor-pointer hover:text-[#1D3CFF] transition-colors">
+        <svg class="text-[#0097FF] shrink-0" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        <span class="text-sm text-[#555] whitespace-nowrap">지역선택</span>
+      </div>
+      <!-- 카테고리 -->
+      <div class="flex items-center gap-2 px-4 py-1.5 flex-1 border-r border-[#E8E8E8] cursor-pointer hover:text-[#1D3CFF] transition-colors">
+        <svg class="text-[#0097FF] shrink-0" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        <span class="text-sm text-[#555] whitespace-nowrap">촬영유형</span>
+      </div>
+      <!-- 날짜 -->
+      <div class="flex items-center gap-2 px-4 py-1.5 flex-1 border-r border-[#E8E8E8] cursor-pointer hover:text-[#1D3CFF] transition-colors">
+        <svg class="text-[#0097FF] shrink-0" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        <span class="text-sm text-[#555] whitespace-nowrap">날짜</span>
+      </div>
+      <!-- 검색 아이콘 -->
+      <button class="p-2 mx-1 text-[#888] hover:text-[#1D3CFF] transition-colors shrink-0 bg-transparent border-0" aria-label="검색">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+      </button>
+      <!-- AI 추천 버튼 -->
+      <a th:href="@{/ai-pick}"
+         class="inline-flex items-center gap-1.5 bg-[#1D3CFF] text-white text-sm font-bold rounded-[50px] px-[18px] py-2.5 hover:bg-[#1530E0] transition-colors no-underline shrink-0">
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17H4a2 2 0 01-2-2V5a2 2 0 012-2h16a2 2 0 012 2v10a2 2 0 01-2 2h-1"/>
+        </svg>
+        AI PICK
+      </a>
+    </div>
+  </section>
 
-    <!-- ═══════════════════════════════════════════
-         CALENDAR + FILTER + PHOTO GRID
-    ════════════════════════════════════════════ -->
-    <section class="pt-8 bg-[#F9FAFC]">
-        <div class="max-w-[1216px] mx-auto px-6">
+  <!-- ═══════════════════════════════════════════
+       CALENDAR + FILTER + PHOTO GRID
+  ════════════════════════════════════════════ -->
+  <section class="pt-8 bg-[#F9FAFC]">
+    <div class="max-w-[1216px] mx-auto px-6">
 
-            <!-- 월 헤더 -->
-            <div class="flex items-baseline gap-3 mb-4">
-                <span class="text-[42px] font-extrabold text-[#1A1A1A] leading-none">04</span>
-                <span class="text-lg font-semibold text-[#444]">월</span>
-                <span class="text-lg font-medium text-[#888] ml-1">2026</span>
-                <div class="flex items-center gap-1.5 ml-2">
-                    <button class="bg-transparent border-0 text-[#888] hover:text-[#1D3CFF] transition-colors p-0.5 flex items-center" aria-label="이전 달">
-                        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-                    </button>
-                    <button class="bg-transparent border-0 text-[#888] hover:text-[#1D3CFF] transition-colors p-0.5 flex items-center" aria-label="다음 달">
-                        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-                    </button>
-                </div>
-            </div>
-
-            <!-- 날짜 스트립 -->
-            <div class="date-strip flex gap-1.5 overflow-x-auto pb-2 mb-5 [scrollbar-width:none]">
-                <div class="date-item">1</div>
-                <div class="date-item">2</div>
-                <div class="date-item">3</div>
-                <div class="date-item">4</div>
-                <div class="date-item">5</div>
-                <div class="date-item">6</div>
-                <div class="date-item">7</div>
-                <div class="date-item">8</div>
-                <div class="date-item">9</div>
-                <div class="date-item">10</div>
-                <div class="date-item">11</div>
-                <div class="date-item">12</div>
-                <div class="date-item">13</div>
-                <div class="date-item">14</div>
-                <div class="date-item today">15</div>
-                <div class="date-item">16</div>
-                <div class="date-item">17</div>
-                <div class="date-item">18</div>
-                <div class="date-item">19</div>
-                <div class="date-item">20</div>
-                <div class="date-item">21</div>
-                <div class="date-item">22</div>
-                <div class="date-item">23</div>
-                <div class="date-item">24</div>
-                <div class="date-item">25</div>
-                <div class="date-item">26</div>
-                <div class="date-item">27</div>
-                <div class="date-item">28</div>
-                <div class="date-item">29</div>
-                <div class="date-item">30</div>
-            </div>
-
-            <!-- 카테고리 필터 -->
-            <div class="flex gap-2 flex-wrap mb-7">
-                <span class="cat-tag active">전체</span>
-                <span class="cat-tag">스냅</span>
-                <span class="cat-tag">결혼식</span>
-                <span class="cat-tag">프로필</span>
-                <span class="cat-tag">졸업사진</span>
-                <span class="cat-tag">가족사진</span>
-                <span class="cat-tag">데이트</span>
-                <span class="cat-tag">증명사진</span>
-            </div>
-
-            <!-- 작가 카드 그리드 -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-12">
-
-                <!-- 카드 1 -->
-                <a th:href="@{/photographer/1}" class="bg-white border border-[#CCC] rounded-xl overflow-hidden hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all block no-underline">
-                    <div class="relative w-full aspect-[3/4] overflow-hidden">
-                        <div class="thumb-grad-1 w-full h-full flex items-center justify-center">
-                            <svg class="opacity-25 text-white" width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            </svg>
-                        </div>
-                        <span class="absolute top-2.5 left-2.5 bg-[#1D3CFF] text-white text-[11px] font-bold px-2 py-0.5 rounded tracking-wide">NEW</span>
-                    </div>
-                    <div class="px-3 pt-2.5 pb-3">
-                        <div class="text-sm font-semibold text-[#1A1A1A] mb-0.5 truncate">박지현 작가</div>
-                        <div class="text-xs text-[#888] mb-1.5 truncate">서울 · 감성 스냅</div>
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-0.5 text-xs font-semibold text-[#1A1A1A]">
-                                <span class="text-[#0097FF] text-[13px]">★</span>
-                                <span>4.9</span>
-                                <span class="text-[#AAA] font-normal">(42)</span>
-                            </div>
-                            <span class="text-[13px] font-bold text-[#1D3CFF]">50,000원~</span>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- 카드 2 -->
-                <a th:href="@{/photographer/2}" class="bg-white border border-[#CCC] rounded-xl overflow-hidden hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all block no-underline">
-                    <div class="relative w-full aspect-[3/4] overflow-hidden">
-                        <div class="thumb-grad-2 w-full h-full flex items-center justify-center">
-                            <svg class="opacity-25 text-white" width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="px-3 pt-2.5 pb-3">
-                        <div class="text-sm font-semibold text-[#1A1A1A] mb-0.5 truncate">이수민 작가</div>
-                        <div class="text-xs text-[#888] mb-1.5 truncate">경기 · 웨딩 스냅</div>
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-0.5 text-xs font-semibold text-[#1A1A1A]">
-                                <span class="text-[#0097FF] text-[13px]">★</span>
-                                <span>4.8</span>
-                                <span class="text-[#AAA] font-normal">(38)</span>
-                            </div>
-                            <span class="text-[13px] font-bold text-[#1D3CFF]">80,000원~</span>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- 카드 3 -->
-                <a th:href="@{/photographer/3}" class="bg-white border border-[#CCC] rounded-xl overflow-hidden hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all block no-underline">
-                    <div class="relative w-full aspect-[3/4] overflow-hidden">
-                        <div class="thumb-grad-3 w-full h-full flex items-center justify-center">
-                            <svg class="opacity-25 text-white" width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="px-3 pt-2.5 pb-3">
-                        <div class="text-sm font-semibold text-[#1A1A1A] mb-0.5 truncate">김태연 작가</div>
-                        <div class="text-xs text-[#888] mb-1.5 truncate">서울 · 졸업사진</div>
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-0.5 text-xs font-semibold text-[#1A1A1A]">
-                                <span class="text-[#0097FF] text-[13px]">★</span>
-                                <span>5.0</span>
-                                <span class="text-[#AAA] font-normal">(61)</span>
-                            </div>
-                            <span class="text-[13px] font-bold text-[#1D3CFF]">60,000원~</span>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- 카드 4 -->
-                <a th:href="@{/photographer/4}" class="bg-white border border-[#CCC] rounded-xl overflow-hidden hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all block no-underline">
-                    <div class="relative w-full aspect-[3/4] overflow-hidden">
-                        <div class="thumb-grad-4 w-full h-full flex items-center justify-center">
-                            <svg class="opacity-25 text-white" width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            </svg>
-                        </div>
-                        <span class="absolute top-2.5 left-2.5 bg-[#1D3CFF] text-white text-[11px] font-bold px-2 py-0.5 rounded tracking-wide">NEW</span>
-                    </div>
-                    <div class="px-3 pt-2.5 pb-3">
-                        <div class="text-sm font-semibold text-[#1A1A1A] mb-0.5 truncate">정민서 작가</div>
-                        <div class="text-xs text-[#888] mb-1.5 truncate">인천 · 프로필 사진</div>
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-0.5 text-xs font-semibold text-[#1A1A1A]">
-                                <span class="text-[#0097FF] text-[13px]">★</span>
-                                <span>4.7</span>
-                                <span class="text-[#AAA] font-normal">(29)</span>
-                            </div>
-                            <span class="text-[13px] font-bold text-[#1D3CFF]">45,000원~</span>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- 카드 5 -->
-                <a th:href="@{/photographer/5}" class="bg-white border border-[#CCC] rounded-xl overflow-hidden hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all block no-underline">
-                    <div class="relative w-full aspect-[3/4] overflow-hidden">
-                        <div class="thumb-grad-5 w-full h-full flex items-center justify-center">
-                            <svg class="opacity-25 text-white" width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="px-3 pt-2.5 pb-3">
-                        <div class="text-sm font-semibold text-[#1A1A1A] mb-0.5 truncate">최윤아 작가</div>
-                        <div class="text-xs text-[#888] mb-1.5 truncate">서울 · 가족사진</div>
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-0.5 text-xs font-semibold text-[#1A1A1A]">
-                                <span class="text-[#0097FF] text-[13px]">★</span>
-                                <span>4.9</span>
-                                <span class="text-[#AAA] font-normal">(55)</span>
-                            </div>
-                            <span class="text-[13px] font-bold text-[#1D3CFF]">70,000원~</span>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- 카드 6 -->
-                <a th:href="@{/photographer/6}" class="bg-white border border-[#CCC] rounded-xl overflow-hidden hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all block no-underline">
-                    <div class="relative w-full aspect-[3/4] overflow-hidden">
-                        <div class="thumb-grad-6 w-full h-full flex items-center justify-center">
-                            <svg class="opacity-25 text-white" width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            </svg>
-                        </div>
-                        <span class="absolute top-2.5 left-2.5 bg-[#1D3CFF] text-white text-[11px] font-bold px-2 py-0.5 rounded tracking-wide">NEW</span>
-                    </div>
-                    <div class="px-3 pt-2.5 pb-3">
-                        <div class="text-sm font-semibold text-[#1A1A1A] mb-0.5 truncate">한지후 작가</div>
-                        <div class="text-xs text-[#888] mb-1.5 truncate">서울 · 데이트 스냅</div>
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-0.5 text-xs font-semibold text-[#1A1A1A]">
-                                <span class="text-[#0097FF] text-[13px]">★</span>
-                                <span>4.8</span>
-                                <span class="text-[#AAA] font-normal">(33)</span>
-                            </div>
-                            <span class="text-[13px] font-bold text-[#1D3CFF]">55,000원~</span>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- 카드 7 -->
-                <a th:href="@{/photographer/7}" class="bg-white border border-[#CCC] rounded-xl overflow-hidden hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all block no-underline">
-                    <div class="relative w-full aspect-[3/4] overflow-hidden">
-                        <div class="thumb-grad-7 w-full h-full flex items-center justify-center">
-                            <svg class="opacity-25 text-white" width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="px-3 pt-2.5 pb-3">
-                        <div class="text-sm font-semibold text-[#1A1A1A] mb-0.5 truncate">오세진 작가</div>
-                        <div class="text-xs text-[#888] mb-1.5 truncate">부산 · 자연광 스냅</div>
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-0.5 text-xs font-semibold text-[#1A1A1A]">
-                                <span class="text-[#0097FF] text-[13px]">★</span>
-                                <span>4.9</span>
-                                <span class="text-[#AAA] font-normal">(47)</span>
-                            </div>
-                            <span class="text-[13px] font-bold text-[#1D3CFF]">65,000원~</span>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- 카드 8 -->
-                <a th:href="@{/photographer/8}" class="bg-white border border-[#CCC] rounded-xl overflow-hidden hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all block no-underline">
-                    <div class="relative w-full aspect-[3/4] overflow-hidden">
-                        <div class="thumb-grad-8 w-full h-full flex items-center justify-center">
-                            <svg class="opacity-25 text-white" width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="px-3 pt-2.5 pb-3">
-                        <div class="text-sm font-semibold text-[#1A1A1A] mb-0.5 truncate">유나경 작가</div>
-                        <div class="text-xs text-[#888] mb-1.5 truncate">서울 · 웨딩 스냅</div>
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-0.5 text-xs font-semibold text-[#1A1A1A]">
-                                <span class="text-[#0097FF] text-[13px]">★</span>
-                                <span>4.7</span>
-                                <span class="text-[#AAA] font-normal">(22)</span>
-                            </div>
-                            <span class="text-[13px] font-bold text-[#1D3CFF]">90,000원~</span>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- 카드 9 -->
-                <a th:href="@{/photographer/9}" class="bg-white border border-[#CCC] rounded-xl overflow-hidden hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all block no-underline">
-                    <div class="relative w-full aspect-[3/4] overflow-hidden">
-                        <div class="thumb-grad-9 w-full h-full flex items-center justify-center">
-                            <svg class="opacity-25 text-white" width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            </svg>
-                        </div>
-                        <span class="absolute top-2.5 left-2.5 bg-[#1D3CFF] text-white text-[11px] font-bold px-2 py-0.5 rounded tracking-wide">NEW</span>
-                    </div>
-                    <div class="px-3 pt-2.5 pb-3">
-                        <div class="text-sm font-semibold text-[#1A1A1A] mb-0.5 truncate">강도연 작가</div>
-                        <div class="text-xs text-[#888] mb-1.5 truncate">경기 · 졸업사진</div>
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-0.5 text-xs font-semibold text-[#1A1A1A]">
-                                <span class="text-[#0097FF] text-[13px]">★</span>
-                                <span>5.0</span>
-                                <span class="text-[#AAA] font-normal">(18)</span>
-                            </div>
-                            <span class="text-[13px] font-bold text-[#1D3CFF]">58,000원~</span>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- 카드 10 -->
-                <a th:href="@{/photographer/10}" class="bg-white border border-[#CCC] rounded-xl overflow-hidden hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all block no-underline">
-                    <div class="relative w-full aspect-[3/4] overflow-hidden">
-                        <div class="thumb-grad-10 w-full h-full flex items-center justify-center">
-                            <svg class="opacity-25 text-white" width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="px-3 pt-2.5 pb-3">
-                        <div class="text-sm font-semibold text-[#1A1A1A] mb-0.5 truncate">신현우 작가</div>
-                        <div class="text-xs text-[#888] mb-1.5 truncate">서울 · 프로필</div>
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-0.5 text-xs font-semibold text-[#1A1A1A]">
-                                <span class="text-[#0097FF] text-[13px]">★</span>
-                                <span>4.8</span>
-                                <span class="text-[#AAA] font-normal">(36)</span>
-                            </div>
-                            <span class="text-[13px] font-bold text-[#1D3CFF]">40,000원~</span>
-                        </div>
-                    </div>
-                </a>
-
-            </div>
+      <!-- 월 헤더 -->
+      <div class="flex items-baseline gap-3 mb-4">
+        <span class="text-[42px] font-extrabold text-[#1A1A1A] leading-none">04</span>
+        <span class="text-lg font-semibold text-[#444]">월</span>
+        <span class="text-lg font-medium text-[#888] ml-1">2026</span>
+        <div class="flex items-center gap-1.5 ml-2">
+          <button class="bg-transparent border-0 text-[#888] hover:text-[#1D3CFF] transition-colors p-0.5 flex items-center" aria-label="이전 달">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <button class="bg-transparent border-0 text-[#888] hover:text-[#1D3CFF] transition-colors p-0.5 flex items-center" aria-label="다음 달">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
         </div>
-    </section>
+      </div>
 
-    <hr class="border-0 border-t border-[#CCC]">
+      <!-- 날짜 스트립 -->
+      <div class="date-strip flex gap-1.5 overflow-x-auto pb-2 mb-5 [scrollbar-width:none]">
+        <div class="date-item">1</div>
+        <div class="date-item">2</div>
+        <div class="date-item">3</div>
+        <div class="date-item">4</div>
+        <div class="date-item">5</div>
+        <div class="date-item">6</div>
+        <div class="date-item">7</div>
+        <div class="date-item">8</div>
+        <div class="date-item">9</div>
+        <div class="date-item">10</div>
+        <div class="date-item">11</div>
+        <div class="date-item">12</div>
+        <div class="date-item">13</div>
+        <div class="date-item">14</div>
+        <div class="date-item today">15</div>
+        <div class="date-item">16</div>
+        <div class="date-item">17</div>
+        <div class="date-item">18</div>
+        <div class="date-item">19</div>
+        <div class="date-item">20</div>
+        <div class="date-item">21</div>
+        <div class="date-item">22</div>
+        <div class="date-item">23</div>
+        <div class="date-item">24</div>
+        <div class="date-item">25</div>
+        <div class="date-item">26</div>
+        <div class="date-item">27</div>
+        <div class="date-item">28</div>
+        <div class="date-item">29</div>
+        <div class="date-item">30</div>
+      </div>
 
-    <!-- ═══════════════════════════════════════════
-         FEATURES
-    ════════════════════════════════════════════ -->
-    <section class="bg-white border-b border-[#CCC] py-14">
-        <div class="max-w-[1216px] mx-auto px-6">
-            <h2 class="text-[22px] font-bold text-[#1A1A1A] text-center mb-10">
-                Pick 하고, <span class="text-[#1D3CFF]">Pick</span> 배우는 서비스
-            </h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <!-- 카테고리 필터 -->
+      <div class="flex gap-2 flex-wrap mb-7">
+        <span class="cat-tag active">전체</span>
+        <span class="cat-tag">스냅</span>
+        <span class="cat-tag">결혼식</span>
+        <span class="cat-tag">프로필</span>
+        <span class="cat-tag">졸업사진</span>
+        <span class="cat-tag">가족사진</span>
+        <span class="cat-tag">데이트</span>
+        <span class="cat-tag">증명사진</span>
+      </div>
 
-                <!-- 작가 검색 -->
-                <div class="flex flex-col items-center gap-3.5 text-center px-4 py-7 rounded-2xl hover:bg-[#F9FAFC] transition-colors">
-                    <div class="w-16 h-16 bg-[#F9FAFC] border border-[#D3DEF2] rounded-full flex items-center justify-center">
-                        <svg class="text-[#1D3CFF]" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <circle cx="11" cy="11" r="8"/>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <div class="text-[15px] font-bold text-[#1A1A1A] mb-1">쉽게 검색하고</div>
-                        <div class="text-[13px] text-[#888] leading-relaxed">지역·카테고리·날짜로<br>원하는 작가를 빠르게 찾으세요</div>
-                    </div>
-                </div>
+      <!-- 작가 카드 그리드 -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-12">
 
-                <!-- 간편 예약 -->
-                <div class="flex flex-col items-center gap-3.5 text-center px-4 py-7 rounded-2xl hover:bg-[#F9FAFC] transition-colors">
-                    <div class="w-16 h-16 bg-[#F9FAFC] border border-[#D3DEF2] rounded-full flex items-center justify-center">
-                        <svg class="text-[#1D3CFF]" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                            <line x1="16" y1="2" x2="16" y2="6"/>
-                            <line x1="8" y1="2" x2="8" y2="6"/>
-                            <line x1="3" y1="10" x2="21" y2="10"/>
-                            <path d="M8 14l2 2 4-4"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <div class="text-[15px] font-bold text-[#1A1A1A] mb-1">간편하게 예약하고</div>
-                        <div class="text-[13px] text-[#888] leading-relaxed">캘린더 확인 후 1분 안에<br>예약을 완료하세요</div>
-                    </div>
-                </div>
-
-                <!-- AI 추천 -->
-                <div class="flex flex-col items-center gap-3.5 text-center px-4 py-7 rounded-2xl hover:bg-[#F9FAFC] transition-colors">
-                    <div class="w-16 h-16 bg-[#F9FAFC] border border-[#D3DEF2] rounded-full flex items-center justify-center">
-                        <svg class="text-[#1D3CFF]" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17H4a2 2 0 01-2-2V5a2 2 0 012-2h16a2 2 0 012 2v10a2 2 0 01-2 2h-1"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <div class="text-[15px] font-bold text-[#1A1A1A] mb-1">AI 추천받고</div>
-                        <div class="text-[13px] text-[#888] leading-relaxed">내 취향을 분석해<br>딱 맞는 작가를 추천해드려요</div>
-                    </div>
-                </div>
-
-                <!-- 리뷰 확인 -->
-                <div class="flex flex-col items-center gap-3.5 text-center px-4 py-7 rounded-2xl hover:bg-[#F9FAFC] transition-colors">
-                    <div class="w-16 h-16 bg-[#F9FAFC] border border-[#D3DEF2] rounded-full flex items-center justify-center">
-                        <svg class="text-[#1D3CFF]" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <div class="text-[15px] font-bold text-[#1A1A1A] mb-1">리뷰로 확인하고</div>
-                        <div class="text-[13px] text-[#888] leading-relaxed">실제 촬영 후기로<br>믿을 수 있는 작가를 선택하세요</div>
-                    </div>
-                </div>
-
+        <!-- 카드 1 -->
+        <a th:href="@{/photographer/1}" class="bg-white border border-[#CCC] rounded-xl overflow-hidden hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all block no-underline">
+          <div class="relative w-full aspect-[3/4] overflow-hidden">
+            <div class="thumb-grad-1 w-full h-full flex items-center justify-center">
+              <svg class="opacity-25 text-white" width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
             </div>
+            <span class="absolute top-2.5 left-2.5 bg-[#1D3CFF] text-white text-[11px] font-bold px-2 py-0.5 rounded tracking-wide">NEW</span>
+          </div>
+          <div class="px-3 pt-2.5 pb-3">
+            <div class="text-sm font-semibold text-[#1A1A1A] mb-0.5 truncate">박지현 작가</div>
+            <div class="text-xs text-[#888] mb-1.5 truncate">서울 · 감성 스냅</div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-0.5 text-xs font-semibold text-[#1A1A1A]">
+                <span class="text-[#0097FF] text-[13px]">★</span>
+                <span>4.9</span>
+                <span class="text-[#AAA] font-normal">(42)</span>
+              </div>
+              <span class="text-[13px] font-bold text-[#1D3CFF]">50,000원~</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- 카드 2 -->
+        <a th:href="@{/photographer/2}" class="bg-white border border-[#CCC] rounded-xl overflow-hidden hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all block no-underline">
+          <div class="relative w-full aspect-[3/4] overflow-hidden">
+            <div class="thumb-grad-2 w-full h-full flex items-center justify-center">
+              <svg class="opacity-25 text-white" width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </div>
+          </div>
+          <div class="px-3 pt-2.5 pb-3">
+            <div class="text-sm font-semibold text-[#1A1A1A] mb-0.5 truncate">이수민 작가</div>
+            <div class="text-xs text-[#888] mb-1.5 truncate">경기 · 웨딩 스냅</div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-0.5 text-xs font-semibold text-[#1A1A1A]">
+                <span class="text-[#0097FF] text-[13px]">★</span>
+                <span>4.8</span>
+                <span class="text-[#AAA] font-normal">(38)</span>
+              </div>
+              <span class="text-[13px] font-bold text-[#1D3CFF]">80,000원~</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- 카드 3 -->
+        <a th:href="@{/photographer/3}" class="bg-white border border-[#CCC] rounded-xl overflow-hidden hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all block no-underline">
+          <div class="relative w-full aspect-[3/4] overflow-hidden">
+            <div class="thumb-grad-3 w-full h-full flex items-center justify-center">
+              <svg class="opacity-25 text-white" width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </div>
+          </div>
+          <div class="px-3 pt-2.5 pb-3">
+            <div class="text-sm font-semibold text-[#1A1A1A] mb-0.5 truncate">김태연 작가</div>
+            <div class="text-xs text-[#888] mb-1.5 truncate">서울 · 졸업사진</div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-0.5 text-xs font-semibold text-[#1A1A1A]">
+                <span class="text-[#0097FF] text-[13px]">★</span>
+                <span>5.0</span>
+                <span class="text-[#AAA] font-normal">(61)</span>
+              </div>
+              <span class="text-[13px] font-bold text-[#1D3CFF]">60,000원~</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- 카드 4 -->
+        <a th:href="@{/photographer/4}" class="bg-white border border-[#CCC] rounded-xl overflow-hidden hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all block no-underline">
+          <div class="relative w-full aspect-[3/4] overflow-hidden">
+            <div class="thumb-grad-4 w-full h-full flex items-center justify-center">
+              <svg class="opacity-25 text-white" width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </div>
+            <span class="absolute top-2.5 left-2.5 bg-[#1D3CFF] text-white text-[11px] font-bold px-2 py-0.5 rounded tracking-wide">NEW</span>
+          </div>
+          <div class="px-3 pt-2.5 pb-3">
+            <div class="text-sm font-semibold text-[#1A1A1A] mb-0.5 truncate">정민서 작가</div>
+            <div class="text-xs text-[#888] mb-1.5 truncate">인천 · 프로필 사진</div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-0.5 text-xs font-semibold text-[#1A1A1A]">
+                <span class="text-[#0097FF] text-[13px]">★</span>
+                <span>4.7</span>
+                <span class="text-[#AAA] font-normal">(29)</span>
+              </div>
+              <span class="text-[13px] font-bold text-[#1D3CFF]">45,000원~</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- 카드 5 -->
+        <a th:href="@{/photographer/5}" class="bg-white border border-[#CCC] rounded-xl overflow-hidden hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all block no-underline">
+          <div class="relative w-full aspect-[3/4] overflow-hidden">
+            <div class="thumb-grad-5 w-full h-full flex items-center justify-center">
+              <svg class="opacity-25 text-white" width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </div>
+          </div>
+          <div class="px-3 pt-2.5 pb-3">
+            <div class="text-sm font-semibold text-[#1A1A1A] mb-0.5 truncate">최윤아 작가</div>
+            <div class="text-xs text-[#888] mb-1.5 truncate">서울 · 가족사진</div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-0.5 text-xs font-semibold text-[#1A1A1A]">
+                <span class="text-[#0097FF] text-[13px]">★</span>
+                <span>4.9</span>
+                <span class="text-[#AAA] font-normal">(55)</span>
+              </div>
+              <span class="text-[13px] font-bold text-[#1D3CFF]">70,000원~</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- 카드 6 -->
+        <a th:href="@{/photographer/6}" class="bg-white border border-[#CCC] rounded-xl overflow-hidden hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all block no-underline">
+          <div class="relative w-full aspect-[3/4] overflow-hidden">
+            <div class="thumb-grad-6 w-full h-full flex items-center justify-center">
+              <svg class="opacity-25 text-white" width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </div>
+            <span class="absolute top-2.5 left-2.5 bg-[#1D3CFF] text-white text-[11px] font-bold px-2 py-0.5 rounded tracking-wide">NEW</span>
+          </div>
+          <div class="px-3 pt-2.5 pb-3">
+            <div class="text-sm font-semibold text-[#1A1A1A] mb-0.5 truncate">한지후 작가</div>
+            <div class="text-xs text-[#888] mb-1.5 truncate">서울 · 데이트 스냅</div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-0.5 text-xs font-semibold text-[#1A1A1A]">
+                <span class="text-[#0097FF] text-[13px]">★</span>
+                <span>4.8</span>
+                <span class="text-[#AAA] font-normal">(33)</span>
+              </div>
+              <span class="text-[13px] font-bold text-[#1D3CFF]">55,000원~</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- 카드 7 -->
+        <a th:href="@{/photographer/7}" class="bg-white border border-[#CCC] rounded-xl overflow-hidden hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all block no-underline">
+          <div class="relative w-full aspect-[3/4] overflow-hidden">
+            <div class="thumb-grad-7 w-full h-full flex items-center justify-center">
+              <svg class="opacity-25 text-white" width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </div>
+          </div>
+          <div class="px-3 pt-2.5 pb-3">
+            <div class="text-sm font-semibold text-[#1A1A1A] mb-0.5 truncate">오세진 작가</div>
+            <div class="text-xs text-[#888] mb-1.5 truncate">부산 · 자연광 스냅</div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-0.5 text-xs font-semibold text-[#1A1A1A]">
+                <span class="text-[#0097FF] text-[13px]">★</span>
+                <span>4.9</span>
+                <span class="text-[#AAA] font-normal">(47)</span>
+              </div>
+              <span class="text-[13px] font-bold text-[#1D3CFF]">65,000원~</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- 카드 8 -->
+        <a th:href="@{/photographer/8}" class="bg-white border border-[#CCC] rounded-xl overflow-hidden hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all block no-underline">
+          <div class="relative w-full aspect-[3/4] overflow-hidden">
+            <div class="thumb-grad-8 w-full h-full flex items-center justify-center">
+              <svg class="opacity-25 text-white" width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </div>
+          </div>
+          <div class="px-3 pt-2.5 pb-3">
+            <div class="text-sm font-semibold text-[#1A1A1A] mb-0.5 truncate">유나경 작가</div>
+            <div class="text-xs text-[#888] mb-1.5 truncate">서울 · 웨딩 스냅</div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-0.5 text-xs font-semibold text-[#1A1A1A]">
+                <span class="text-[#0097FF] text-[13px]">★</span>
+                <span>4.7</span>
+                <span class="text-[#AAA] font-normal">(22)</span>
+              </div>
+              <span class="text-[13px] font-bold text-[#1D3CFF]">90,000원~</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- 카드 9 -->
+        <a th:href="@{/photographer/9}" class="bg-white border border-[#CCC] rounded-xl overflow-hidden hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all block no-underline">
+          <div class="relative w-full aspect-[3/4] overflow-hidden">
+            <div class="thumb-grad-9 w-full h-full flex items-center justify-center">
+              <svg class="opacity-25 text-white" width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </div>
+            <span class="absolute top-2.5 left-2.5 bg-[#1D3CFF] text-white text-[11px] font-bold px-2 py-0.5 rounded tracking-wide">NEW</span>
+          </div>
+          <div class="px-3 pt-2.5 pb-3">
+            <div class="text-sm font-semibold text-[#1A1A1A] mb-0.5 truncate">강도연 작가</div>
+            <div class="text-xs text-[#888] mb-1.5 truncate">경기 · 졸업사진</div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-0.5 text-xs font-semibold text-[#1A1A1A]">
+                <span class="text-[#0097FF] text-[13px]">★</span>
+                <span>5.0</span>
+                <span class="text-[#AAA] font-normal">(18)</span>
+              </div>
+              <span class="text-[13px] font-bold text-[#1D3CFF]">58,000원~</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- 카드 10 -->
+        <a th:href="@{/photographer/10}" class="bg-white border border-[#CCC] rounded-xl overflow-hidden hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all block no-underline">
+          <div class="relative w-full aspect-[3/4] overflow-hidden">
+            <div class="thumb-grad-10 w-full h-full flex items-center justify-center">
+              <svg class="opacity-25 text-white" width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </div>
+          </div>
+          <div class="px-3 pt-2.5 pb-3">
+            <div class="text-sm font-semibold text-[#1A1A1A] mb-0.5 truncate">신현우 작가</div>
+            <div class="text-xs text-[#888] mb-1.5 truncate">서울 · 프로필</div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-0.5 text-xs font-semibold text-[#1A1A1A]">
+                <span class="text-[#0097FF] text-[13px]">★</span>
+                <span>4.8</span>
+                <span class="text-[#AAA] font-normal">(36)</span>
+              </div>
+              <span class="text-[13px] font-bold text-[#1D3CFF]">40,000원~</span>
+            </div>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <hr class="border-0 border-t border-[#CCC]">
+
+  <!-- ═══════════════════════════════════════════
+       FEATURES
+  ════════════════════════════════════════════ -->
+  <section class="bg-white border-b border-[#CCC] py-16">
+    <div class="max-w-[900px] mx-auto px-6 text-center">
+      <h2 class="text-[24px] font-bold text-[#1A1A1A] mb-12">
+        Pick 하고, <span class="text-[#1D3CFF]">Pick</span> 해주는 서비스
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+
+        <!-- 작가 검색 -->
+        <div class="flex flex-col items-center gap-3 text-center">
+          <div class="w-[72px] h-[72px] bg-[#F9FAFC] rounded-[20px] flex items-center justify-center text-[30px] transition-transform duration-200 hover:scale-110">
+            🔍
+          </div>
+          <div class="text-[15px] font-bold text-[#1A1A1A]">쉽게 검색하고</div>
+          <div class="text-[13px] text-[#888] leading-relaxed">검색을 통해 원하는<br>감성의 작가를 찾을 수 있습니다.</div>
         </div>
-    </section>
 
-    <!-- ═══════════════════════════════════════════
-         CTA
-    ════════════════════════════════════════════ -->
-    <section class="py-16 bg-[#F9FAFC]">
-        <div class="max-w-[1216px] mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-
-            <!-- 텍스트 블록 -->
-            <div class="flex flex-col gap-5">
-                <span class="text-[13px] font-semibold text-[#0097FF] tracking-widest uppercase">For you</span>
-                <h2 class="text-[28px] font-extrabold text-[#1A1A1A] leading-[1.4]">
-                    이번 사진을 찍나요?<br>PICKKASSO에서<br>작가를 만나보세요
-                </h2>
-                <p class="text-[15px] text-[#888] leading-[1.7]">
-                    취향 맞춤 작가 매칭부터 간편 예약까지,<br>소중한 순간을 더 특별하게 담아드립니다.
-                </p>
-                <a th:href="@{/search}"
-                   class="inline-flex items-center gap-2 bg-white border-2 border-[#1D3CFF] text-[#1D3CFF] text-[15px] font-bold px-7 py-3.5 rounded-xl hover:bg-[#1D3CFF] hover:text-white transition-colors no-underline self-start">
-                    PICKKASSO 이동
-                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 18l6-6-6-6"/>
-                    </svg>
-                </a>
-            </div>
-
-            <!-- 작가 카드 캐러셀 -->
-            <div>
-                <div class="overflow-hidden">
-                    <div class="bg-white border border-[#CCC] rounded-[20px] overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.08)]">
-                        <!-- 썸네일 -->
-                        <div class="cta-card-thumb h-[220px] relative flex items-center justify-center">
-                            <svg class="opacity-20 text-white" width="60" height="60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            </svg>
-                            <div class="absolute bottom-0 left-0 right-0 px-4 pb-4 bg-[linear-gradient(to_top,rgba(0,0,0,0.5),transparent)]">
-                                <span class="text-xs text-white/85 font-medium">서울 마포구</span>
-                            </div>
-                        </div>
-                        <!-- 카드 바디 -->
-                        <div class="px-[18px] pt-4 pb-[18px]">
-                            <div class="text-base font-bold text-[#1A1A1A] mb-1">박지현 작가</div>
-                            <div class="flex gap-1.5 flex-wrap mb-3">
-                                <span class="text-[11px] text-[#444] bg-[#F9FAFC] border border-[#CCC] rounded-full px-2.5 py-0.5">#감성스냅</span>
-                                <span class="text-[11px] text-[#444] bg-[#F9FAFC] border border-[#CCC] rounded-full px-2.5 py-0.5">#자연광</span>
-                                <span class="text-[11px] text-[#444] bg-[#F9FAFC] border border-[#CCC] rounded-full px-2.5 py-0.5">#데이트</span>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-1 text-[13px] font-semibold text-[#1A1A1A]">
-                                    <span class="text-[#0097FF]">★</span>
-                                    <span>4.9</span>
-                                    <span class="text-[#AAA] font-normal text-xs">(42)</span>
-                                </div>
-                                <span class="text-sm font-bold text-[#1D3CFF]">50,000원~</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- 캐러셀 도트 -->
-                <div class="flex justify-center gap-1.5 mt-4">
-                    <div class="w-5 h-1.5 rounded-sm bg-[#1D3CFF]"></div>
-                    <div class="w-1.5 h-1.5 rounded-full bg-[#CCC]"></div>
-                    <div class="w-1.5 h-1.5 rounded-full bg-[#CCC]"></div>
-                    <div class="w-1.5 h-1.5 rounded-full bg-[#CCC]"></div>
-                </div>
-            </div>
-
+        <!-- 간편 확인 -->
+        <div class="flex flex-col items-center gap-3 text-center">
+          <div class="w-[72px] h-[72px] bg-[#F9FAFC] rounded-[20px] flex items-center justify-center text-[30px] transition-transform duration-200 hover:scale-110">
+            📋
+          </div>
+          <div class="text-[15px] font-bold text-[#1A1A1A]">간편하게 확인하고</div>
+          <div class="text-[13px] text-[#888] leading-relaxed">예약 내역과 진행 상황을<br>한눈에 확인할 수 있습니다</div>
         </div>
-    </section>
+
+        <!-- AI 추천 -->
+        <div class="flex flex-col items-center gap-3 text-center">
+          <div class="w-[72px] h-[72px] bg-[#F9FAFC] rounded-[20px] flex items-center justify-center text-[30px] transition-transform duration-200 hover:scale-110">
+            🤖
+          </div>
+          <div class="text-[15px] font-bold text-[#1A1A1A]">AI가 추천하고</div>
+          <div class="text-[13px] text-[#888] leading-relaxed">AI가 작가를<br>빠르게 찾아드립니다.</div>
+        </div>
+
+        <!-- 사진 확인 -->
+        <div class="flex flex-col items-center gap-3 text-center">
+          <div class="w-[72px] h-[72px] bg-[#F9FAFC] rounded-[20px] flex items-center justify-center text-[30px] transition-transform duration-200 hover:scale-110">
+            📸
+          </div>
+          <div class="text-[15px] font-bold text-[#1A1A1A]">사진으로 확인하고</div>
+          <div class="text-[13px] text-[#888] leading-relaxed">작가의 스타일과 분위기를<br>미리 경험해보세요.</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+<!--  &lt;!&ndash; ═══════════════════════════════════════════-->
+<!--       CTA-->
+<!--  ════════════════════════════════════════════ &ndash;&gt;-->
+<!--  <section class="py-16 bg-[#F9FAFC]">-->
+<!--    <div class="max-w-[1216px] mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">-->
+
+<!--      &lt;!&ndash; 텍스트 블록 &ndash;&gt;-->
+<!--      <div class="flex flex-col gap-5">-->
+<!--        <span class="text-[13px] font-semibold text-[#0097FF] tracking-widest uppercase">For you</span>-->
+<!--        <h2 class="text-[28px] font-extrabold text-[#1A1A1A] leading-[1.4]">-->
+<!--          이번 사진을 찍나요?<br>PICKKASSO에서<br>작가를 만나보세요-->
+<!--        </h2>-->
+<!--        <p class="text-[15px] text-[#888] leading-[1.7]">-->
+<!--          취향 맞춤 작가 매칭부터 간편 예약까지,<br>소중한 순간을 더 특별하게 담아드립니다.-->
+<!--        </p>-->
+<!--        <a th:href="@{/search}"-->
+<!--           class="inline-flex items-center gap-2 bg-white border-2 border-[#1D3CFF] text-[#1D3CFF] text-[15px] font-bold px-7 py-3.5 rounded-xl hover:bg-[#1D3CFF] hover:text-white transition-colors no-underline self-start">-->
+<!--          PICKKASSO 이동-->
+<!--          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">-->
+<!--            <path stroke-linecap="round" stroke-linejoin="round" d="M9 18l6-6-6-6"/>-->
+<!--          </svg>-->
+<!--        </a>-->
+<!--      </div>-->
+
+<!--      &lt;!&ndash; 작가 카드 캐러셀 &ndash;&gt;-->
+<!--      <div>-->
+<!--        <div class="overflow-hidden">-->
+<!--          <div class="bg-white border border-[#CCC] rounded-[20px] overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.08)]">-->
+<!--            &lt;!&ndash; 썸네일 &ndash;&gt;-->
+<!--            <div class="cta-card-thumb h-[220px] relative flex items-center justify-center">-->
+<!--              <svg class="opacity-20 text-white" width="60" height="60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">-->
+<!--                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>-->
+<!--                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>-->
+<!--              </svg>-->
+<!--              <div class="absolute bottom-0 left-0 right-0 px-4 pb-4 bg-[linear-gradient(to_top,rgba(0,0,0,0.5),transparent)]">-->
+<!--                <span class="text-xs text-white/85 font-medium">서울 마포구</span>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--            &lt;!&ndash; 카드 바디 &ndash;&gt;-->
+<!--            <div class="px-[18px] pt-4 pb-[18px]">-->
+<!--              <div class="text-base font-bold text-[#1A1A1A] mb-1">박지현 작가</div>-->
+<!--              <div class="flex gap-1.5 flex-wrap mb-3">-->
+<!--                <span class="text-[11px] text-[#444] bg-[#F9FAFC] border border-[#CCC] rounded-full px-2.5 py-0.5">#감성스냅</span>-->
+<!--                <span class="text-[11px] text-[#444] bg-[#F9FAFC] border border-[#CCC] rounded-full px-2.5 py-0.5">#자연광</span>-->
+<!--                <span class="text-[11px] text-[#444] bg-[#F9FAFC] border border-[#CCC] rounded-full px-2.5 py-0.5">#데이트</span>-->
+<!--              </div>-->
+<!--              <div class="flex items-center justify-between">-->
+<!--                <div class="flex items-center gap-1 text-[13px] font-semibold text-[#1A1A1A]">-->
+<!--                  <span class="text-[#0097FF]">★</span>-->
+<!--                  <span>4.9</span>-->
+<!--                  <span class="text-[#AAA] font-normal text-xs">(42)</span>-->
+<!--                </div>-->
+<!--                <span class="text-sm font-bold text-[#1D3CFF]">50,000원~</span>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--        &lt;!&ndash; 캐러셀 도트 &ndash;&gt;-->
+<!--        <div class="flex justify-center gap-1.5 mt-4">-->
+<!--          <div class="w-5 h-1.5 rounded-sm bg-[#1D3CFF]"></div>-->
+<!--          <div class="w-1.5 h-1.5 rounded-full bg-[#CCC]"></div>-->
+<!--          <div class="w-1.5 h-1.5 rounded-full bg-[#CCC]"></div>-->
+<!--          <div class="w-1.5 h-1.5 rounded-full bg-[#CCC]"></div>-->
+<!--        </div>-->
+<!--      </div>-->
+
+<!--    </div>-->
+<!--  </section>-->
 
 </main>
 
