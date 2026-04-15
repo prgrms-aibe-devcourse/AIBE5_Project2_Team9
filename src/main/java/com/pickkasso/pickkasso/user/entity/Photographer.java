@@ -15,12 +15,12 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Photographer extends UserBasicInfo {
     @Id
-    @Column(name = "id_photographer")
+    @Column(name = "photographer_id")
     private Long id;
 
     @MapsId
     @OneToOne
-    @JoinColumn(name = "id_photographer", referencedColumnName = "id_account")
+    @JoinColumn(name = "photographer_id", referencedColumnName = "account_id")
     private Account account;
 
     @OneToOne(mappedBy = "photographer", cascade = CascadeType.ALL)

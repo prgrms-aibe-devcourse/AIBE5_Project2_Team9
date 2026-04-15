@@ -14,7 +14,7 @@ import java.time.LocalDate;
 public class Education {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id_education")
+    @Column(name = "education_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

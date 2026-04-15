@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class Tag {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id)tag")
+    @Column(name = "tag_id")
     private Long id;
 
     @Column(name = "name")

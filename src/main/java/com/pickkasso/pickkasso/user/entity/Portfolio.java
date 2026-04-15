@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class Portfolio {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id_portfolio")
+    @Column(name = "portfolio_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
