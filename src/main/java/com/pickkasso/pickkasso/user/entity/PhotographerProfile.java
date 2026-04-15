@@ -70,4 +70,22 @@ public class PhotographerProfile {
         Boolean verified) {
         return new PhotographerProfile(photographer, imgUrl, nickname, intro, tools, link, verified);
     }
+
+    //기존 프로필 수정용 method
+    public void updatePhotographerProfile(
+            String imgUrl,
+            String nickname,
+            String intro,
+            Map<String, Object> tools,
+            String link,
+            Boolean verified
+
+    ) {
+        this.imgUrl = imgUrl;
+        this.nickname = nickname;
+        this.intro = intro;
+        this.tools = tools;
+        this.link = link;
+        this.verified = verified;
+    }
 }

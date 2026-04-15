@@ -44,10 +44,10 @@ public class Education {
     }
 
     //== 생성 method ==//
-    public Education createCareer(Photographer photographer, String name, LocalDate startDate) {
+    public static Education createEducation(Photographer photographer, String name, LocalDate startDate) {
         return new Education(photographer, name, startDate);
     }
-    public Education createCareer(Photographer photographer, String name, LocalDate startDate, LocalDate endDate) {
+    public static Education createEducation(Photographer photographer, String name, LocalDate startDate, LocalDate endDate) {
         return new Education(photographer, name, startDate, endDate);
     }
 }

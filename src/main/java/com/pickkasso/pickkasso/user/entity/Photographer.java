@@ -58,4 +58,9 @@ public class Photographer extends UserBasicInfo {
         Integer cache) {
         return new Photographer(account, email, name, gender, phone, cache);
     }
+
+    // 양방향 관계 연결용
+    public void connectProfile(PhotographerProfile photographerProfile) {
+        this.photographerProfile = photographerProfile;
+    }
 }
