@@ -4,53 +4,53 @@
 <body>
 
 <header th:fragment="header" class="sticky top-0 z-[100] bg-[#F9FAFC] border-b-[1.5px] border-[#1A1A1A] h-16 flex items-center">
-    <div class="max-w-[1216px] w-full mx-auto px-6 flex items-center justify-between">
+  <div class="max-w-[1216px] w-full mx-auto px-6 flex items-center justify-between">
 
-        <!-- 로고 -->
-        <a th:href="@{/}" class="flex items-center gap-2 no-underline">
-            <img th:src="@{/images/logo.png}" alt="PICKKASSO 로고" class="h-8 w-auto">
-            <span class="font-angelica text-[21px] text-[#1D3CFF] tracking-wide">PICKKASSO</span>
+    <!-- 로고 -->
+    <a th:href="@{/}" class="flex items-center gap-2 no-underline">
+      <img th:src="@{/images/logo.png}" alt="PICKKASSO 로고" class="h-8 w-auto">
+      <span class="font-angelica text-[16px] text-[#1D3CFF] tracking-wide">PICKKASSO</span>
+    </a>
+
+    <!-- 네비게이션 (md 이상) -->
+    <nav class="hidden md:flex items-center gap-8">
+      <a th:href="@{/}"
+         class="text-[15px] font-medium text-[#444] hover:text-[#1D3CFF] transition-colors no-underline">
+        촬영 매칭
+      </a>
+      <a th:href="@{/}"
+         class="text-[15px] font-medium text-[#444] hover:text-[#1D3CFF] transition-colors no-underline">
+        포트폴리오 검색
+      </a>
+    </nav>
+
+    <!-- 인증 영역 -->
+    <div class="flex items-center gap-3">
+
+      <!-- 비로그인 -->
+      <sec:authorize access="isAnonymous()">
+        <a th:href="@{/login}"
+           class="text-sm font-semibold bg-white border border-[#1D3CFF] text-[#1D3CFF] hover:bg-[#1D3CFF] hover:text-white active:bg-[#1530E0] active:border-[#1530E0] px-5 py-2 rounded-lg transition-colors no-underline">
+          로그인
         </a>
+      </sec:authorize>
 
-        <!-- 네비게이션 (md 이상) -->
-        <nav class="hidden md:flex items-center gap-8">
-            <a th:href="@{/}"
-               class="text-[15px] font-medium text-[#444] hover:text-[#1D3CFF] transition-colors no-underline">
-                촬영 매칭
-            </a>
-            <a th:href="@{/}"
-               class="text-[15px] font-medium text-[#444] hover:text-[#1D3CFF] transition-colors no-underline">
-                포트폴리오 검색
-            </a>
-        </nav>
+      <!-- 로그인 상태 -->
+      <sec:authorize access="isAuthenticated()">
+        <a th:href="@{/mypage}"
+           class="text-[15px] font-medium text-[#444] hover:text-[#1D3CFF] transition-colors no-underline">
+          마이페이지
+        </a>
+        <form th:action="@{/logout}" method="post" class="inline m-0">
+          <button type="submit"
+                  class="text-sm font-semibold bg-white border border-[#1D3CFF] text-[#1D3CFF] hover:bg-[#1D3CFF] hover:text-white active:bg-[#1530E0] active:border-[#1530E0] px-5 py-2 rounded-lg transition-colors cursor-pointer">
+            로그아웃
+          </button>
+        </form>
+      </sec:authorize>
 
-        <!-- 인증 영역 -->
-        <div class="flex items-center gap-3">
-
-            <!-- 비로그인 -->
-            <sec:authorize access="isAnonymous()">
-                <a th:href="@{/login}"
-                   class="text-sm font-semibold bg-white border border-[#1D3CFF] text-[#1D3CFF] hover:bg-[#1D3CFF] hover:text-white active:bg-[#1530E0] active:border-[#1530E0] px-5 py-2 rounded-lg transition-colors no-underline">
-                    로그인
-                </a>
-            </sec:authorize>
-
-            <!-- 로그인 상태 -->
-            <sec:authorize access="isAuthenticated()">
-                <a th:href="@{/mypage}"
-                   class="text-[15px] font-medium text-[#444] hover:text-[#1D3CFF] transition-colors no-underline">
-                    마이페이지
-                </a>
-                <form th:action="@{/logout}" method="post" class="inline m-0">
-                    <button type="submit"
-                            class="text-sm font-semibold bg-white border border-[#1D3CFF] text-[#1D3CFF] hover:bg-[#1D3CFF] hover:text-white active:bg-[#1530E0] active:border-[#1530E0] px-5 py-2 rounded-lg transition-colors cursor-pointer">
-                        로그아웃
-                    </button>
-                </form>
-            </sec:authorize>
-
-        </div>
     </div>
+  </div>
 </header>
 
 </body>
