@@ -1,4 +1,4 @@
-package com.pickkasso.pickkasso.common.tag;
+package com.pickkasso.pickkasso.global.tag;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
