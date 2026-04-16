@@ -31,36 +31,81 @@
 
       <!-- Left Sidebar (desktop only) -->
       <aside class="hidden lg:block w-56 flex-shrink-0">
-        <div class="bg-white border border-[#CCC] rounded-2xl p-5 sticky top-24">
+        <div class="bg-white border border-[#CCC] rounded-2xl p-5 sticky top-24"
+             th:with="
+               basicStarted=${(profile.imgUrl != null and !#strings.isEmpty(profile.imgUrl)) or (profile.nickname != null and !#strings.isEmpty(profile.nickname))},
+               basicComplete=${profile.nickname != null and !#strings.isEmpty(profile.nickname)},
+               introStarted=${(profile.intro != null and !#strings.isEmpty(profile.intro)) or (profile.link != null and !#strings.isEmpty(profile.link)) or (profile.careers != null and !profile.careers.isEmpty()) or (profile.educations != null and !profile.educations.isEmpty())},
+               introComplete=${profile.intro != null and !#strings.isEmpty(profile.intro)},
+               portfolioStarted=${false},
+               portfolioComplete=${false},
+               activityStarted=${profile.tools != null and !profile.tools.isEmpty()},
+               activityComplete=${profile.tools != null and !profile.tools.isEmpty()},
+               reviewReady=${basicComplete and introComplete and portfolioComplete and activityComplete},
+               completedSections=${(basicComplete ? 1 : 0) + (introComplete ? 1 : 0) + (portfolioComplete ? 1 : 0) + (activityComplete ? 1 : 0)}
+             ">
           <p class="text-sm font-semibold text-[#1A1A1A] mb-4">작성 진행률</p>
           <div class="space-y-3 mb-5">
-            <div class="flex items-center gap-3">
-              <div class="w-6 h-6 rounded-full bg-[#0097FF] text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">✓</div>
-              <div><p class="text-sm font-medium text-[#1A1A1A]">기본 정보</p><p class="text-xs text-[#0097FF]">완료</p></div>
+            <div class="flex items-center gap-3" data-progress-step="basic">
+              <div data-progress-badge="basic" class="w-6 h-6 rounded-full text-[10px] font-bold flex items-center justify-center flex-shrink-0"
+                   th:classappend="${basicComplete} ? ' bg-[#0097FF] text-white' : (${basicStarted} ? ' bg-[#1D3CFF] text-white' : ' border border-[#CCC] text-[#AAA]')"
+                   th:text="${basicComplete} ? '✓' : '1'">1</div>
+              <div>
+                <p data-progress-title="basic" class="text-sm" th:classappend="${basicComplete} ? ' font-semibold text-[#1A1A1A]' : (${basicStarted} ? ' font-semibold text-[#1D3CFF]' : ' font-medium text-[#888]')">기본 정보</p>
+                <p data-progress-status="basic" class="text-xs" th:classappend="${basicComplete} ? ' text-[#0097FF]' : (${basicStarted} ? ' text-[#1D3CFF]' : ' text-[#AAA]')" th:text="${basicComplete} ? '완료' : (${basicStarted} ? '작성 중' : '준비 중')">준비 중</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3" data-progress-step="intro">
+              <div data-progress-badge="intro" class="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0"
+                   th:classappend="${introComplete} ? ' bg-[#0097FF] text-white' : (${introStarted} ? ' bg-[#1D3CFF] text-white' : ' border border-[#CCC] text-[#AAA]')"
+                   th:text="${introComplete} ? '✓' : '2'">2</div>
+              <div>
+                <p data-progress-title="intro" class="text-sm"
+                   th:classappend="${introComplete} ? ' font-semibold text-[#1A1A1A]' : (${introStarted} ? ' font-semibold text-[#1D3CFF]' : ' font-medium text-[#888]')">소개 & 경력</p>
+                <p data-progress-status="intro" class="text-xs"
+                   th:classappend="${introComplete} ? ' text-[#0097FF]' : (${introStarted} ? ' text-[#1D3CFF]' : ' text-[#AAA]')"
+                   th:text="${introComplete} ? '완료' : (${introStarted} ? '작성 중' : '준비 중')">준비 중</p>
+              </div>
             </div>
             <div class="flex items-center gap-3">
-              <div class="w-6 h-6 rounded-full bg-[#1D3CFF] text-white text-xs font-bold flex items-center justify-center flex-shrink-0">2</div>
-              <div><p class="text-sm font-semibold text-[#1D3CFF]">소개 & 경력</p><p class="text-xs text-[#1D3CFF]">작성 중</p></div>
+              <div class="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0"
+                   th:classappend="${portfolioComplete} ? ' bg-[#0097FF] text-white' : (${portfolioStarted} ? ' bg-[#1D3CFF] text-white' : ' border border-[#CCC] text-[#AAA]')"
+                   th:text="${portfolioComplete} ? '✓' : '3'">3</div>
+              <div>
+                <p class="text-sm"
+                   th:classappend="${portfolioComplete} ? ' font-semibold text-[#1A1A1A]' : (${portfolioStarted} ? ' font-semibold text-[#1D3CFF]' : ' font-medium text-[#888]')">포트폴리오</p>
+                <p class="text-xs"
+                   th:classappend="${portfolioComplete} ? ' text-[#0097FF]' : (${portfolioStarted} ? ' text-[#1D3CFF]' : ' text-[#AAA]')"
+                   th:text="${portfolioComplete} ? '완료' : (${portfolioStarted} ? '작성 중' : '준비 중')">준비 중</p>
+              </div>
             </div>
-            <div class="flex items-center gap-3">
-              <div class="w-6 h-6 rounded-full border border-[#CCC] text-[#AAA] text-xs font-bold flex items-center justify-center flex-shrink-0">3</div>
-              <div><p class="text-sm font-medium text-[#888]">포트폴리오</p><p class="text-xs text-[#AAA]">미완료</p></div>
+            <div class="flex items-center gap-3" data-progress-step="activity">
+              <div data-progress-badge="activity" class="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0"
+                   th:classappend="${activityComplete} ? ' bg-[#0097FF] text-white' : (${activityStarted} ? ' bg-[#1D3CFF] text-white' : ' border border-[#CCC] text-[#AAA]')"
+                   th:text="${activityComplete} ? '✓' : '4'">4</div>
+              <div>
+                <p data-progress-title="activity" class="text-sm" th:classappend="${activityComplete} ? ' font-semibold text-[#1A1A1A]' : (${activityStarted} ? ' font-semibold text-[#1D3CFF]' : ' font-medium text-[#888]')">활동 설정</p>
+                <p data-progress-status="activity" class="text-xs" th:classappend="${activityComplete} ? ' text-[#0097FF]' : (${activityStarted} ? ' text-[#1D3CFF]' : ' text-[#AAA]')" th:text="${activityComplete} ? '완료' : (${activityStarted} ? '작성 중' : '준비 중')">준비 중</p>
+              </div>
             </div>
-            <div class="flex items-center gap-3">
-              <div class="w-6 h-6 rounded-full border border-[#CCC] text-[#AAA] text-xs font-bold flex items-center justify-center flex-shrink-0">4</div>
-              <div><p class="text-sm font-medium text-[#888]">활동 설정</p><p class="text-xs text-[#AAA]">미완료</p></div>
-            </div>
-            <div class="flex items-center gap-3">
-              <div class="w-6 h-6 rounded-full border border-[#CCC] text-[#AAA] text-xs font-bold flex items-center justify-center flex-shrink-0">5</div>
-              <div><p class="text-sm font-medium text-[#888]">검토 & 제출</p><p class="text-xs text-[#AAA]">미완료</p></div>
+            <div class="flex items-center gap-3" data-progress-step="review">
+              <div data-progress-badge="review" class="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0"
+                   th:classappend="${reviewReady} ? ' bg-[#0097FF] text-white' : ' border border-[#CCC] text-[#AAA]'"
+                   th:text="${reviewReady} ? '✓' : '5'">5</div>
+              <div>
+                <p data-progress-title="review" class="text-sm" th:classappend="${reviewReady} ? ' font-semibold text-[#1A1A1A]' : ' font-medium text-[#888]'">검토 & 제출</p>
+                <p data-progress-status="review" class="text-xs" th:classappend="${reviewReady} ? ' text-[#0097FF]' : ' text-[#AAA]'" th:text="${reviewReady} ? '준비 완료' : '준비 중'">준비 중</p>
+              </div>
             </div>
           </div>
           <div class="flex justify-between text-xs text-[#888] mb-1.5">
             <span>전체 완성도</span>
-            <span class="font-semibold text-[#1D3CFF]">40%</span>
+            <span data-progress-percent class="font-semibold text-[#1D3CFF]"
+                  th:text="${completedSections == 0 ? '0%' : (completedSections == 1 ? '25%' : (completedSections == 2 ? '50%' : (completedSections == 3 ? '75%' : '100%')))}">0%</span>
           </div>
           <div class="h-2 bg-[#D3DEF2] rounded-full overflow-hidden">
-            <div class="h-full bg-[#1D3CFF] rounded-full w-[40%]"></div>
+            <div data-progress-bar class="h-full bg-[#1D3CFF] rounded-full"
+                 th:classappend="${completedSections == 0 ? ' w-0' : (completedSections == 1 ? ' w-1/4' : (completedSections == 2 ? ' w-1/2' : (completedSections == 3 ? ' w-3/4' : ' w-full')))}"></div>
           </div>
         </div>
       </aside>
@@ -437,6 +482,88 @@
   </div>
 
   <script>
+  function updateProfileProgress() {
+    var imgUrlInput = document.querySelector('input[name="imgUrl"]');
+    var nicknameInput = document.querySelector('input[name="nickname"]');
+    var introInput = document.querySelector('textarea[name="intro"]');
+    var linkInput = document.querySelector('input[name="link"]');
+    var toolInput = document.getElementById('tool-input');
+    var toolInputs = document.querySelectorAll('#tools-hidden .tool-hidden-input');
+    var careerNameInputs = document.querySelectorAll('#careers-list input[name$=".name"]');
+    var educationNameInputs = document.querySelectorAll('#educations-list input[name$=".name"]');
+    var percentEl = document.querySelector('[data-progress-percent]');
+    var barEl = document.querySelector('[data-progress-bar]');
+
+    function hasValue(input) {
+      return !!(input && input.value && input.value.trim());
+    }
+
+    function hasAnyValue(nodeList) {
+      return Array.from(nodeList || []).some(function (input) {
+        return hasValue(input);
+      });
+    }
+
+    var basicStarted = hasValue(imgUrlInput) || hasValue(nicknameInput);
+    var basicComplete = hasValue(nicknameInput);
+    var introComplete = hasValue(introInput);
+    var introStarted = introComplete || hasValue(linkInput) || hasAnyValue(careerNameInputs) || hasAnyValue(educationNameInputs);
+    var portfolioComplete = false;
+    var activityComplete = toolInputs.length > 0;
+    var activityStarted = activityComplete || hasValue(toolInput);
+    var reviewReady = basicComplete && introComplete && portfolioComplete && activityComplete;
+    var completedSections = [basicComplete, introComplete, portfolioComplete, activityComplete].filter(Boolean).length;
+
+    function setStepState(key, state) {
+      var badge = document.querySelector('[data-progress-badge="' + key + '"]');
+      var title = document.querySelector('[data-progress-title="' + key + '"]');
+      var status = document.querySelector('[data-progress-status="' + key + '"]');
+      if (!badge || !title || !status) return;
+
+      badge.className = 'w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0';
+      title.className = 'text-sm';
+      status.className = 'text-xs';
+
+      if (state === 'complete') {
+        badge.classList.add('bg-[#0097FF]', 'text-white');
+        badge.textContent = '✓';
+        title.classList.add('font-semibold', 'text-[#1A1A1A]');
+        status.classList.add('text-[#0097FF]');
+        status.textContent = key === 'review' ? '준비 완료' : '완료';
+        return;
+      }
+
+      if (state === 'in-progress') {
+        badge.classList.add('bg-[#1D3CFF]', 'text-white');
+        badge.textContent = key === 'basic' ? '1' : key === 'intro' ? '2' : key === 'activity' ? '4' : key === 'portfolio' ? '3' : '5';
+        title.classList.add('font-semibold', 'text-[#1D3CFF]');
+        status.classList.add('text-[#1D3CFF]');
+        status.textContent = '작성 중';
+        return;
+      }
+
+      badge.classList.add('border', 'border-[#CCC]', 'text-[#AAA]');
+      badge.textContent = key === 'basic' ? '1' : key === 'intro' ? '2' : key === 'portfolio' ? '3' : key === 'activity' ? '4' : '5';
+      title.classList.add('font-medium', 'text-[#888]');
+      status.classList.add('text-[#AAA]');
+      status.textContent = '준비 중';
+    }
+
+    setStepState('basic', basicComplete ? 'complete' : (basicStarted ? 'in-progress' : 'empty'));
+    setStepState('intro', introComplete ? 'complete' : (introStarted ? 'in-progress' : 'empty'));
+    setStepState('activity', activityComplete ? 'complete' : (activityStarted ? 'in-progress' : 'empty'));
+    setStepState('review', reviewReady ? 'complete' : 'empty');
+
+    if (percentEl) {
+      percentEl.textContent = completedSections === 0 ? '0%' : completedSections === 1 ? '25%' : completedSections === 2 ? '50%' : completedSections === 3 ? '75%' : '100%';
+    }
+
+    if (barEl) {
+      barEl.classList.remove('w-0', 'w-1/4', 'w-1/2', 'w-3/4', 'w-full');
+      barEl.classList.add(completedSections === 0 ? 'w-0' : completedSections === 1 ? 'w-1/4' : completedSections === 2 ? 'w-1/2' : completedSections === 3 ? 'w-3/4' : 'w-full');
+    }
+  }
+
   // ── 자기소개 글자수 카운터 ──────────────────────────────────
   (function () {
     const textarea = document.getElementById('intro-textarea');
@@ -464,6 +591,7 @@
       row.remove();
       reindexRows('careers-list', 'career-row', 'careers');
       reindexRows('educations-list', 'education-row', 'educations');
+      updateProfileProgress();
     }
   }
 
@@ -483,6 +611,7 @@
         '<svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
       '</button>';
     list.appendChild(row);
+    updateProfileProgress();
   }
 
   // ── 학력 행 추가 ─────────────────────────────────────────────
@@ -501,6 +630,7 @@
         '<svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
       '</button>';
     list.appendChild(row);
+    updateProfileProgress();
   }
 
   // ── 보유 장비 관리 ───────────────────────────────────────────
@@ -528,6 +658,7 @@
     toolIndex++;
     input.value = '';
     input.focus();
+    updateProfileProgress();
   }
 
   function removeTool(btn) {
@@ -541,6 +672,7 @@
       inp.name = 'tools[' + i + ']';
     });
     toolIndex = document.querySelectorAll('#tools-hidden .tool-hidden-input').length;
+    updateProfileProgress();
   }
 
   function escapeHtml(str) {
@@ -550,6 +682,12 @@
   document.getElementById('tool-input').addEventListener('keydown', function (e) {
     if (e.key === 'Enter') { e.preventDefault(); addTool(); }
   });
+
+  document.getElementById('profile-form').addEventListener('input', function () {
+    updateProfileProgress();
+  });
+
+  updateProfileProgress();
   </script>
 </main>
 
