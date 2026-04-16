@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      th:replace="~{layouts/default :: layout(~{::title}, ~{::pageStyles}, ~{::main})}">
+<head>
+  <title th:fragment="title">작가 프로필 편집 | PICKKASSO</title>
+  <th:block th:fragment="pageStyles"></th:block>
+</head>
+<body>
+
+<main th:fragment="main" class="bg-[#F9FAFC] min-h-screen py-10">
+  <div class="max-w-5xl mx-auto px-4">
+
+    <!-- Page Title -->
+    <div class="flex items-center gap-3 mb-8">
+      <a th:href="@{/}" class="flex items-center justify-center w-8 h-8 rounded-lg border border-[#CCC] text-[#444] hover:border-[#1D3CFF] hover:text-[#1D3CFF] transition-colors text-sm leading-none">←</a>
+      <h1 class="text-2xl font-semibold text-[#1A1A1A]">작가 프로필 편집</h1>
+    </div>
+
+    <!-- Error Message -->
+    <div th:if="${errorMessage}"
+         class="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-6 text-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <span th:text="${errorMessage}"></span>
+    </div>
+
+    <!-- Layout: Sidebar + Main -->
+    <div class="flex gap-6 items-start">
+
+      <!-- Left Sidebar (desktop only) -->
+      <aside class="hidden lg:block w-56 flex-shrink-0">
+        <div class="bg-white border border-[#CCC] rounded-2xl p-5 sticky top-24">
+          <p class="text-sm font-semibold text-[#1A1A1A] mb-4">작성 진행률</p>
+          <div class="space-y-3 mb-5">
+            <div class="flex items-center gap-3">
+              <div class="w-6 h-6 rounded-full bg-[#0097FF] text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">✓</div>
+              <div><p class="text-sm font-medium text-[#1A1A1A]">기본 정보</p><p class="text-xs text-[#0097FF]">완료</p></div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-6 h-6 rounded-full bg-[#1D3CFF] text-white text-xs font-bold flex items-center justify-center flex-shrink-0">2</div>
+              <div><p class="text-sm font-semibold text-[#1D3CFF]">소개 & 경력</p><p class="text-xs text-[#1D3CFF]">작성 중</p></div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-6 h-6 rounded-full border border-[#CCC] text-[#AAA] text-xs font-bold flex items-center justify-center flex-shrink-0">3</div>
+              <div><p class="text-sm font-medium text-[#888]">포트폴리오</p><p class="text-xs text-[#AAA]">미완료</p></div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-6 h-6 rounded-full border border-[#CCC] text-[#AAA] text-xs font-bold flex items-center justify-center flex-shrink-0">4</div>
+              <div><p class="text-sm font-medium text-[#888]">활동 설정</p><p class="text-xs text-[#AAA]">미완료</p></div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-6 h-6 rounded-full border border-[#CCC] text-[#AAA] text-xs font-bold flex items-center justify-center flex-shrink-0">5</div>
+              <div><p class="text-sm font-medium text-[#888]">검토 & 제출</p><p class="text-xs text-[#AAA]">미완료</p></div>
+            </div>
+          </div>
+          <div class="flex justify-between text-xs text-[#888] mb-1.5">
+            <span>전체 완성도</span>
+            <span class="font-semibold text-[#1D3CFF]">40%</span>
+          </div>
+          <div class="h-2 bg-[#D3DEF2] rounded-full overflow-hidden">
+            <div class="h-full bg-[#1D3CFF] rounded-full w-[40%]"></div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Form -->
+      <div class="flex-1 min-w-0">
+        <form th:action="@{/photographer/{id}/profile/edit(id=${photographerId})}"
+              method="post" id="profile-form" class="space-y-5">
+
+          <!-- Hidden: imgUrl 보존 (파일 업로드 미연동) -->
+          <input type="hidden" name="imgUrl" th:value="${profile.imgUrl}">
+
+          <!-- ① 기본 정보 -->
+          <div class="bg-white border border-[#CCC] rounded-2xl p-6">
+            <div class="flex items-start gap-3 mb-6">
+              <div class="w-9 h-9 rounded-xl bg-[#D3DEF2] flex items-center justify-center text-lg flex-shrink-0">👤</div>
+              <div class="flex-1">
+                <h2 class="text-base font-semibold text-[#1A1A1A]">기본 정보</h2>
+                <p class="text-xs text-[#888]">작가 이름, 프로필 사진, 활동명을 입력합니다</p>
+              </div>
+              <span class="text-xs font-semibold text-[#0097FF] flex items-center gap-1 flex-shrink-0">✓ 완료</span>
+            </div>
+
+            <!-- Profile Image (visual only) -->
+            <div class="flex items-center gap-5 mb-6 pb-6 border-b border-[#EEE]">
+              <div class="w-20 h-20 rounded-full bg-[#D3DEF2] border-2 border-[#CCC] flex items-center justify-center overflow-hidden flex-shrink-0">
+                <img th:if="${profile.imgUrl != null and !#strings.isEmpty(profile.imgUrl)}"
+                     th:src="${profile.imgUrl}" alt="프로필 사진"
+                     class="w-full h-full object-cover" loading="lazy">
+                <svg th:unless="${profile.imgUrl != null and !#strings.isEmpty(profile.imgUrl)}"
+                     xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-[#AAA]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Z"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-[#1A1A1A] mb-1">프로필 사진</p>
+                <p class="text-xs text-[#888] mb-3">정사각형 이미지 권장 (최소 400×400px)<br>JPG, PNG, WebP · 최대 5MB</p>
+                <!-- 파일 업로드 미연동 — S3 연동 후 활성화 예정 -->
+                <button type="button" disabled
+                        class="text-xs font-semibold border border-[#CCC] text-[#AAA] bg-[#F9FAFC] rounded-lg px-4 py-2 cursor-not-allowed">
+                  사진 변경 (준비 중)
+                </button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-[#444] mb-1.5">활동명 <span class="text-[#1D3CFF]">*</span></label>
+                <input type="text" name="nickname"
+                       th:value="${profile.nickname}"
+                       required maxlength="30"
+                       placeholder="예: 김민준 작가"
+                       class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-2.5 text-[#1A1A1A] placeholder-[#AAA] text-[15px] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+              </div>
+              <!-- 대표 촬영 지역 — DTO 미대응, UI only -->
+              <div>
+                <label class="block text-sm font-medium text-[#444] mb-1.5">대표 촬영 지역</label>
+                <input type="text" disabled placeholder="예: 서울 · 경기 (준비 중)"
+                       class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-2.5 text-[#AAA] placeholder-[#AAA] text-[15px] cursor-not-allowed">
+              </div>
+            </div>
+          </div>
+
+          <!-- ② 소개 & 경력 -->
+          <div class="bg-white border border-[#CCC] rounded-2xl p-6">
+            <div class="flex items-start gap-3 mb-6">
+              <div class="w-9 h-9 rounded-xl bg-[#D3DEF2] flex items-center justify-center text-lg flex-shrink-0">✍️</div>
+              <div class="flex-1">
+                <h2 class="text-base font-semibold text-[#1A1A1A]">소개 & 경력</h2>
+                <p class="text-xs text-[#888]">자기소개, 경력, 학력을 입력합니다</p>
+              </div>
+              <span class="text-xs text-[#888] flex-shrink-0"><span class="text-[#1D3CFF] font-bold">·</span> 필수 항목</span>
+            </div>
+
+            <div class="space-y-6">
+
+              <!-- 자기소개 -->
+              <div>
+                <div class="flex justify-between items-center mb-1.5">
+                  <label class="text-sm font-medium text-[#444]">자기소개 <span class="text-[#1D3CFF]">*</span></label>
+                  <span id="intro-count" class="text-xs text-[#888]">0 / 500자</span>
+                </div>
+                <textarea name="intro"
+                          th:text="${profile.intro}"
+                          required maxlength="500" rows="5"
+                          id="intro-textarea"
+                          placeholder="고객에게 보여질 소개글을 작성해 주세요. 촬영 스타일, 강점, 작업 방식 등을 자유롭게 적어 주세요."
+                          class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-3 text-[#1A1A1A] placeholder-[#AAA] text-[15px] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF] resize-none leading-relaxed"></textarea>
+              </div>
+
+              <!-- 포트폴리오 / SNS 링크 -->
+              <div>
+                <label class="block text-sm font-medium text-[#444] mb-1.5">포트폴리오 / SNS 링크</label>
+                <input type="url" name="link"
+                       th:value="${profile.link}"
+                       placeholder="https://instagram.com/..."
+                       class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-2.5 text-[#1A1A1A] placeholder-[#AAA] text-[15px] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+              </div>
+
+              <!-- 전문 분야 — DTO 미대응, UI only -->
+              <div>
+                <label class="block text-sm font-medium text-[#444] mb-1">전문 분야</label>
+                <p class="text-xs text-[#888] mb-2">해당하는 촬영 카테고리를 모두 선택해 주세요 (준비 중)</p>
+                <div class="flex flex-wrap gap-2">
+                  <th:block th:each="cat : ${ {'데이트 스냅','프로필 사진','졸업사진','웨딩 스냅','가족사진','증명사진','반려동물','제품 촬영'} }">
+                    <label class="flex items-center gap-1.5 bg-[#F9FAFC] border border-[#CCC] rounded-full px-3 py-1.5 text-sm text-[#888] cursor-not-allowed select-none">
+                      <input type="checkbox" disabled class="w-3.5 h-3.5 accent-[#1D3CFF]">
+                      <span th:text="${cat}"></span>
+                    </label>
+                  </th:block>
+                </div>
+              </div>
+
+              <!-- 경력 사항 -->
+              <div>
+                <label class="block text-sm font-medium text-[#444] mb-1">경력 사항</label>
+                <p class="text-xs text-[#888] mb-2">직책/소속, 시작일, 종료일을 입력하세요 (종료일 없으면 공란 = 재직 중)</p>
+                <div id="careers-list" class="space-y-2">
+                  <th:block th:if="${profile.careers != null and !profile.careers.isEmpty()}"
+                            th:each="career, stat : ${profile.careers}">
+                    <div class="career-row flex items-start gap-2">
+                      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 flex-1">
+                        <input type="text"
+                               th:name="'careers[' + ${stat.index} + '].name'"
+                               th:value="${career.name}"
+                               placeholder="직책 / 소속"
+                               class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+                        <input type="date"
+                               th:name="'careers[' + ${stat.index} + '].startDate'"
+                               th:value="${career.startDate}"
+                               class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+                        <input type="date"
+                               th:name="'careers[' + ${stat.index} + '].endDate'"
+                               th:value="${career.endDate}"
+                               class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+                      </div>
+                      <button type="button" onclick="removeRow(this)"
+                              class="mt-0.5 flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg border border-[#CCC] text-[#888] hover:border-red-300 hover:text-red-400 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                      </button>
+                    </div>
+                  </th:block>
+                  <!-- 경력 없을 때 빈 첫 줄 -->
+                  <th:block th:if="${profile.careers == null or profile.careers.isEmpty()}">
+                    <div class="career-row flex items-start gap-2">
+                      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 flex-1">
+                        <input type="text" name="careers[0].name" placeholder="직책 / 소속"
+                               class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+                        <input type="date" name="careers[0].startDate"
+                               class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+                        <input type="date" name="careers[0].endDate"
+                               class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+                      </div>
+                      <button type="button" onclick="removeRow(this)"
+                              class="mt-0.5 flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg border border-[#CCC] text-[#888] hover:border-red-300 hover:text-red-400 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                      </button>
+                    </div>
+                  </th:block>
+                </div>
+                <button type="button" onclick="addCareer()"
+                        class="mt-2 flex items-center gap-1.5 text-sm font-semibold bg-white border border-[#1D3CFF] text-[#1D3CFF] rounded-lg px-3 py-1.5 hover:bg-[#1D3CFF] hover:text-white transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  경력 추가
+                </button>
+              </div>
+
+              <!-- 학력 -->
+              <div>
+                <label class="block text-sm font-medium text-[#444] mb-1">학력</label>
+                <p class="text-xs text-[#888] mb-2">학교명, 입학일, 졸업일을 입력하세요 (재학 중이면 졸업일 공란)</p>
+                <div id="educations-list" class="space-y-2">
+                  <th:block th:if="${profile.educations != null and !profile.educations.isEmpty()}"
+                            th:each="edu, stat : ${profile.educations}">
+                    <div class="education-row flex items-start gap-2">
+                      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 flex-1">
+                        <input type="text"
+                               th:name="'educations[' + ${stat.index} + '].name'"
+                               th:value="${edu.name}"
+                               placeholder="학교명"
+                               class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+                        <input type="date"
+                               th:name="'educations[' + ${stat.index} + '].startDate'"
+                               th:value="${edu.startDate}"
+                               class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+                        <input type="date"
+                               th:name="'educations[' + ${stat.index} + '].endDate'"
+                               th:value="${edu.endDate}"
+                               class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+                      </div>
+                      <button type="button" onclick="removeRow(this)"
+                              class="mt-0.5 flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg border border-[#CCC] text-[#888] hover:border-red-300 hover:text-red-400 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                      </button>
+                    </div>
+                  </th:block>
+                  <th:block th:if="${profile.educations == null or profile.educations.isEmpty()}">
+                    <div class="education-row flex items-start gap-2">
+                      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 flex-1">
+                        <input type="text" name="educations[0].name" placeholder="학교명"
+                               class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+                        <input type="date" name="educations[0].startDate"
+                               class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+                        <input type="date" name="educations[0].endDate"
+                               class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+                      </div>
+                      <button type="button" onclick="removeRow(this)"
+                              class="mt-0.5 flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg border border-[#CCC] text-[#888] hover:border-red-300 hover:text-red-400 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                      </button>
+                    </div>
+                  </th:block>
+                </div>
+                <button type="button" onclick="addEducation()"
+                        class="mt-2 flex items-center gap-1.5 text-sm font-semibold bg-white border border-[#1D3CFF] text-[#1D3CFF] rounded-lg px-3 py-1.5 hover:bg-[#1D3CFF] hover:text-white transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  학력 추가
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ③ 포트폴리오 이미지 (visual only) -->
+          <div class="bg-white border border-[#CCC] rounded-2xl p-6">
+            <div class="flex items-start gap-3 mb-5">
+              <div class="w-9 h-9 rounded-xl bg-[#D3DEF2] flex items-center justify-center text-lg flex-shrink-0">🖼️</div>
+              <div class="flex-1">
+                <h2 class="text-base font-semibold text-[#1A1A1A]">포트폴리오 이미지</h2>
+                <p class="text-xs text-[#888]">대표 작업물을 최대 10장 등록할 수 있습니다</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-3 text-sm text-[#888] mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#0097FF] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              첫 번째 이미지가 대표 포트폴리오로 노출됩니다. JPG, PNG, WebP · 이미지당 최대 10MB
+            </div>
+            <!-- Upload grid: S3 연동 전 visual only -->
+            <div class="grid grid-cols-3 sm:grid-cols-5 gap-3">
+              <div class="aspect-square rounded-xl border-2 border-dashed border-[#CCC] bg-[#F9FAFC] flex flex-col items-center justify-center gap-1.5 text-[#AAA] cursor-not-allowed select-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z"/>
+                </svg>
+                <span class="text-xs text-center leading-tight">이미지 추가<br><span class="text-[10px]">(준비 중)</span></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ④ 활동 설정 -->
+          <div class="bg-white border border-[#CCC] rounded-2xl p-6">
+            <div class="flex items-start gap-3 mb-6">
+              <div class="w-9 h-9 rounded-xl bg-[#D3DEF2] flex items-center justify-center text-lg flex-shrink-0">⚙️</div>
+              <div>
+                <h2 class="text-base font-semibold text-[#1A1A1A]">활동 설정</h2>
+                <p class="text-xs text-[#888]">촬영 방식, 연락 가능 시간, 보유 장비를 설정합니다</p>
+              </div>
+            </div>
+
+            <div class="space-y-6">
+
+              <!-- 촬영 방식 — DTO 미대응, UI only -->
+              <div>
+                <label class="block text-sm font-medium text-[#444] mb-2">촬영 방식 <span class="text-xs text-[#888] font-normal">(준비 중)</span></label>
+                <div class="flex flex-wrap gap-2">
+                  <label class="flex items-center gap-2 bg-[#F9FAFC] border border-[#CCC] rounded-full px-4 py-1.5 text-sm text-[#888] cursor-not-allowed select-none">
+                    <input type="checkbox" disabled class="w-3.5 h-3.5 accent-[#1D3CFF]"> 방문 촬영
+                  </label>
+                  <label class="flex items-center gap-2 bg-[#F9FAFC] border border-[#CCC] rounded-full px-4 py-1.5 text-sm text-[#888] cursor-not-allowed select-none">
+                    <input type="checkbox" disabled class="w-3.5 h-3.5 accent-[#1D3CFF]"> 스튜디오 촬영
+                  </label>
+                </div>
+              </div>
+
+              <!-- 연락 가능 시간 + 평균 응답 시간 — DTO 미대응, UI only -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-[#444] mb-1.5">연락 가능 시간 <span class="text-xs text-[#888] font-normal">(준비 중)</span></label>
+                  <div class="flex items-center gap-2">
+                    <select disabled class="flex-1 bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#AAA] cursor-not-allowed"><option>시작 시간</option></select>
+                    <span class="text-[#888] text-sm flex-shrink-0">~</span>
+                    <select disabled class="flex-1 bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#AAA] cursor-not-allowed"><option>종료 시간</option></select>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-[#444] mb-1.5">평균 응답 시간 <span class="text-xs text-[#888] font-normal">(준비 중)</span></label>
+                  <select disabled class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#AAA] cursor-not-allowed">
+                    <option>30분 이내 / 1시간 이내 / 3시간 이내 / 당일 이내</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- 세금계산서 — DTO 미대응, UI only -->
+              <div>
+                <label class="flex items-center gap-2 cursor-not-allowed select-none w-fit">
+                  <input type="checkbox" disabled class="w-4 h-4 accent-[#1D3CFF]">
+                  <span class="text-sm font-medium text-[#888]">세금계산서 발행 가능 <span class="text-xs font-normal">(준비 중)</span></span>
+                </label>
+              </div>
+
+              <!-- 보유 장비 — DTO 바인딩 O (tools[]) -->
+              <div>
+                <label class="block text-sm font-medium text-[#444] mb-1">보유 장비</label>
+                <p class="text-xs text-[#888] mb-2">장비명 입력 후 추가 버튼을 눌러 주세요</p>
+                <div class="flex gap-2 mb-3">
+                  <input type="text" id="tool-input"
+                         placeholder="예: Sony A7IV, 85mm f/1.4"
+                         class="flex-1 bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+                  <button type="button" onclick="addTool()"
+                          class="flex-shrink-0 px-4 py-2.5 text-sm font-semibold bg-white border border-[#1D3CFF] text-[#1D3CFF] rounded-lg hover:bg-[#1D3CFF] hover:text-white active:bg-[#1530E0] active:border-[#1530E0] transition-colors">
+                    + 추가
+                  </button>
+                </div>
+                <!-- Hidden inputs for tools — managed by JS -->
+                <div id="tools-hidden">
+                  <th:block th:if="${profile.tools != null}" th:each="tool, stat : ${profile.tools}">
+                    <input type="hidden" class="tool-hidden-input"
+                           th:name="'tools[' + ${stat.index} + ']'"
+                           th:value="${tool}">
+                  </th:block>
+                </div>
+                <!-- Tool chips -->
+                <div id="tools-chips" class="flex flex-wrap gap-2">
+                  <th:block th:if="${profile.tools != null}" th:each="tool : ${profile.tools}">
+                    <span class="tool-chip bg-[#F9FAFC] text-[#444] text-sm px-3 py-1 rounded-full border border-[#CCC] flex items-center gap-1.5"
+                          th:data-value="${tool}">
+                      <span th:text="${tool}"></span>
+                      <button type="button" onclick="removeTool(this)"
+                              class="text-[#AAA] hover:text-red-400 transition-colors leading-none text-base">×</button>
+                    </span>
+                  </th:block>
+                </div>
+              </div>
+
+              <!-- 분위기 태그 — DTO 미대응, UI only -->
+              <div>
+                <label class="block text-sm font-medium text-[#444] mb-1">분위기 태그 <span class="text-xs text-[#888] font-normal">(준비 중)</span></label>
+                <p class="text-xs text-[#888] mb-2">포트폴리오에 노출될 분위기 키워드를 직접 추가하거나 AI 자동 생성을 활용하세요</p>
+                <div class="flex flex-wrap gap-2 mb-2 p-3 bg-[#F9FAFC] border border-[#CCC] rounded-lg">
+                  <span class="bg-white text-[#888] text-xs px-3 py-1 rounded-full border border-[#CCC]">#감성스냅</span>
+                  <span class="bg-white text-[#888] text-xs px-3 py-1 rounded-full border border-[#CCC]">#자연광</span>
+                  <span class="bg-white text-[#888] text-xs px-3 py-1 rounded-full border border-[#CCC]">#따뜻한</span>
+                  <input type="text" disabled placeholder="태그 입력 후 Enter (준비 중)"
+                         class="flex-1 min-w-36 bg-transparent text-xs text-[#AAA] placeholder-[#AAA] outline-none cursor-not-allowed">
+                </div>
+                <button type="button" disabled
+                        class="flex items-center gap-1.5 text-xs font-semibold border border-[#CCC] text-[#AAA] bg-[#F9FAFC] rounded-lg px-3 py-1.5 cursor-not-allowed">
+                  ✨ AI 태그 자동 생성 (준비 중)
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Action Bar -->
+          <div class="bg-white border border-[#CCC] rounded-2xl px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <p class="text-xs text-[#AAA] flex items-center gap-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              모든 필수 항목을 완료해야 프로필이 공개됩니다
+            </p>
+            <div class="flex items-center gap-3">
+              <a th:href="@{/}" class="text-sm font-semibold text-[#888] border border-[#CCC] rounded-lg px-5 py-2.5 hover:border-[#888] transition-colors">
+                취소
+              </a>
+              <button type="submit"
+                      class="text-sm font-semibold bg-white border border-[#1D3CFF] text-[#1D3CFF] rounded-lg px-6 py-2.5 hover:bg-[#1D3CFF] hover:text-white active:bg-[#1530E0] active:border-[#1530E0] transition-colors">
+                저장하기
+              </button>
+            </div>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  // ── 자기소개 글자수 카운터 ──────────────────────────────────
+  (function () {
+    const textarea = document.getElementById('intro-textarea');
+    const counter = document.getElementById('intro-count');
+    if (!textarea || !counter) return;
+    function update() { counter.textContent = textarea.value.length + ' / 500자'; }
+    textarea.addEventListener('input', update);
+    update();
+  })();
+
+  // ── 경력 / 학력 행 삭제 후 인덱스 재정렬 ─────────────────────
+  function reindexRows(listId, rowClass, prefix) {
+    const list = document.getElementById(listId);
+    if (!list) return;
+    list.querySelectorAll('.' + rowClass).forEach(function (row, i) {
+      row.querySelectorAll('input[name]').forEach(function (inp) {
+        inp.name = inp.name.replace(/\[\d+\]/, '[' + i + ']');
+      });
+    });
+  }
+
+  function removeRow(btn) {
+    const row = btn.closest('.career-row, .education-row');
+    if (row) {
+      row.remove();
+      reindexRows('careers-list', 'career-row', 'careers');
+      reindexRows('educations-list', 'education-row', 'educations');
+    }
+  }
+
+  // ── 경력 행 추가 ────────────────────────────────────────────
+  function addCareer() {
+    const list = document.getElementById('careers-list');
+    const idx = list.querySelectorAll('.career-row').length;
+    const row = document.createElement('div');
+    row.className = 'career-row flex items-start gap-2';
+    row.innerHTML =
+      '<div class="grid grid-cols-1 sm:grid-cols-3 gap-2 flex-1">' +
+        '<input type="text" name="careers[' + idx + '].name" placeholder="직책 / 소속" class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">' +
+        '<input type="date" name="careers[' + idx + '].startDate" class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">' +
+        '<input type="date" name="careers[' + idx + '].endDate" class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">' +
+      '</div>' +
+      '<button type="button" onclick="removeRow(this)" class="mt-0.5 flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg border border-[#CCC] text-[#888] hover:border-red-300 hover:text-red-400 transition-colors">' +
+        '<svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+      '</button>';
+    list.appendChild(row);
+  }
+
+  // ── 학력 행 추가 ─────────────────────────────────────────────
+  function addEducation() {
+    const list = document.getElementById('educations-list');
+    const idx = list.querySelectorAll('.education-row').length;
+    const row = document.createElement('div');
+    row.className = 'education-row flex items-start gap-2';
+    row.innerHTML =
+      '<div class="grid grid-cols-1 sm:grid-cols-3 gap-2 flex-1">' +
+        '<input type="text" name="educations[' + idx + '].name" placeholder="학교명" class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">' +
+        '<input type="date" name="educations[' + idx + '].startDate" class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">' +
+        '<input type="date" name="educations[' + idx + '].endDate" class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">' +
+      '</div>' +
+      '<button type="button" onclick="removeRow(this)" class="mt-0.5 flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg border border-[#CCC] text-[#888] hover:border-red-300 hover:text-red-400 transition-colors">' +
+        '<svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+      '</button>';
+    list.appendChild(row);
+  }
+
+  // ── 보유 장비 관리 ───────────────────────────────────────────
+  var toolIndex = document.querySelectorAll('#tools-hidden .tool-hidden-input').length;
+
+  function addTool() {
+    var input = document.getElementById('tool-input');
+    var val = input.value.trim();
+    if (!val) return;
+
+    var hidden = document.createElement('input');
+    hidden.type = 'hidden';
+    hidden.name = 'tools[' + toolIndex + ']';
+    hidden.value = val;
+    hidden.className = 'tool-hidden-input';
+    document.getElementById('tools-hidden').appendChild(hidden);
+
+    var chip = document.createElement('span');
+    chip.className = 'tool-chip bg-[#F9FAFC] text-[#444] text-sm px-3 py-1 rounded-full border border-[#CCC] flex items-center gap-1.5';
+    chip.dataset.value = val;
+    chip.innerHTML = '<span>' + escapeHtml(val) + '</span>' +
+      '<button type="button" onclick="removeTool(this)" class="text-[#AAA] hover:text-red-400 transition-colors leading-none text-base">×</button>';
+    document.getElementById('tools-chips').appendChild(chip);
+
+    toolIndex++;
+    input.value = '';
+    input.focus();
+  }
+
+  function removeTool(btn) {
+    var chip = btn.closest('.tool-chip');
+    var val = chip.dataset.value;
+    document.querySelectorAll('#tools-hidden .tool-hidden-input').forEach(function (inp) {
+      if (inp.value === val) inp.remove();
+    });
+    chip.remove();
+    document.querySelectorAll('#tools-hidden .tool-hidden-input').forEach(function (inp, i) {
+      inp.name = 'tools[' + i + ']';
+    });
+    toolIndex = document.querySelectorAll('#tools-hidden .tool-hidden-input').length;
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  document.getElementById('tool-input').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); addTool(); }
+  });
+  </script>
+</main>
+
+</body>
+</html>
