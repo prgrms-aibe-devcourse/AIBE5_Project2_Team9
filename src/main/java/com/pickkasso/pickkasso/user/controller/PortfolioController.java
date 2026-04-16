@@ -1,6 +1,9 @@
 package com.pickkasso.pickkasso.user.controller;
 
 import com.pickkasso.pickkasso.user.dto.portfolio.PortfolioDto;
+import com.pickkasso.pickkasso.user.entity.PhotographerProfile;
+import com.pickkasso.pickkasso.user.entity.Portfolio;
+import com.pickkasso.pickkasso.user.repository.PortfolioRepository;
 import com.pickkasso.pickkasso.user.service.PortfolioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class PortfolioController {
 
     private final PortfolioService portfolioService;
+    private final PortfolioRepository portfolioRepository;
 
     @GetMapping("/new")
     public String createPortfolioForm(@PathVariable Long photographerId, Model model) {
@@ -36,5 +40,24 @@ public class PortfolioController {
             model.addAttribute("photographerId", photographerId);
             return "photographer/editPortfolio";
         }
+    }
+
+    @GetMapping("/{portfolioId}")
+    public String getPortfolio(
+            @PathVariable Long photographerId,
+            @PathVariable Long portfolioId,
+            Model model
+    ) {
+        Portfolio portfolio = portfolioRepository.findById(portfolioId)
+                .orElseThrow(() -> new IllegalArgumentException("포트폴리오를 찾을 수 없습니다."));
+
+        PhotographerProfile profile = portfolio.getPhotographer().getPhotographerProfile();
+
+        model.addAttribute("portfolioName", portfolio.getName());
+        model.addAttribute("portfolioDescription", portfolio.getDescription());
+        model.addAttribute("photographerId", photographerId);
+        model.addAttribute("photographerNickname", profile != null ? profile.getNickname() : "");
+        model.addAttribute("photographerImgUrl", profile != null ? profile.getImgUrl() : null);
+        return "photographer/portfolio-detail";
     }
 }

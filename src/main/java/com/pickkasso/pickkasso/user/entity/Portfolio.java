@@ -23,6 +23,7 @@ public class Portfolio {
     @Column(name = "name")
     private String name;
 
+    @Lob
     @Column(name = "description")
     private String description;
 
