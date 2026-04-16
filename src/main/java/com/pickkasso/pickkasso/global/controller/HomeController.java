@@ -17,7 +17,7 @@ public class HomeController {
         return "common/login";
     }
 
-    @GetMapping("/signup")
+    /*@GetMapping("/signup")
     public String signupIndex() {
         return "redirect:/signup/user";
     }
@@ -38,5 +38,5 @@ public class HomeController {
     @PostMapping({"/signup/user", "/signup/photographer"})
     public String signupStub() {
         return "common/signup-pending";
-    }
+    }*/
 }

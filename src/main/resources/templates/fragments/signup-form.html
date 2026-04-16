@@ -182,6 +182,11 @@
     });
   </script>
 
+  <!--아이디 중복확인-->
+  <script th:inline="javascript" th:if="${errorMessage}">
+    alert([[${errorMessage}]]);
+  </script>
+
 </th:block>
 
 </body>
