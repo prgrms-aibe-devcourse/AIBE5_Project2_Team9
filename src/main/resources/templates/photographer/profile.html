@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      th:replace="~{layouts/default :: layout(~{::title}, ~{::pageStyles}, ~{::main})}">
+<head>
+  <title th:fragment="title">작가 프로필 | PICKKASSO</title>
+  <th:block th:fragment="pageStyles"></th:block>
+</head>
+<body>
+
+<main th:fragment="main"
+      th:with="
+        careerCount=${profile.careers != null ? #lists.size(profile.careers) : 0},
+        educationCount=${profile.educations != null ? #lists.size(profile.educations) : 0},
+        toolCount=${profile.tools != null ? #lists.size(profile.tools) : 0},
+        completionCount=${(profile.nickname != null and !#strings.isEmpty(profile.nickname) ? 1 : 0) + (profile.intro != null and !#strings.isEmpty(profile.intro) ? 1 : 0) + (profile.link != null and !#strings.isEmpty(profile.link) ? 1 : 0) + (toolCount > 0 ? 1 : 0)},
+        completionRate=${completionCount * 25}
+      "
+      class="bg-[#F9FAFC] min-h-screen pb-16">
+
+  <section class="bg-white border-b border-[#CCC]">
+    <div class="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <div class="flex flex-col gap-6 lg:flex-row lg:items-center">
+        <div class="flex items-center gap-4 sm:gap-5">
+          <div class="w-24 h-24 rounded-full border-2 border-[#CCC] bg-[#D3DEF2] overflow-hidden flex items-center justify-center flex-shrink-0">
+            <img th:if="${profile.imgUrl != null and !#strings.isEmpty(profile.imgUrl)}"
+                 th:src="${profile.imgUrl}"
+                 th:alt="${profile.nickname != null and !#strings.isEmpty(profile.nickname) ? profile.nickname + ' 프로필 사진' : '작가 프로필 사진'}"
+                 class="w-full h-full object-cover"
+                 loading="lazy">
+            <span th:unless="${profile.imgUrl != null and !#strings.isEmpty(profile.imgUrl)}"
+                  class="text-3xl text-[#888]">📷</span>
+          </div>
+
+          <div class="min-w-0">
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#0097FF] mb-2">Photographer Profile</p>
+            <h1 class="text-3xl font-bold text-[#1A1A1A] break-words"
+                th:text="${profile.nickname != null and !#strings.isEmpty(profile.nickname) ? profile.nickname : '아직 활동명을 등록하지 않은 작가'}">김민준 작가</h1>
+            <p class="mt-2 text-sm text-[#888]">PICKKASSO에서 활동 중인 스냅 작가 프로필입니다.</p>
+
+            <div class="mt-4 flex flex-wrap gap-2">
+              <span class="inline-flex items-center gap-1 rounded-full border border-[#CCC] bg-[#F9FAFC] px-3 py-1 text-xs text-[#444]">
+                <span class="text-[#0097FF]">●</span>
+                <span th:text="'경력 ' + ${careerCount} + '건'">경력 0건</span>
+              </span>
+              <span class="inline-flex items-center gap-1 rounded-full border border-[#CCC] bg-[#F9FAFC] px-3 py-1 text-xs text-[#444]">
+                <span class="text-[#0097FF]">●</span>
+                <span th:text="'학력 ' + ${educationCount} + '건'">학력 0건</span>
+              </span>
+              <span class="inline-flex items-center gap-1 rounded-full border border-[#CCC] bg-[#F9FAFC] px-3 py-1 text-xs text-[#444]">
+                <span class="text-[#0097FF]">●</span>
+                <span th:text="'보유 장비 ' + ${toolCount} + '개'">보유 장비 0개</span>
+              </span>
+            </div>
+
+            <a th:if="${profile.link != null and !#strings.isEmpty(profile.link)}"
+               th:href="${profile.link}"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="mt-4 inline-flex items-center gap-2 text-sm font-medium text-[#0097FF] hover:text-[#1D3CFF] transition-colors break-all">
+              <span>포트폴리오 / SNS 링크 보기</span>
+              <span>↗</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="lg:ml-auto flex flex-col sm:flex-row gap-3">
+          <a th:href="@{/photographer/{id}/portfolio/new(id=${profile.photographerId})}"
+             class="inline-flex items-center justify-center rounded-lg border border-[#0097FF] px-5 py-2.5 text-sm font-semibold text-[#0097FF] hover:bg-[#0097FF] hover:text-white transition-colors">
+            포트폴리오 등록
+          </a>
+          <a th:href="@{/photographer/{id}/profile/edit(id=${profile.photographerId})}"
+             class="inline-flex items-center justify-center rounded-lg border border-[#1D3CFF] bg-white px-5 py-2.5 text-sm font-semibold text-[#1D3CFF] hover:bg-[#1D3CFF] hover:text-white active:bg-[#1530E0] active:border-[#1530E0] transition-colors">
+            프로필 수정
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+    <div class="flex flex-col gap-6 xl:flex-row">
+
+      <aside class="xl:w-[280px] xl:flex-shrink-0 space-y-4">
+        <div class="bg-white border border-[#CCC] rounded-2xl p-5">
+          <h2 class="text-base font-semibold text-[#1A1A1A] mb-4">활동 정보</h2>
+
+          <div class="grid grid-cols-2 gap-3 mb-4">
+            <div class="rounded-xl border border-[#CCC] bg-[#F9FAFC] px-3 py-4 text-center">
+              <p class="text-[11px] text-[#888] mb-1">프로필 완성도</p>
+              <p class="text-2xl font-bold text-[#0097FF]" th:text="${completionRate + '%'}">0%</p>
+            </div>
+            <div class="rounded-xl border border-[#CCC] bg-[#F9FAFC] px-3 py-4 text-center">
+              <p class="text-[11px] text-[#888] mb-1">보유 장비</p>
+              <p class="text-2xl font-bold text-[#1A1A1A]" th:text="${toolCount}">0</p>
+            </div>
+          </div>
+
+          <div class="space-y-3 text-sm text-[#444]">
+            <div class="flex items-center gap-2">
+              <span class="text-[#0097FF]">✦</span>
+              <span th:text="${profile.intro != null and !#strings.isEmpty(profile.intro) ? '자기소개 등록 완료' : '자기소개 준비 중'}">자기소개 준비 중</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[#0097FF]">✦</span>
+              <span th:text="${careerCount > 0 ? '경력 정보 등록 완료' : '경력 정보 준비 중'}">경력 정보 준비 중</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[#0097FF]">✦</span>
+              <span th:text="${educationCount > 0 ? '학력 정보 등록 완료' : '학력 정보 준비 중'}">학력 정보 준비 중</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[#0097FF]">✦</span>
+              <span th:text="${profile.link != null and !#strings.isEmpty(profile.link) ? '외부 링크 연결 완료' : '외부 링크 준비 중'}">외부 링크 준비 중</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white border border-[#CCC] rounded-2xl p-5">
+          <h2 class="text-base font-semibold text-[#1A1A1A] mb-4">경력 사항</h2>
+          <p class="text-2xl font-bold text-[#1A1A1A] mb-4" th:text="${careerCount + '건'}">0건</p>
+
+          <div class="space-y-3" th:if="${careerCount > 0}">
+            <div th:each="career : ${profile.careers}" class="flex items-start gap-3">
+              <span class="mt-1.5 h-2 w-2 rounded-full bg-[#1D3CFF] flex-shrink-0"></span>
+              <div class="min-w-0">
+                <p class="text-sm font-medium text-[#444]" th:text="${career.name}">프리랜서 사진작가</p>
+                <p class="text-xs text-[#888]"
+                   th:text="${career.startDate != null ? #temporals.format(career.startDate, 'yyyy.MM') : '시작일 미정'} + ' - ' + ${career.endDate != null ? #temporals.format(career.endDate, 'yyyy.MM') : '현재'}">2023.01 - 현재</p>
+              </div>
+            </div>
+          </div>
+
+          <p th:if="${careerCount == 0}" class="text-sm text-[#888] leading-relaxed">아직 등록된 경력이 없습니다. 프로필 수정 화면에서 상세 경력을 추가할 수 있어요.</p>
+        </div>
+
+        <div class="bg-white border border-[#CCC] rounded-2xl p-5">
+          <h2 class="text-base font-semibold text-[#1A1A1A] mb-4">학력</h2>
+
+          <div class="space-y-3" th:if="${educationCount > 0}">
+            <div th:each="education : ${profile.educations}" class="rounded-xl border border-[#CCC] bg-[#F9FAFC] px-4 py-3">
+              <p class="text-sm font-semibold text-[#1A1A1A]" th:text="${education.name}">서울예술대학교</p>
+              <p class="text-xs text-[#888] mt-1"
+                 th:text="${education.startDate != null ? #temporals.format(education.startDate, 'yyyy.MM') : '입학일 미정'} + ' - ' + ${education.endDate != null ? #temporals.format(education.endDate, 'yyyy.MM') : '재학 중'}">2020.03 - 2024.02</p>
+            </div>
+          </div>
+
+          <p th:if="${educationCount == 0}" class="text-sm text-[#888] leading-relaxed">아직 등록된 학력 정보가 없습니다.</p>
+        </div>
+
+        <div class="bg-white border border-[#CCC] rounded-2xl p-5">
+          <h2 class="text-base font-semibold text-[#1A1A1A] mb-4">보유 장비</h2>
+
+          <div th:if="${toolCount > 0}" class="flex flex-wrap gap-2">
+            <span th:each="tool : ${profile.tools}"
+                  class="inline-flex items-center rounded-full border border-[#CCC] bg-[#F9FAFC] px-3 py-1 text-xs text-[#444]"
+                  th:text="${tool}">Sony A7IV</span>
+          </div>
+
+          <p th:if="${toolCount == 0}" class="text-sm text-[#888] leading-relaxed">등록된 장비 정보가 없습니다. 사용 중인 바디, 렌즈, 조명 장비를 추가해보세요.</p>
+        </div>
+      </aside>
+
+      <div class="flex-1 min-w-0 space-y-5">
+        <section class="bg-white border border-[#CCC] rounded-2xl p-6 sm:p-7">
+          <div class="flex items-center justify-between gap-3 mb-5">
+            <h2 class="text-2xl font-semibold text-[#1A1A1A]">작가 소개</h2>
+            <a th:href="@{/photographer/{id}/profile/edit(id=${profile.photographerId})}"
+               class="text-sm font-medium text-[#888] hover:text-[#1D3CFF] transition-colors">수정하기</a>
+          </div>
+
+          <div th:if="${profile.intro != null and !#strings.isEmpty(profile.intro)}"
+               class="text-base leading-8 text-[#444] whitespace-pre-line"
+               th:text="${profile.intro}">작가 소개글</div>
+
+          <div th:unless="${profile.intro != null and !#strings.isEmpty(profile.intro)}"
+               class="rounded-xl border border-dashed border-[#CCC] bg-[#F9FAFC] px-5 py-8 text-center">
+            <p class="text-base font-medium text-[#444] mb-2">아직 등록된 소개글이 없어요.</p>
+            <p class="text-sm text-[#888]">촬영 스타일과 작업 방식, 고객에게 전하고 싶은 강점을 소개해보세요.</p>
+          </div>
+        </section>
+
+        <section class="bg-white border border-[#CCC] rounded-2xl p-6 sm:p-7">
+          <div class="flex items-center justify-between gap-3 mb-5">
+            <h2 class="text-2xl font-semibold text-[#1A1A1A]">포트폴리오</h2>
+            <a th:href="@{/photographer/{id}/portfolio/new(id=${profile.photographerId})}"
+               class="text-sm font-medium text-[#888] hover:text-[#1D3CFF] transition-colors">등록하기</a>
+          </div>
+
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <div class="rounded-2xl border border-dashed border-[#CCC] bg-[#F9FAFC] p-5">
+              <div class="aspect-[4/3] rounded-xl bg-[#D3DEF2] flex items-center justify-center text-3xl text-[#888] mb-4">🖼️</div>
+              <p class="text-base font-semibold text-[#1A1A1A] mb-2">등록된 포트폴리오가 아직 없어요</p>
+              <p class="text-sm text-[#888] leading-relaxed">프로젝트별 작업물과 설명을 등록하면 고객이 작가님의 분위기를 더 잘 이해할 수 있어요.</p>
+            </div>
+
+            <a th:href="@{/photographer/{id}/portfolio/new(id=${profile.photographerId})}"
+               class="rounded-2xl border border-[#CCC] bg-white p-5 hover:shadow-md transition-shadow">
+              <div class="aspect-[4/3] rounded-xl border-2 border-dashed border-[#CCC] bg-[#F9FAFC] flex items-center justify-center text-[#AAA] text-4xl mb-4">+</div>
+              <p class="text-base font-semibold text-[#1A1A1A] mb-2">새 포트폴리오 등록</p>
+              <p class="text-sm text-[#888] leading-relaxed">작품 이미지, 프로젝트 설명, 태그를 추가해 포트폴리오를 채워보세요.</p>
+            </a>
+          </div>
+        </section>
+
+        <section class="bg-white border border-[#CCC] rounded-2xl p-6 sm:p-7">
+          <div class="flex items-center justify-between gap-3 mb-5">
+            <h2 class="text-2xl font-semibold text-[#1A1A1A]">프로필 요약</h2>
+          </div>
+
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div class="rounded-xl border border-[#CCC] bg-[#F9FAFC] p-5">
+              <p class="text-sm font-semibold text-[#1A1A1A] mb-2">기본 정보</p>
+              <div class="space-y-2 text-sm text-[#444]">
+                <p><span class="text-[#888]">활동명</span> <span class="ml-2" th:text="${profile.nickname != null and !#strings.isEmpty(profile.nickname) ? profile.nickname : '미등록'}">미등록</span></p>
+                <p><span class="text-[#888]">외부 링크</span> <span class="ml-2" th:text="${profile.link != null and !#strings.isEmpty(profile.link) ? '연결됨' : '미연결'}">미연결</span></p>
+              </div>
+            </div>
+
+            <div class="rounded-xl border border-[#CCC] bg-[#F9FAFC] p-5">
+              <p class="text-sm font-semibold text-[#1A1A1A] mb-2">프로필 상태</p>
+              <div class="space-y-3">
+                <div class="flex justify-between text-sm text-[#444]">
+                  <span>작성 진행도</span>
+                  <span class="font-semibold text-[#1D3CFF]" th:text="${completionRate + '%'}">0%</span>
+                </div>
+                <div class="h-2 rounded-full bg-[#D3DEF2] overflow-hidden">
+                  <div class="h-full rounded-full bg-[#1D3CFF]" th:classappend="${completionRate == 0 ? ' w-0' : (completionRate == 25 ? ' w-1/4' : (completionRate == 50 ? ' w-1/2' : (completionRate == 75 ? ' w-3/4' : ' w-full')))}"></div>
+                </div>
+                <p class="text-xs text-[#888]">포트폴리오까지 채우면 고객에게 더 풍부한 첫인상을 전달할 수 있어요.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+</main>
+
+</body>
+</html>
