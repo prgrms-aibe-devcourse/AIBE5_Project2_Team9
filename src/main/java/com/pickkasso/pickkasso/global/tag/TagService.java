@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -16,4 +17,7 @@ public class TagService {
     public List<TagReference> findAllTagReference() {
         return tagRepository.findAllTagReference();
     }
+
+    @Transactional(readOnly = true)
+    public Optional<TagReference> findByName(String name) { return tagRepository.findTagByName(name); }
 }

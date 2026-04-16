@@ -6,6 +6,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class TagReference {
-    Long id;
-    String name;
+    private Long id;
+    private String name;
 }
