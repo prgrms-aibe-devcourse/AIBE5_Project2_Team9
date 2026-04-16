@@ -17,6 +17,7 @@ public class PortfolioController {
     @GetMapping("/new")
     public String createPortfolioForm(@PathVariable Long photographerId, Model model) {
         model.addAttribute("portfolioDto", portfolioService.getEmptyPortfolioDto(photographerId));
+        model.addAttribute("photographerId", photographerId);
         return "photographer/editPortfolio";
     }
 
@@ -32,6 +33,7 @@ public class PortfolioController {
         } catch (IllegalArgumentException e) {
             model.addAttribute("errorMessage", e.getMessage());
             model.addAttribute("portfolioDto", portfolioDto);
+            model.addAttribute("photographerId", photographerId);
             return "photographer/editPortfolio";
         }
     }

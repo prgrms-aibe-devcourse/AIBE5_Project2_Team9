@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      th:replace="~{layouts/default :: layout(~{::title}, ~{::pageStyles}, ~{::main})}">
+<head>
+  <title th:fragment="title">포트폴리오 등록 | PICKKASSO</title>
+  <th:block th:fragment="pageStyles"></th:block>
+</head>
+<body>
+
+<main th:fragment="main" class="bg-[#F9FAFC] min-h-screen py-10">
+  <div class="max-w-4xl mx-auto px-4">
+
+    <!-- Page Title -->
+    <div class="flex items-center gap-3 mb-8">
+      <a th:href="@{/photographer/{id}/profile/edit(id=${photographerId})}"
+         class="flex items-center justify-center w-8 h-8 rounded-lg border border-[#CCC] text-[#444] hover:border-[#1D3CFF] hover:text-[#1D3CFF] transition-colors text-sm leading-none">←</a>
+      <h1 class="text-2xl font-semibold text-[#1A1A1A]">포트폴리오 등록</h1>
+    </div>
+
+    <!-- 2-Step Progress Bar -->
+    <div class="flex items-center max-w-xl mx-auto px-4 sm:px-6 mb-10">
+      <!-- Step 1 -->
+      <div class="flex flex-col items-center gap-1.5">
+        <div class="w-8 h-8 rounded-full bg-[#0097FF] text-white text-sm font-bold flex items-center justify-center">✓</div>
+        <span class="text-xs font-medium text-[#0097FF]">작가 프로필</span>
+      </div>
+      <div class="flex-1 h-0.5 bg-[#0097FF] mx-2"></div>
+      <!-- Step 2 -->
+      <div class="flex flex-col items-center gap-1.5">
+        <div class="w-8 h-8 rounded-full bg-[#1D3CFF] text-white text-sm font-bold flex items-center justify-center">2</div>
+        <span class="text-xs font-semibold text-[#1D3CFF]">포트폴리오 등록</span>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    <div th:if="${errorMessage}"
+         class="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-6 text-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <span th:text="${errorMessage}"></span>
+    </div>
+
+    <!-- Form -->
+    <form th:action="@{/photographer/{id}/portfolio/new(id=${photographerId})}"
+          method="post" id="portfolio-form">
+
+      <!-- ─── 프로젝트 정보 ─────────────────────────── -->
+      <div class="bg-white border border-[#CCC] rounded-2xl p-6 mb-5">
+        <div class="flex items-center gap-2 mb-5">
+          <div class="w-2 h-2 rounded-full bg-[#1D3CFF] flex-shrink-0"></div>
+          <h2 class="text-base font-semibold text-[#1A1A1A]">프로젝트 정보</h2>
+        </div>
+
+        <div class="space-y-5">
+
+          <!-- 프로젝트 이름 -->
+          <div>
+            <label class="block text-sm font-medium text-[#444] mb-1.5">
+              프로젝트 이름 <span class="text-[#1D3CFF]">*</span>
+            </label>
+            <input type="text" name="name"
+                   th:value="${portfolioDto.name}"
+                   required maxlength="100"
+                   placeholder="프로젝트를 요약할 수 있는 이름을 작성해주세요"
+                   class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-2.5 text-[#1A1A1A] placeholder-[#AAA] text-[15px] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+          </div>
+
+          <!-- 프로젝트 종류 + 기간 -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- 프로젝트 종류 — DTO 미대응, UI only -->
+            <div>
+              <label class="block text-sm font-medium text-[#444] mb-1.5">
+                프로젝트 종류
+              </label>
+              <div class="grid grid-cols-2 gap-2">
+                <label class="cursor-pointer">
+                  <input type="radio" name="projectType" value="PERSONAL" class="peer sr-only" checked>
+                  <span class="flex items-center justify-center rounded-lg border border-[#1D3CFF] bg-white px-4 py-2.5 text-sm font-semibold text-[#1D3CFF] transition-colors peer-checked:bg-[#1D3CFF] peer-checked:text-white">
+                    개인
+                  </span>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="projectType" value="COMMERCIAL" class="peer sr-only">
+                  <span class="flex items-center justify-center rounded-lg border border-[#CCC] bg-[#F9FAFC] px-4 py-2.5 text-sm font-semibold text-[#444] transition-colors peer-checked:border-[#1D3CFF] peer-checked:bg-[#1D3CFF] peer-checked:text-white">
+                    상업 프로젝트
+                  </span>
+                </label>
+              </div>
+              <p class="mt-1.5 text-xs text-[#888]">현재는 화면 선택만 제공되고 저장 연동은 준비 중입니다</p>
+            </div>
+            <!-- 프로젝트 기간 — DTO: startTime / endTime (LocalDate) -->
+            <div>
+              <label class="block text-sm font-medium text-[#444] mb-1.5">프로젝트 기간</label>
+              <input type="hidden" name="startTime" id="start-time-hidden"
+                     th:value="${portfolioDto.startTime}">
+              <input type="hidden" name="endTime" id="end-time-hidden"
+                     th:value="${portfolioDto.endTime}">
+              <button type="button"
+                      id="period-trigger"
+                      class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-3 text-left focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+                <span class="flex items-center justify-between gap-3">
+                  <span id="period-trigger-label" class="block text-sm font-medium text-[#1A1A1A]"></span>
+                  <span id="period-complete-badge" class="hidden flex-shrink-0 items-center gap-1 text-xs font-semibold text-emerald-600">
+                    <span>✓</span>
+                    <span>선택 완료</span>
+                  </span>
+                </span>
+              </button>
+              <div class="grid grid-cols-2 gap-2 mt-2">
+                <div class="rounded-lg border border-[#CCC] bg-[#F9FAFC] px-3 py-2">
+                  <p class="text-[10px] text-[#AAA] mb-1">시작일</p>
+                  <p id="start-month-display" class="text-sm text-[#1A1A1A]">미선택</p>
+                </div>
+                <div class="rounded-lg border border-[#CCC] bg-[#F9FAFC] px-3 py-2">
+                  <p class="text-[10px] text-[#AAA] mb-1">종료일</p>
+                  <p id="end-month-display" class="text-sm text-[#1A1A1A]">미선택</p>
+                </div>
+              </div>
+              <p id="period-guide-text" class="mt-1.5 text-xs text-[#888]">달력에서 프로젝트 기간을 선택해주세요.</p>
+              <p id="date-range-warning" class="mt-1.5 hidden text-xs font-medium text-red-600">
+                종료 월은 시작 월보다 빠를 수 없어요.
+              </p>
+            </div>
+          </div>
+
+          <!-- 태그 — name="tagIdList" (id placeholder, 태그 테이블 연동 전) -->
+          <div>
+            <label class="block text-sm font-medium text-[#444] mb-1.5">
+              태그 <span class="text-xs text-[#888] font-normal">(중복 선택 가능)</span>
+            </label>
+            <div id="tag-grid" class="flex flex-wrap gap-2 mb-2">
+              <!-- 태그 ID는 태그 테이블 연동 전 임시 placeholder값. 연동 후 th:each로 교체 -->
+              <label class="tag-label cursor-pointer"><input type="checkbox" name="tagIdList" value="1" class="hidden"><span class="inline-block bg-[#F9FAFC] border border-[#CCC] text-[#444] text-sm px-3 py-1.5 rounded-full transition-colors">웨딩</span></label>
+              <label class="tag-label cursor-pointer"><input type="checkbox" name="tagIdList" value="2" class="hidden"><span class="inline-block bg-[#F9FAFC] border border-[#CCC] text-[#444] text-sm px-3 py-1.5 rounded-full transition-colors">프로필</span></label>
+              <label class="tag-label cursor-pointer"><input type="checkbox" name="tagIdList" value="3" class="hidden"><span class="inline-block bg-[#F9FAFC] border border-[#CCC] text-[#444] text-sm px-3 py-1.5 rounded-full transition-colors">졸업</span></label>
+              <label class="tag-label cursor-pointer"><input type="checkbox" name="tagIdList" value="4" class="hidden"><span class="inline-block bg-[#F9FAFC] border border-[#CCC] text-[#444] text-sm px-3 py-1.5 rounded-full transition-colors">가족/아이</span></label>
+              <label class="tag-label cursor-pointer"><input type="checkbox" name="tagIdList" value="5" class="hidden"><span class="inline-block bg-[#F9FAFC] border border-[#CCC] text-[#444] text-sm px-3 py-1.5 rounded-full transition-colors">제품/커머셜</span></label>
+              <label class="tag-label cursor-pointer"><input type="checkbox" name="tagIdList" value="6" class="hidden"><span class="inline-block bg-[#F9FAFC] border border-[#CCC] text-[#444] text-sm px-3 py-1.5 rounded-full transition-colors">음식</span></label>
+              <label class="tag-label cursor-pointer"><input type="checkbox" name="tagIdList" value="7" class="hidden"><span class="inline-block bg-[#F9FAFC] border border-[#CCC] text-[#444] text-sm px-3 py-1.5 rounded-full transition-colors">건축</span></label>
+              <label class="tag-label cursor-pointer"><input type="checkbox" name="tagIdList" value="8" class="hidden"><span class="inline-block bg-[#F9FAFC] border border-[#CCC] text-[#444] text-sm px-3 py-1.5 rounded-full transition-colors">공연</span></label>
+              <label class="tag-label cursor-pointer"><input type="checkbox" name="tagIdList" value="9" class="hidden"><span class="inline-block bg-[#F9FAFC] border border-[#CCC] text-[#444] text-sm px-3 py-1.5 rounded-full transition-colors">드론</span></label>
+              <label class="tag-label cursor-pointer"><input type="checkbox" name="tagIdList" value="10" class="hidden"><span class="inline-block bg-[#F9FAFC] border border-[#CCC] text-[#444] text-sm px-3 py-1.5 rounded-full transition-colors">데이트스냅</span></label>
+              <label class="tag-label cursor-pointer"><input type="checkbox" name="tagIdList" value="11" class="hidden"><span class="inline-block bg-[#F9FAFC] border border-[#CCC] text-[#444] text-sm px-3 py-1.5 rounded-full transition-colors">야외</span></label>
+              <label class="tag-label cursor-pointer"><input type="checkbox" name="tagIdList" value="12" class="hidden"><span class="inline-block bg-[#F9FAFC] border border-[#CCC] text-[#444] text-sm px-3 py-1.5 rounded-full transition-colors">스튜디오</span></label>
+            </div>
+            <p class="text-xs text-[#888]">선택한 태그는 검색 노출에 활용됩니다</p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ─── 작업물 첨부 (visual only) ────────────────── -->
+      <div class="bg-white border border-[#CCC] rounded-2xl p-6 mb-5">
+        <div class="flex items-center gap-2 mb-5">
+          <div class="w-2 h-2 rounded-full bg-[#1D3CFF] flex-shrink-0"></div>
+          <h2 class="text-base font-semibold text-[#1A1A1A]">작업물 첨부</h2>
+        </div>
+
+        <!-- 업로드 영역 — S3 연동 전 visual only -->
+        <div class="border-2 border-dashed border-[#CCC] rounded-xl bg-[#F9FAFC] px-6 py-12 flex flex-col items-center gap-3 cursor-not-allowed select-none mb-4">
+          <div class="w-14 h-14 rounded-full bg-[#D3DEF2] flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-[#888]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/>
+            </svg>
+          </div>
+          <div class="text-center">
+            <p class="text-sm font-semibold text-[#444]">클릭하거나 드래그해서 이미지를 업로드하세요</p>
+            <p class="text-xs text-[#888] mt-1">JPG, PNG, WEBP 형식 지원 · 최대 20장 · 파일당 최대 30MB</p>
+          </div>
+          <button type="button" disabled
+                  class="mt-1 text-sm font-semibold border border-[#CCC] text-[#AAA] bg-white rounded-lg px-5 py-2 cursor-not-allowed">
+            파일 선택 (준비 중)
+          </button>
+        </div>
+
+        <!-- 미리보기 그리드 placeholder -->
+        <div class="grid grid-cols-4 sm:grid-cols-6 gap-2 mb-2">
+          <div class="aspect-square rounded-lg bg-[#D3DEF2] flex items-center justify-center">
+            <span class="text-xs text-[#888] font-semibold">대표</span>
+          </div>
+          <div class="aspect-square rounded-lg border-2 border-dashed border-[#CCC] bg-[#F9FAFC] flex items-center justify-center text-[#CCC] text-xl cursor-not-allowed">+</div>
+        </div>
+        <p class="text-xs text-[#888]">대표 이미지는 첫 번째 사진으로 자동 설정됩니다. 드래그로 순서를 변경할 수 있어요.</p>
+      </div>
+
+      <!-- ─── 설명 작성 ─────────────────────────────────── -->
+      <div class="bg-white border border-[#CCC] rounded-2xl p-6 mb-5">
+        <div class="flex items-center gap-2 mb-5">
+          <div class="w-2 h-2 rounded-full bg-[#1D3CFF] flex-shrink-0"></div>
+          <h2 class="text-base font-semibold text-[#1A1A1A]">설명 작성</h2>
+        </div>
+
+        <div>
+          <div class="flex justify-between items-center mb-1.5">
+            <label class="text-sm font-medium text-[#444]">포트폴리오 설명 <span class="text-[#1D3CFF]">*</span></label>
+            <span id="desc-count" class="text-xs text-[#888]">0자</span>
+          </div>
+          <textarea name="description"
+                    th:text="${portfolioDto.description}"
+                    required id="desc-textarea"
+                    rows="7"
+                    placeholder="포트폴리오를 설명해주세요&#10;&#10;예) 촬영 장소, 컨셉, 사용 장비, 특이사항 등을 자유롭게 작성해주세요."
+                    class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-3 text-[#1A1A1A] placeholder-[#AAA] text-[15px] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF] resize-none leading-relaxed"></textarea>
+          <div class="flex justify-between items-center mt-1.5">
+            <span class="text-xs text-[#888]">100자 이상 작성해주세요</span>
+            <span id="desc-count-status" class="text-xs text-[#AAA]"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── 하단 버튼 ─────────────────────────────────── -->
+      <div class="flex items-center justify-end gap-3">
+        <a th:href="@{/photographer/{id}/profile/edit(id=${photographerId})}"
+           class="text-sm font-semibold text-[#888] border border-[#CCC] rounded-lg px-5 py-2.5 hover:border-[#888] transition-colors">
+          취소
+        </a>
+        <button type="submit"
+                class="text-sm font-semibold bg-white border border-[#1D3CFF] text-[#1D3CFF] rounded-lg px-6 py-2.5 hover:bg-[#1D3CFF] hover:text-white active:bg-[#1530E0] active:border-[#1530E0] transition-colors">
+          저장하기
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+  <div id="month-picker-modal"
+       class="fixed inset-0 z-50 hidden items-center justify-center bg-[#1A1A1A]/35 px-4">
+    <div class="w-full max-w-sm rounded-2xl border border-[#CCC] bg-white p-5 shadow-lg">
+      <div class="flex items-start justify-between gap-4 mb-4">
+        <div>
+          <p class="text-sm font-semibold text-[#1A1A1A]">프로젝트 기간 선택</p>
+          <p id="month-picker-subtitle" class="text-xs text-[#888]">시작 월을 선택해주세요</p>
+        </div>
+        <button type="button"
+                id="month-picker-close"
+                class="flex h-8 w-8 items-center justify-center rounded-lg border border-[#CCC] text-[#888] transition-colors hover:border-[#1D3CFF] hover:text-[#1D3CFF]">
+          ×
+        </button>
+      </div>
+
+      <div class="mb-4 flex items-center justify-between rounded-xl bg-[#F9FAFC] px-3 py-2">
+        <button type="button"
+                id="month-picker-prev"
+                class="flex h-8 w-8 items-center justify-center rounded-lg border border-[#CCC] bg-white text-[#444] transition-colors hover:border-[#1D3CFF] hover:text-[#1D3CFF]">
+          ‹
+        </button>
+        <span id="month-picker-year" class="text-base font-semibold text-[#1A1A1A]"></span>
+        <button type="button"
+                id="month-picker-next"
+                class="flex h-8 w-8 items-center justify-center rounded-lg border border-[#CCC] bg-white text-[#444] transition-colors hover:border-[#1D3CFF] hover:text-[#1D3CFF]">
+          ›
+        </button>
+      </div>
+
+      <div id="month-grid" class="grid grid-cols-3 gap-2"></div>
+
+      <div class="mt-4 flex items-center justify-between text-xs text-[#888]">
+        <span>표시는 `년. 월` 기준입니다</span>
+        <button type="button" id="month-picker-clear" class="font-semibold text-[#0097FF]">선택 초기화</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  // ── 프로젝트 기간 월 선택기 ───────────────────────────────────
+  (function () {
+    var modal = document.getElementById('month-picker-modal');
+    var subtitle = document.getElementById('month-picker-subtitle');
+    var yearLabel = document.getElementById('month-picker-year');
+    var monthGrid = document.getElementById('month-grid');
+    var closeButton = document.getElementById('month-picker-close');
+    var clearButton = document.getElementById('month-picker-clear');
+    var prevButton = document.getElementById('month-picker-prev');
+    var nextButton = document.getElementById('month-picker-next');
+    var periodTrigger = document.getElementById('period-trigger');
+    var periodGuideText = document.getElementById('period-guide-text');
+    var periodTriggerLabel = document.getElementById('period-trigger-label');
+    var periodCompleteBadge = document.getElementById('period-complete-badge');
+    var startDisplay = document.getElementById('start-month-display');
+    var endDisplay = document.getElementById('end-month-display');
+    var startHidden = document.getElementById('start-time-hidden');
+    var endHidden = document.getElementById('end-time-hidden');
+    var rangeWarning = document.getElementById('date-range-warning');
+    var portfolioForm = document.getElementById('portfolio-form');
+
+    if (!modal || !monthGrid || !periodTrigger || !startHidden || !endHidden) return;
+
+    var monthNames = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
+    var activeTarget = 'start';
+    var currentYear = new Date().getFullYear();
+
+    function parseDateValue(value) {
+      if (!value) return null;
+      var parts = value.split('-');
+      if (parts.length < 2) return null;
+      return {
+        year: Number(parts[0]),
+        month: Number(parts[1])
+      };
+    }
+
+    function formatDisplay(value) {
+      var parsed = parseDateValue(value);
+      if (!parsed) return '';
+      return parsed.year + '. ' + String(parsed.month).padStart(2, '0');
+    }
+
+    function getLastDay(year, month) {
+      return new Date(year, month, 0).getDate();
+    }
+
+    function buildHiddenValue(target, year, month) {
+      var day = target === 'end' ? getLastDay(year, month) : 1;
+      return year + '-' + String(month).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+    }
+
+    function syncTriggerLabels() {
+      var startText = formatDisplay(startHidden.value);
+      var endText = formatDisplay(endHidden.value);
+
+      if (startDisplay) startDisplay.textContent = startText || '미선택';
+      if (endDisplay) endDisplay.textContent = endText || '미선택';
+
+      if (periodTriggerLabel) {
+        if (startText && endText) {
+          periodTriggerLabel.textContent = startText + ' - ' + endText;
+        } else if (startText) {
+          periodTriggerLabel.textContent = startText + ' - 종료 월 선택';
+        } else {
+          periodTriggerLabel.textContent = '프로젝트 기간 선택';
+        }
+      }
+
+      if (periodCompleteBadge) {
+        var isComplete = Boolean(startText && endText) && compareRange() >= 0;
+        periodCompleteBadge.classList.toggle('hidden', !isComplete);
+        periodCompleteBadge.classList.toggle('flex', isComplete);
+      }
+
+      if (periodGuideText) {
+        var showGuide = !(Boolean(startText && endText) && compareRange() >= 0);
+        periodGuideText.classList.toggle('hidden', !showGuide);
+      }
+    }
+
+    function compareRange() {
+      var startValue = parseDateValue(startHidden.value);
+      var endValue = parseDateValue(endHidden.value);
+
+      if (!startValue || !endValue) return 0;
+
+      var startNumber = startValue.year * 100 + startValue.month;
+      var endNumber = endValue.year * 100 + endValue.month;
+      if (endNumber < startNumber) return -1;
+      if (endNumber > startNumber) return 1;
+      return 0;
+    }
+
+    function syncRangeWarning() {
+      if (!rangeWarning) return true;
+      var isInvalid = compareRange() < 0;
+      rangeWarning.classList.toggle('hidden', !isInvalid);
+      periodTrigger.classList.toggle('border-red-300', isInvalid);
+      periodTrigger.classList.toggle('text-red-600', isInvalid);
+      return !isInvalid;
+    }
+
+    function updateSubtitle() {
+      subtitle.textContent = activeTarget === 'start' ? '시작 월을 선택해주세요' : '종료 월을 선택해주세요';
+    }
+
+    function renderMonths() {
+      var startValue = parseDateValue(startHidden.value);
+      var endValue = parseDateValue(endHidden.value);
+      yearLabel.textContent = currentYear + '년';
+      monthGrid.innerHTML = '';
+
+      monthNames.forEach(function (name, index) {
+        var month = index + 1;
+        var isSelected = activeTarget === 'start'
+          ? startValue && startValue.year === currentYear && startValue.month === month
+          : endValue && endValue.year === currentYear && endValue.month === month;
+        var isReferenced = activeTarget === 'start'
+          ? endValue && endValue.year === currentYear && endValue.month === month
+          : startValue && startValue.year === currentYear && startValue.month === month;
+
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'rounded-xl border px-3 py-3 text-sm font-semibold transition-colors ';
+        if (isSelected) {
+          button.className += 'border-[#1D3CFF] bg-[#1D3CFF] text-white';
+        } else if (isReferenced) {
+          button.className += 'border-[#1D3CFF] bg-white text-[#1D3CFF]';
+        } else {
+          button.className += 'border-[#CCC] bg-[#F9FAFC] text-[#444] hover:border-[#1D3CFF] hover:text-[#1D3CFF]';
+        }
+        button.textContent = name;
+        button.addEventListener('click', function () {
+          var selectedTarget = activeTarget;
+          var nextValue = buildHiddenValue(selectedTarget, currentYear, month);
+
+          if (selectedTarget === 'start') {
+            startHidden.value = nextValue;
+            activeTarget = 'end';
+            updateSubtitle();
+          } else {
+            endHidden.value = nextValue;
+          }
+
+          syncTriggerLabels();
+          var isValidRange = syncRangeWarning();
+          renderMonths();
+
+          if (selectedTarget === 'end' && isValidRange) {
+            closePicker();
+          }
+        });
+        monthGrid.appendChild(button);
+      });
+    }
+
+    function openPicker(target) {
+      activeTarget = target;
+      var parsed = parseDateValue(target === 'start' ? startHidden.value : endHidden.value);
+      currentYear = parsed ? parsed.year : new Date().getFullYear();
+      updateSubtitle();
+      renderMonths();
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closePicker() {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    periodTrigger.addEventListener('click', function () {
+      openPicker('start');
+    });
+
+    prevButton.addEventListener('click', function () {
+      currentYear -= 1;
+      renderMonths();
+    });
+
+    nextButton.addEventListener('click', function () {
+      currentYear += 1;
+      renderMonths();
+    });
+
+    closeButton.addEventListener('click', closePicker);
+
+    clearButton.addEventListener('click', function () {
+      if (activeTarget === 'start') {
+        startHidden.value = '';
+      } else {
+        endHidden.value = '';
+      }
+      syncTriggerLabels();
+      syncRangeWarning();
+      renderMonths();
+    });
+
+    modal.addEventListener('click', function (event) {
+      if (event.target === modal) {
+        closePicker();
+      }
+    });
+
+    syncTriggerLabels();
+    syncRangeWarning();
+
+    if (portfolioForm) {
+      portfolioForm.addEventListener('submit', function (event) {
+        if (!syncRangeWarning()) {
+          event.preventDefault();
+          if (activeTarget !== 'end') {
+            openPicker('end');
+          }
+        }
+      });
+    }
+  })();
+
+  // ── 태그 토글 ────────────────────────────────────────────────
+  document.querySelectorAll('.tag-label').forEach(function (label) {
+    label.addEventListener('click', function () {
+      var checkbox = label.querySelector('input[type="checkbox"]');
+      var span = label.querySelector('span');
+      if (checkbox.checked) {
+        span.classList.remove('bg-[#1D3CFF]', 'text-white', 'border-[#1D3CFF]');
+        span.classList.add('bg-[#F9FAFC]', 'text-[#444]', 'border-[#CCC]');
+      } else {
+        span.classList.remove('bg-[#F9FAFC]', 'text-[#444]', 'border-[#CCC]');
+        span.classList.add('bg-[#1D3CFF]', 'text-white', 'border-[#1D3CFF]');
+      }
+    });
+  });
+
+  // ── 설명 글자수 카운터 ────────────────────────────────────────
+  (function () {
+    var textarea = document.getElementById('desc-textarea');
+    var count = document.getElementById('desc-count');
+    var status = document.getElementById('desc-count-status');
+    if (!textarea) return;
+    function update() {
+      var len = textarea.value.length;
+      count.textContent = len + '자';
+      if (len >= 100) {
+        status.textContent = '✓ 최소 글자수 충족';
+        status.className = 'text-xs text-[#0097FF]';
+      } else {
+        status.textContent = (100 - len) + '자 더 입력해주세요';
+        status.className = 'text-xs text-[#AAA]';
+      }
+    }
+    textarea.addEventListener('input', update);
+    update();
+  })();
+  </script>
+</main>
+
+</body>
+</html>
