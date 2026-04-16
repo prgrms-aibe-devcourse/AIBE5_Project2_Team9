@@ -15,6 +15,13 @@ public class PhotographerProfileController {
 
     private final PhotographerProfileService photographerProfileService;
 
+    @GetMapping
+    public String profilePage(@PathVariable Long photographerId, Model model) {
+        PhotographerProfileResponse response = photographerProfileService.getProfileForm(photographerId);
+        model.addAttribute("profile", response);
+        return "photographer/profile";
+    }
+
     @GetMapping("/edit")
     public String editProfilePage(@PathVariable Long photographerId, Model model) {
         PhotographerProfileResponse response = photographerProfileService.getProfileForm(photographerId);
