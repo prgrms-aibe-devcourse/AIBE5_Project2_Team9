@@ -58,6 +58,8 @@ public class PortfolioController {
         model.addAttribute("photographerId", photographerId);
         model.addAttribute("photographerNickname", profile != null ? profile.getNickname() : "");
         model.addAttribute("photographerImgUrl", profile != null ? profile.getImgUrl() : null);
+        model.addAttribute("photographerRating", 0.0);
+        model.addAttribute("photographerReviewCount", 0);
         return "photographer/portfolio-detail";
     }
 }
