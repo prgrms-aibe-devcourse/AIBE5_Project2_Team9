@@ -20,7 +20,7 @@ public class PhotographerProfileController {
         PhotographerProfileResponse response = photographerProfileService.getProfileForm(photographerId);
 
         model.addAttribute("profile", response);
-        return "photographer/editProfile";
+        return "photographer/editProfileForm";
     }
 
     @PostMapping("/edit")
@@ -31,11 +31,11 @@ public class PhotographerProfileController {
     ) {
         try {
             photographerProfileService.createOrUpdateProfile(photographerId, request);
-            return "redirect:/photographer/" + photographerId;
+            return "redirect:/photographer/" + photographerId + "/profile";
         } catch (IllegalArgumentException e) {
             model.addAttribute("errorMessage", e.getMessage());
             model.addAttribute("profile", request);
-            return "photographer/editProfile";
+            return "photographer/editProfileForm";
         }
     }
 }
