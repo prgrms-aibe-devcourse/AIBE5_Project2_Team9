@@ -20,7 +20,7 @@ public class PhotographerProfile {
 
     @MapsId
     @OneToOne
-    @JoinColumn(name = "profile_id", referencedColumnName = "photographer_id")
+    @JoinColumn(name = "profile_id")
     private Photographer photographer;
 
     @Column(name = "img_url")
