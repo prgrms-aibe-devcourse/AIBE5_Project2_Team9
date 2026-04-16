@@ -11,6 +11,7 @@ public record PhotographerProfileResponse(
         String link,
         List<String> tools,
         List<CareerDto> careers,
-        List<EducationDto> educations
+        List<EducationDto> educations,
+        List<PhotographerPortfolioSummaryDto> portfolios
 ) {
 }

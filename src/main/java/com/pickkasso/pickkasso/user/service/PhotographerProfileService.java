@@ -3,6 +3,7 @@ package com.pickkasso.pickkasso.user.service;
 import com.pickkasso.pickkasso.user.dto.photographer.CareerDto;
 import com.pickkasso.pickkasso.user.dto.photographer.EducationDto;
 import com.pickkasso.pickkasso.user.dto.photographer.PhotographerProfileEditRequest;
+import com.pickkasso.pickkasso.user.dto.photographer.PhotographerPortfolioSummaryDto;
 import com.pickkasso.pickkasso.user.dto.photographer.PhotographerProfileResponse;
 import com.pickkasso.pickkasso.user.entity.Career;
 import com.pickkasso.pickkasso.user.entity.Education;
@@ -12,6 +13,7 @@ import com.pickkasso.pickkasso.user.repository.CareerRepository;
 import com.pickkasso.pickkasso.user.repository.EducationRepository;
 import com.pickkasso.pickkasso.user.repository.PhotographerProfileRepository;
 import com.pickkasso.pickkasso.user.repository.PhotographerRepository;
+import com.pickkasso.pickkasso.user.repository.PortfolioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +32,7 @@ public class PhotographerProfileService {
     private final PhotographerProfileRepository photographerProfileRepository;
     private final CareerRepository careerRepository;
     private final EducationRepository educationRepository;
+    private final PortfolioRepository portfolioRepository;
 
     @Transactional(readOnly = true)
     public PhotographerProfileResponse getProfileForm(Long photographerId) {
@@ -55,6 +58,15 @@ public class PhotographerProfileService {
                 ))
                 .toList();
 
+        List<PhotographerPortfolioSummaryDto> portfolios = portfolioRepository.findByPhotographerIdOrderByIdDesc(photographerId)
+                .stream()
+                .map(portfolio -> new PhotographerPortfolioSummaryDto(
+                        portfolio.getId(),
+                        portfolio.getName(),
+                        portfolio.getDescription()
+                ))
+                .toList();
+
         PhotographerProfile profile = photographer.getPhotographerProfile();
 
         // 프로필이 없으면 빈 폼 데이터 반환
@@ -68,7 +80,8 @@ public class PhotographerProfileService {
                     null,
                     new ArrayList<>(),
                     careerDtos,
-                    educationDtos
+                    educationDtos,
+                    portfolios
             );
         }
 
@@ -81,7 +94,8 @@ public class PhotographerProfileService {
                 profile.getLink(),
                 convertToolsToList(profile.getTools()),
                 careerDtos,
-                educationDtos
+                educationDtos,
+                portfolios
         );
     }
 

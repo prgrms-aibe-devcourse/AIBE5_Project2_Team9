@@ -106,7 +106,11 @@
         <div>
           <p class="text-xs font-bold text-[#888] uppercase tracking-wide mb-2">카테고리</p>
           <div class="flex flex-wrap gap-2">
-            <span class="bg-[#F9FAFC] text-[#AAA] text-xs px-3 py-1 rounded-full border border-[#CCC]">준비 중</span>
+            <span th:if="${portfolioTagNames == null or portfolioTagNames.isEmpty()}"
+                  class="bg-[#F9FAFC] text-[#AAA] text-xs px-3 py-1 rounded-full border border-[#CCC]">준비 중</span>
+            <span th:each="tagName : ${portfolioTagNames}"
+                  class="bg-[#EEF4FF] text-[#1D3CFF] text-xs px-3 py-1 rounded-full border border-[#C9DAFF]"
+                  th:text="${tagName}">태그</span>
           </div>
         </div>
         <div class="h-px bg-[#CCC]"></div>
