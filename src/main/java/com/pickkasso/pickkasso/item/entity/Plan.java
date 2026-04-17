@@ -1,0 +1,79 @@
+package com.pickkasso.pickkasso.item.entity;
+
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Table(name = "t_plan")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Plan {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "plan_id")
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "item_id", nullable = false)
+    private Item item;
+
+    @Column(name = "price", nullable = false)
+    private Integer price;
+
+    @Column(name="shooting_duration", nullable = false)
+    private Integer shootingDuration;
+
+    @Column(name="original_photo_count", nullable = false)
+    private Integer originalPhotoCount;
+
+    @Column(name="edited_photo_count", nullable = false)
+    private Integer editedPhotoCount;
+
+    @Column(name="delivery_days", nullable = false)
+    private Integer deliveryDays;
+
+    private Plan(
+        Item item,
+        Integer price,
+        Integer shootingDuration,
+        Integer originalPhotoCount,
+        Integer editedPhotoCount,
+        Integer deliveryDays) {
+
+        this.item = item;
+        this.price = price;
+        this.shootingDuration = shootingDuration;
+        this.originalPhotoCount = originalPhotoCount;
+        this.editedPhotoCount = editedPhotoCount;
+        this.deliveryDays = deliveryDays;
+    }
+
+    //== 생성 method ==//
+    public static Plan createPlan(
+        Item item,
+        Integer price,
+        Integer shootingDuration,
+        Integer originalPhotoCount,
+        Integer editedPhotoCount,
+        Integer deliveryDays) {
+
+        Plan plan = new Plan(item, price, shootingDuration, originalPhotoCount, editedPhotoCount, deliveryDays);
+        plan.item.addPlan(plan);
+        plan.item.updateDefaultPrice();
+
+        return plan;
+    }
+
+    public void setPrice(Integer price) {
+        this.price = price;
+        this.item.updateDefaultPrice();
+    }
+
+    public void deletePlan() {
+        this.item.removePlan(this);
+        this.item.updateDefaultPrice();
+        this.item = null;
+    }
+}
