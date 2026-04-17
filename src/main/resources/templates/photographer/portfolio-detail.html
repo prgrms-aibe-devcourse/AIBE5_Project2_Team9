@@ -117,12 +117,21 @@
         <div>
           <p class="text-xs font-bold text-[#888] uppercase tracking-wide mb-2">프로젝트 종류</p>
           <div class="flex flex-wrap gap-2">
-            <span class="bg-[#F9FAFC] text-[#AAA] text-xs px-3 py-1 rounded-full border border-[#CCC]">준비 중</span>
+            <span th:if="${portfolioProjectType == null}"
+                  class="bg-[#F9FAFC] text-[#AAA] text-xs px-3 py-1 rounded-full border border-[#CCC]">준비 중</span>
+            <span th:if="${portfolioProjectType != null}"
+                  class="bg-[#EEF4FF] text-[#1D3CFF] text-xs px-3 py-1 rounded-full border border-[#C9DAFF]"
+                  th:text="${portfolioProjectType.displayName}">개인</span>
           </div>
         </div>
       </div>
 
       <!-- 예약 버튼 -->
+      <a th:href="@{/photographer/{id}/portfolio/{portfolioId}/edit(id=${photographerId}, portfolioId=${portfolioId})}"
+         class="block w-full bg-white border border-[#CCC] text-[#444] font-bold py-3.5 rounded-xl text-[15px] hover:border-[#1D3CFF] hover:text-[#1D3CFF] transition-colors text-center no-underline">
+        포트폴리오 수정하기
+      </a>
+
       <a th:href="@{/photographer/{id}/profile(id=${photographerId})}"
          class="block w-full bg-white border border-[#1D3CFF] text-[#1D3CFF] font-bold py-3.5 rounded-xl text-[15px] hover:bg-[#1D3CFF] hover:text-white active:bg-[#1530E0] active:border-[#1530E0] transition-colors text-center no-underline">
         이 작가에게 예약하기
