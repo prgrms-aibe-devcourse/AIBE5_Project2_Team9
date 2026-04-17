@@ -1,6 +1,5 @@
 package com.pickkasso.pickkasso.global.controller;
 
-import com.pickkasso.pickkasso.global.tag.Tag;
 import com.pickkasso.pickkasso.global.tag.TagReference;
 import com.pickkasso.pickkasso.global.tag.TagService;
 import com.pickkasso.pickkasso.item.dto.ItemSearchFormDto;
