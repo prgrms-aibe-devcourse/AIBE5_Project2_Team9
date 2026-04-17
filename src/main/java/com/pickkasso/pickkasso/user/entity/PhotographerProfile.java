@@ -29,6 +29,7 @@ public class PhotographerProfile {
     @Column(name = "nickname", nullable = false)
     private String nickname;
 
+    @Lob
     @Column(name = "intro", nullable = false)
     private String intro;
 
