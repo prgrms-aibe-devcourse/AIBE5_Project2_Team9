@@ -79,6 +79,12 @@ public class PortfolioService {
         portfolio.updateTags(getTags(dto.tagIdList()));
     }
 
+    public void deletePortfolio(Long photographerId, Long portfolioId) {
+        Portfolio portfolio = getOwnedPortfolio(photographerId, portfolioId);
+        portfolio.updateTags(List.of());
+        portfolioRepository.delete(portfolio);
+    }
+
     private Portfolio getOwnedPortfolio(Long photographerId, Long portfolioId) {
         return portfolioRepository.findByIdAndPhotographerId(portfolioId, photographerId)
                 .orElseThrow(() -> new IllegalArgumentException("포트폴리오를 찾을 수 없습니다."));

@@ -224,18 +224,32 @@
       </div>
 
       <!-- ─── 하단 버튼 ─────────────────────────────────── -->
-      <div class="flex items-center justify-end gap-3">
-        <a th:href="@{/photographer/{id}/profile/edit(id=${photographerId})}"
-           class="text-sm font-semibold text-[#888] border border-[#CCC] rounded-lg px-5 py-2.5 hover:border-[#888] transition-colors">
-          취소
-        </a>
-        <button type="submit"
-                class="text-sm font-semibold bg-white border border-[#1D3CFF] text-[#1D3CFF] rounded-lg px-6 py-2.5 hover:bg-[#1D3CFF] hover:text-white active:bg-[#1530E0] active:border-[#1530E0] transition-colors">
-          저장하기
+      <div class="flex items-center justify-between gap-3">
+        <button th:if="${portfolioId != null}"
+                type="button"
+                id="delete-portfolio-trigger"
+                class="text-sm font-semibold bg-white border border-red-300 text-red-600 rounded-lg px-5 py-2.5 hover:bg-red-50 transition-colors">
+          삭제하기
         </button>
+
+        <div class="ml-auto flex items-center gap-3">
+          <a th:href="@{/photographer/{id}/profile/edit(id=${photographerId})}"
+             class="text-sm font-semibold text-[#888] border border-[#CCC] rounded-lg px-5 py-2.5 hover:border-[#888] transition-colors">
+            취소
+          </a>
+          <button type="submit"
+                  class="text-sm font-semibold bg-white border border-[#1D3CFF] text-[#1D3CFF] rounded-lg px-6 py-2.5 hover:bg-[#1D3CFF] hover:text-white active:bg-[#1530E0] active:border-[#1530E0] transition-colors">
+            저장하기
+          </button>
+        </div>
       </div>
 
     </form>
+
+    <form th:if="${portfolioId != null}"
+          th:action="@{/photographer/{id}/portfolio/{portfolioId}/delete(id=${photographerId}, portfolioId=${portfolioId})}"
+          method="post"
+          id="delete-portfolio-form"></form>
   </div>
 
   <div id="month-picker-modal"
@@ -276,7 +290,61 @@
     </div>
   </div>
 
+  <div id="delete-confirm-modal"
+       class="fixed inset-0 z-50 hidden items-center justify-center bg-[#1A1A1A]/35 px-4">
+    <div class="w-full max-w-sm rounded-2xl border border-[#CCC] bg-white p-6 shadow-lg">
+      <h3 class="text-base font-semibold text-[#1A1A1A]">포트폴리오를 삭제할까요?</h3>
+      <p class="mt-2 text-sm text-[#666] leading-relaxed">
+        삭제한 포트폴리오는 복구할 수 없습니다.
+      </p>
+      <div class="mt-6 flex items-center justify-end gap-2">
+        <button type="button"
+                id="delete-confirm-cancel"
+                class="text-sm font-semibold text-[#888] border border-[#CCC] rounded-lg px-4 py-2 hover:border-[#888] transition-colors">
+          취소
+        </button>
+        <button type="button"
+                id="delete-confirm-submit"
+                class="text-sm font-semibold bg-white border border-red-300 text-red-600 rounded-lg px-4 py-2 hover:bg-red-50 transition-colors">
+          삭제
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
+  // ── 삭제 확인 모달 ──────────────────────────────────────────────
+  (function () {
+    var trigger = document.getElementById('delete-portfolio-trigger');
+    var modal = document.getElementById('delete-confirm-modal');
+    var cancelButton = document.getElementById('delete-confirm-cancel');
+    var submitButton = document.getElementById('delete-confirm-submit');
+    var deleteForm = document.getElementById('delete-portfolio-form');
+
+    if (!trigger || !modal || !cancelButton || !submitButton || !deleteForm) return;
+
+    function openModal() {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeModal() {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    trigger.addEventListener('click', openModal);
+    cancelButton.addEventListener('click', closeModal);
+    submitButton.addEventListener('click', function () {
+      deleteForm.submit();
+    });
+    modal.addEventListener('click', function (event) {
+      if (event.target === modal) {
+        closeModal();
+      }
+    });
+  })();
+
   // ── 프로젝트 기간 월 선택기 ───────────────────────────────────
   (function () {
     var modal = document.getElementById('month-picker-modal');
