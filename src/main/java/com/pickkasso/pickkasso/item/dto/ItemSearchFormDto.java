@@ -16,5 +16,4 @@ public class ItemSearchFormDto {
     private String tag;
     private LocalDate date;
     private String orderBy;
-    private Boolean isAsc;
 }
