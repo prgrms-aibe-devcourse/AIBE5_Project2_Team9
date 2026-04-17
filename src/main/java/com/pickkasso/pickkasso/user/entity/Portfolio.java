@@ -1,10 +1,14 @@
 package com.pickkasso.pickkasso.user.entity;
 
 
+import com.pickkasso.pickkasso.global.tag.Tag;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "t_portfolio")
@@ -12,7 +16,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Portfolio {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "portfolio_id")
     private Long id;
 
@@ -23,8 +27,17 @@ public class Portfolio {
     @Column(name = "name")
     private String name;
 
+    @Lob
     @Column(name = "description")
     private String description;
+
+    @ManyToMany
+    @JoinTable(
+            name = "t_portfolio_tag",
+            joinColumns = @JoinColumn(name = "portfolio_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private List<Tag> tags = new ArrayList<>();
 
 
     private Portfolio(
@@ -42,5 +55,18 @@ public class Portfolio {
         String name,
         String description) {
         return new Portfolio(photographer, name, description);
+    }
+
+    public void updatePortfolio(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
+
+    public void updateTags(List<Tag> tags) {
+        this.tags.clear();
+        if (tags == null || tags.isEmpty()) {
+            return;
+        }
+        this.tags.addAll(tags);
     }
 }

@@ -188,7 +188,19 @@
           </div>
 
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            <div class="rounded-2xl border border-dashed border-[#CCC] bg-[#F9FAFC] p-5">
+            <a th:each="portfolio : ${profile.portfolios}"
+               th:href="@{/photographer/{id}/portfolio/{portfolioId}(id=${profile.photographerId}, portfolioId=${portfolio.portfolioId})}"
+               class="rounded-2xl border border-[#CCC] bg-white p-5 hover:shadow-md transition-shadow no-underline">
+              <div class="aspect-[4/3] rounded-xl bg-[#D3DEF2] flex items-center justify-center text-3xl text-[#888] mb-4">🖼️</div>
+              <p class="text-base font-semibold text-[#1A1A1A] mb-2" th:text="${portfolio.name}">포트폴리오 이름</p>
+              <p class="text-sm text-[#888] leading-relaxed line-clamp-3"
+                 th:text="${portfolio.description != null and !#strings.isEmpty(portfolio.description) ? portfolio.description : '포트폴리오 설명이 아직 없습니다.'}">
+                포트폴리오 설명
+              </p>
+            </a>
+
+            <div th:if="${profile.portfolios == null or profile.portfolios.isEmpty()}"
+                 class="rounded-2xl border border-dashed border-[#CCC] bg-[#F9FAFC] p-5">
               <div class="aspect-[4/3] rounded-xl bg-[#D3DEF2] flex items-center justify-center text-3xl text-[#888] mb-4">🖼️</div>
               <p class="text-base font-semibold text-[#1A1A1A] mb-2">등록된 포트폴리오가 아직 없어요</p>
               <p class="text-sm text-[#888] leading-relaxed">프로젝트별 작업물과 설명을 등록하면 고객이 작가님의 분위기를 더 잘 이해할 수 있어요.</p>
