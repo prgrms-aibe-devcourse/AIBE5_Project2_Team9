@@ -20,7 +20,7 @@ public class Photographer extends UserBasicInfo {
 
     @MapsId
     @OneToOne
-    @JoinColumn(name = "photographer_id", referencedColumnName = "account_id")
+    @JoinColumn(name = "photographer_id")
     private Account account;
 
     @OneToOne(mappedBy = "photographer", cascade = CascadeType.ALL)

@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Portfolio {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "portfolio_id")
     private Long id;
 
@@ -23,6 +23,7 @@ public class Portfolio {
     @Column(name = "name")
     private String name;
 
+    @Lob
     @Column(name = "description")
     private String description;
 

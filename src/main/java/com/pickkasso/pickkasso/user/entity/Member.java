@@ -18,7 +18,7 @@ public class Member extends UserBasicInfo {
 
     @MapsId
     @OneToOne
-    @JoinColumn(name = "member_id", referencedColumnName = "account_id")
+    @JoinColumn(name = "member_id")
     private Account account;
 
     private Member(
