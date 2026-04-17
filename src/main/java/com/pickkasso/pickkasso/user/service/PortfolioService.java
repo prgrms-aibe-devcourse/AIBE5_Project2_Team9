@@ -5,6 +5,7 @@ import com.pickkasso.pickkasso.global.tag.TagRepository;
 import com.pickkasso.pickkasso.user.dto.portfolio.PortfolioDto;
 import com.pickkasso.pickkasso.user.entity.Photographer;
 import com.pickkasso.pickkasso.user.entity.Portfolio;
+import com.pickkasso.pickkasso.user.entity.PortfolioProjectType;
 import com.pickkasso.pickkasso.user.repository.PhotographerRepository;
 import com.pickkasso.pickkasso.user.repository.PortfolioRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,8 @@ public class PortfolioService {
                 null,
                 null,
                 null,
-                null
+                null,
+                PortfolioProjectType.PERSONAL
         );
     }
 
@@ -46,7 +48,8 @@ public class PortfolioService {
         Portfolio portfolio = Portfolio.createPortfolio(
                 photographer,
                 dto.name(),
-                dto.description()
+                dto.description(),
+                resolveProjectType(dto)
         );
         portfolio.updateTags(getTags(dto.tagIdList()));
 
@@ -72,7 +75,7 @@ public class PortfolioService {
         validatePortfolio(dto);
 
         Portfolio portfolio = getOwnedPortfolio(photographerId, portfolioId);
-        portfolio.updatePortfolio(dto.name(), dto.description());
+        portfolio.updatePortfolio(dto.name(), dto.description(), resolveProjectType(dto));
         portfolio.updateTags(getTags(dto.tagIdList()));
     }
 
@@ -88,8 +91,16 @@ public class PortfolioService {
                 null,
                 null,
                 null,
-                portfolio.getTags().stream().map(Tag::getId).toList()
+                portfolio.getTags().stream().map(Tag::getId).toList(),
+                portfolio.getProjectType()
         );
+    }
+
+    private PortfolioProjectType resolveProjectType(PortfolioDto dto) {
+        if (dto.projectType() == null) {
+            return PortfolioProjectType.PERSONAL;
+        }
+        return dto.projectType();
     }
 
     private List<Tag> getTags(List<Long> tagIds) {

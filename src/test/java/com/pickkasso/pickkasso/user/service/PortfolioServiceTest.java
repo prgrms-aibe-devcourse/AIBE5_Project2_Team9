@@ -5,6 +5,7 @@ import com.pickkasso.pickkasso.user.entity.Account;
 import com.pickkasso.pickkasso.user.entity.Gender;
 import com.pickkasso.pickkasso.user.entity.Photographer;
 import com.pickkasso.pickkasso.user.entity.Portfolio;
+import com.pickkasso.pickkasso.user.entity.PortfolioProjectType;
 import com.pickkasso.pickkasso.user.entity.Role;
 import com.pickkasso.pickkasso.user.repository.AccountRepository;
 import com.pickkasso.pickkasso.user.repository.PhotographerRepository;
@@ -45,7 +46,8 @@ class PortfolioServiceTest {
                 null,
                 null,
                 null,
-                null
+                null,
+                PortfolioProjectType.COMMERCIAL
         );
 
         // when
@@ -56,6 +58,7 @@ class PortfolioServiceTest {
 
         assertThat(portfolio.getName()).isEqualTo("감성 데이트 스냅");
         assertThat(portfolio.getDescription()).isEqualTo("따뜻한 분위기의 포트폴리오");
+        assertThat(portfolio.getProjectType()).isEqualTo(PortfolioProjectType.COMMERCIAL);
     }
 
     private Photographer createTestPhotographer() {

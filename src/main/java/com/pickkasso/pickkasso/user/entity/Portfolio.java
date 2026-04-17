@@ -31,6 +31,10 @@ public class Portfolio {
     @Column(name = "description")
     private String description;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "project_type")
+    private PortfolioProjectType projectType;
+
     @ManyToMany
     @JoinTable(
             name = "t_portfolio_tag",
@@ -43,23 +47,27 @@ public class Portfolio {
     private Portfolio(
         Photographer photographer,
         String name,
-        String description) {
+        String description,
+        PortfolioProjectType projectType) {
         this.photographer = photographer;
         this.name = name;
         this.description = description;
+        this.projectType = projectType;
     }
 
     //== 생성 method ==//
     public static Portfolio createPortfolio(
         Photographer photographer,
         String name,
-        String description) {
-        return new Portfolio(photographer, name, description);
+        String description,
+        PortfolioProjectType projectType) {
+        return new Portfolio(photographer, name, description, projectType);
     }
 
-    public void updatePortfolio(String name, String description) {
+    public void updatePortfolio(String name, String description, PortfolioProjectType projectType) {
         this.name = name;
         this.description = description;
+        this.projectType = projectType;
     }
 
     public void updateTags(List<Tag> tags) {

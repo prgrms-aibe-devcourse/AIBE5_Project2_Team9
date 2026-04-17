@@ -50,7 +50,9 @@ public class PortfolioController {
         model.addAttribute("portfolioName", portfolioDto.name());
         model.addAttribute("portfolioDescription", portfolioDto.description());
         model.addAttribute("portfolioTagNames", portfolioService.getPortfolioTagNames(photographerId, portfolioId));
+        model.addAttribute("portfolioProjectType", portfolioDto.projectType());
         model.addAttribute("photographerId", photographerId);
+        model.addAttribute("portfolioId", portfolioId);
         model.addAttribute("photographerNickname", "");
         model.addAttribute("photographerImgUrl", null);
         model.addAttribute("photographerRating", 0.0);

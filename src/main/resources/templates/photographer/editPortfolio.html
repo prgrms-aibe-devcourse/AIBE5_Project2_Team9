@@ -70,26 +70,26 @@
 
           <!-- 프로젝트 종류 + 기간 -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- 프로젝트 종류 — DTO 미대응, UI only -->
             <div>
               <label class="block text-sm font-medium text-[#444] mb-1.5">
                 프로젝트 종류
               </label>
               <div class="grid grid-cols-2 gap-2">
                 <label class="cursor-pointer">
-                  <input type="radio" name="projectType" value="PERSONAL" class="peer sr-only" checked>
+                  <input type="radio" name="projectType" value="PERSONAL" class="peer sr-only"
+                         th:checked="${portfolioDto.projectType == null or portfolioDto.projectType.name() == 'PERSONAL'}">
                   <span class="flex items-center justify-center rounded-lg border border-[#CCC] bg-[#F9FAFC] px-4 py-2.5 text-sm font-semibold text-[#444] transition-colors peer-checked:border-[#1D3CFF] peer-checked:bg-[#1D3CFF] peer-checked:text-white">
                     개인
                   </span>
                 </label>
                 <label class="cursor-pointer">
-                  <input type="radio" name="projectType" value="COMMERCIAL" class="peer sr-only">
+                  <input type="radio" name="projectType" value="COMMERCIAL" class="peer sr-only"
+                         th:checked="${portfolioDto.projectType != null and portfolioDto.projectType.name() == 'COMMERCIAL'}">
                   <span class="flex items-center justify-center rounded-lg border border-[#CCC] bg-[#F9FAFC] px-4 py-2.5 text-sm font-semibold text-[#444] transition-colors peer-checked:border-[#1D3CFF] peer-checked:bg-[#1D3CFF] peer-checked:text-white">
                     상업 프로젝트
                   </span>
                 </label>
               </div>
-              <p class="mt-1.5 text-xs text-[#888]">현재는 화면 선택만 제공되고 저장 연동은 준비 중입니다</p>
             </div>
             <!-- 프로젝트 기간 — DTO: startTime / endTime (LocalDate) -->
             <div>
