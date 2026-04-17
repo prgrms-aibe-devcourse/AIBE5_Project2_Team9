@@ -14,12 +14,13 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final CustomSuccessHandler customSuccessHandler;
+    private final CustomOAuth2UserService customOAuth2UserService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/", "/login", "/signup/**", "/css/**", "/js/**", "/images/**").permitAll()
+                    .requestMatchers("/", "/login", "/signup/**", "/find-account","/css/**", "/js/**", "/images/**").permitAll()
                 .anyRequest().authenticated()
             )
                 .formLogin(login -> login
@@ -27,6 +28,14 @@ public class SecurityConfig {
                 .loginProcessingUrl("/login")
                 .successHandler(customSuccessHandler)
                 .failureUrl("/login?error=true")
+                )
+
+                .oauth2Login(oauth -> oauth
+                        .loginPage("/login")
+                        .userInfoEndpoint(user -> user
+                                .userService(customOAuth2UserService)
+                        )
+                        .successHandler(customSuccessHandler)
                 )
                .logout(logout -> logout
                 .logoutUrl("/logout")

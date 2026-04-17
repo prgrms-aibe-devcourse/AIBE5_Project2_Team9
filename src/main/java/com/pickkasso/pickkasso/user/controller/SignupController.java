@@ -1,6 +1,6 @@
 package com.pickkasso.pickkasso.user.controller;
 
-import com.pickkasso.pickkasso.user.dto.SignupRequestDto;
+import com.pickkasso.pickkasso.user.dto.SignupDto;
 import com.pickkasso.pickkasso.user.entity.Role;
 
 import com.pickkasso.pickkasso.user.service.SignupService;
@@ -24,18 +24,18 @@ public class SignupController {
 
     @GetMapping("/signup/user")
     public String signupForm(Model model){
-        model.addAttribute("signupRequestDto", new SignupRequestDto());
+        model.addAttribute("signupRequestDto", new SignupDto());
         return "common/signup-user";
     }
 
     @GetMapping("/signup/photographer")
     public String signupPhotographerForm(Model model){
-        model.addAttribute("signupRequestDto", new SignupRequestDto());
+        model.addAttribute("signupRequestDto", new SignupDto());
         return "common/signup-photographer";
     }
 
     @PostMapping("/signup/user")
-    public String signupUser(@ModelAttribute SignupRequestDto dto, Model model) {
+    public String signupUser(@ModelAttribute SignupDto dto, Model model) {
         try {
             dto.setRole(Role.MEMBER);
             signupService.signup(dto);
@@ -47,7 +47,7 @@ public class SignupController {
     }
 
     @PostMapping("/signup/photographer")
-    public String signupPhotograper(@ModelAttribute SignupRequestDto dto, Model model) {
+    public String signupPhotograper(@ModelAttribute SignupDto dto, Model model) {
         try {
             dto.setRole(Role.PHOTOGRAPHER);
             signupService.signup(dto);
