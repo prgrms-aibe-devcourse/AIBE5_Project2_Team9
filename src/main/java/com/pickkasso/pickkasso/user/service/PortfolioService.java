@@ -1,5 +1,7 @@
 package com.pickkasso.pickkasso.user.service;
 
+import com.pickkasso.pickkasso.global.tag.Tag;
+import com.pickkasso.pickkasso.global.tag.TagRepository;
 import com.pickkasso.pickkasso.user.dto.portfolio.PortfolioDto;
 import com.pickkasso.pickkasso.user.entity.Photographer;
 import com.pickkasso.pickkasso.user.entity.Portfolio;
@@ -9,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -16,6 +20,7 @@ public class PortfolioService {
 
     private final PhotographerRepository photographerRepository;
     private final PortfolioRepository portfolioRepository;
+    private final TagRepository tagRepository;
 
     @Transactional(readOnly = true)
     public PortfolioDto getEmptyPortfolioDto(Long photographerId) {
@@ -43,9 +48,55 @@ public class PortfolioService {
                 dto.name(),
                 dto.description()
         );
+        portfolio.updateTags(getTags(dto.tagIdList()));
 
         Portfolio savedPortfolio = portfolioRepository.save(portfolio);
         return savedPortfolio.getId();
+    }
+
+    @Transactional(readOnly = true)
+    public PortfolioDto getPortfolioDto(Long photographerId, Long portfolioId) {
+        Portfolio portfolio = getOwnedPortfolio(photographerId, portfolioId);
+        return toDto(portfolio);
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> getPortfolioTagNames(Long photographerId, Long portfolioId) {
+        Portfolio portfolio = getOwnedPortfolio(photographerId, portfolioId);
+        return portfolio.getTags().stream()
+                .map(Tag::getName)
+                .toList();
+    }
+
+    public void updatePortfolio(Long photographerId, Long portfolioId, PortfolioDto dto) {
+        validatePortfolio(dto);
+
+        Portfolio portfolio = getOwnedPortfolio(photographerId, portfolioId);
+        portfolio.updatePortfolio(dto.name(), dto.description());
+        portfolio.updateTags(getTags(dto.tagIdList()));
+    }
+
+    private Portfolio getOwnedPortfolio(Long photographerId, Long portfolioId) {
+        return portfolioRepository.findByIdAndPhotographerId(portfolioId, photographerId)
+                .orElseThrow(() -> new IllegalArgumentException("포트폴리오를 찾을 수 없습니다."));
+    }
+
+    private PortfolioDto toDto(Portfolio portfolio) {
+        return new PortfolioDto(
+                portfolio.getName(),
+                portfolio.getDescription(),
+                null,
+                null,
+                null,
+                portfolio.getTags().stream().map(Tag::getId).toList()
+        );
+    }
+
+    private List<Tag> getTags(List<Long> tagIds) {
+        if (tagIds == null || tagIds.isEmpty()) {
+            return List.of();
+        }
+        return tagRepository.findAllById(tagIds);
     }
 
     private void validatePhotographerExists(Long photographerId) {

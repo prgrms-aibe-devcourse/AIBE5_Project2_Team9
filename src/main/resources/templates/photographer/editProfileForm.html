@@ -228,20 +228,33 @@
                   <th:block th:if="${profile.careers != null and !profile.careers.isEmpty()}"
                             th:each="career, stat : ${profile.careers}">
                     <div class="career-row flex items-start gap-2">
-                      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 flex-1">
+                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-1">
                         <input type="text"
                                th:name="'careers[' + ${stat.index} + '].name'"
                                th:value="${career.name}"
                                placeholder="직책 / 소속"
                                class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
-                        <input type="date"
-                               th:name="'careers[' + ${stat.index} + '].startDate'"
-                               th:value="${career.startDate}"
-                               class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
-                        <input type="date"
-                               th:name="'careers[' + ${stat.index} + '].endDate'"
-                               th:value="${career.endDate}"
-                               class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+                        <div class="period-range-field" data-range-kind="career">
+                          <input type="hidden"
+                                 th:name="'careers[' + ${stat.index} + '].startDate'"
+                                 th:value="${career.startDate}"
+                                 data-range-start>
+                          <input type="hidden"
+                                 th:name="'careers[' + ${stat.index} + '].endDate'"
+                                 th:value="${career.endDate}"
+                                 data-range-end>
+                          <button type="button"
+                                  class="range-pick-btn w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-left hover:border-[#0097FF] transition-colors"
+                                  data-range-title="경력 기간"
+                                  data-range-start-label="시작 월"
+                                  data-range-end-label="종료 월"
+                                  data-range-open-label="재직 중"
+                                  data-range-placeholder="기간 선택">
+                            <span class="range-pick-label"
+                                  th:classappend="${career.startDate != null} ? ' text-[#1A1A1A]' : ' text-[#AAA]'"
+                                  th:text="${career.startDate != null} ? ${#strings.replace(#strings.substring(career.startDate.toString(), 0, 7), '-', '. ')} + ' - ' + ${career.endDate != null ? #strings.replace(#strings.substring(career.endDate.toString(), 0, 7), '-', '. ') : '재직 중'} : '기간 선택'">기간 선택</span>
+                          </button>
+                        </div>
                       </div>
                       <button type="button" onclick="removeRow(this)"
                               class="mt-0.5 flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg border border-[#CCC] text-[#888] hover:border-red-300 hover:text-red-400 transition-colors">
@@ -252,13 +265,22 @@
                   <!-- 경력 없을 때 빈 첫 줄 -->
                   <th:block th:if="${profile.careers == null or profile.careers.isEmpty()}">
                     <div class="career-row flex items-start gap-2">
-                      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 flex-1">
+                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-1">
                         <input type="text" name="careers[0].name" placeholder="직책 / 소속"
                                class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
-                        <input type="date" name="careers[0].startDate"
-                               class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
-                        <input type="date" name="careers[0].endDate"
-                               class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+                        <div class="period-range-field" data-range-kind="career">
+                          <input type="hidden" name="careers[0].startDate" data-range-start>
+                          <input type="hidden" name="careers[0].endDate" data-range-end>
+                          <button type="button"
+                                  class="range-pick-btn w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-left hover:border-[#0097FF] transition-colors"
+                                  data-range-title="경력 기간"
+                                  data-range-start-label="시작 월"
+                                  data-range-end-label="종료 월"
+                                  data-range-open-label="재직 중"
+                                  data-range-placeholder="기간 선택">
+                            <span class="range-pick-label text-[#AAA]">기간 선택</span>
+                          </button>
+                        </div>
                       </div>
                       <button type="button" onclick="removeRow(this)"
                               class="mt-0.5 flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg border border-[#CCC] text-[#888] hover:border-red-300 hover:text-red-400 transition-colors">
@@ -282,20 +304,33 @@
                   <th:block th:if="${profile.educations != null and !profile.educations.isEmpty()}"
                             th:each="edu, stat : ${profile.educations}">
                     <div class="education-row flex items-start gap-2">
-                      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 flex-1">
+                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-1">
                         <input type="text"
                                th:name="'educations[' + ${stat.index} + '].name'"
                                th:value="${edu.name}"
                                placeholder="학교명"
                                class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
-                        <input type="date"
-                               th:name="'educations[' + ${stat.index} + '].startDate'"
-                               th:value="${edu.startDate}"
-                               class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
-                        <input type="date"
-                               th:name="'educations[' + ${stat.index} + '].endDate'"
-                               th:value="${edu.endDate}"
-                               class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+                        <div class="period-range-field" data-range-kind="education">
+                          <input type="hidden"
+                                 th:name="'educations[' + ${stat.index} + '].startDate'"
+                                 th:value="${edu.startDate}"
+                                 data-range-start>
+                          <input type="hidden"
+                                 th:name="'educations[' + ${stat.index} + '].endDate'"
+                                 th:value="${edu.endDate}"
+                                 data-range-end>
+                          <button type="button"
+                                  class="range-pick-btn w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-left hover:border-[#0097FF] transition-colors"
+                                  data-range-title="학력 기간"
+                                  data-range-start-label="입학 월"
+                                  data-range-end-label="졸업 월"
+                                  data-range-open-label="재학 중"
+                                  data-range-placeholder="기간 선택">
+                            <span class="range-pick-label"
+                                  th:classappend="${edu.startDate != null} ? ' text-[#1A1A1A]' : ' text-[#AAA]'"
+                                  th:text="${edu.startDate != null} ? ${#strings.replace(#strings.substring(edu.startDate.toString(), 0, 7), '-', '. ')} + ' - ' + ${edu.endDate != null ? #strings.replace(#strings.substring(edu.endDate.toString(), 0, 7), '-', '. ') : '재학 중'} : '기간 선택'">기간 선택</span>
+                          </button>
+                        </div>
                       </div>
                       <button type="button" onclick="removeRow(this)"
                               class="mt-0.5 flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg border border-[#CCC] text-[#888] hover:border-red-300 hover:text-red-400 transition-colors">
@@ -305,13 +340,22 @@
                   </th:block>
                   <th:block th:if="${profile.educations == null or profile.educations.isEmpty()}">
                     <div class="education-row flex items-start gap-2">
-                      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 flex-1">
+                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-1">
                         <input type="text" name="educations[0].name" placeholder="학교명"
                                class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
-                        <input type="date" name="educations[0].startDate"
-                               class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
-                        <input type="date" name="educations[0].endDate"
-                               class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+                        <div class="period-range-field" data-range-kind="education">
+                          <input type="hidden" name="educations[0].startDate" data-range-start>
+                          <input type="hidden" name="educations[0].endDate" data-range-end>
+                          <button type="button"
+                                  class="range-pick-btn w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-left hover:border-[#0097FF] transition-colors"
+                                  data-range-title="학력 기간"
+                                  data-range-start-label="입학 월"
+                                  data-range-end-label="졸업 월"
+                                  data-range-open-label="재학 중"
+                                  data-range-placeholder="기간 선택">
+                            <span class="range-pick-label text-[#AAA]">기간 선택</span>
+                          </button>
+                        </div>
                       </div>
                       <button type="button" onclick="removeRow(this)"
                               class="mt-0.5 flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg border border-[#CCC] text-[#888] hover:border-red-300 hover:text-red-400 transition-colors">
@@ -481,6 +525,32 @@
     </div>
   </div>
 
+  <!-- 기간 선택 모달 (경력 / 학력 공용) -->
+  <div id="career-month-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#1A1A1A]/35 px-4">
+    <div class="w-full max-w-sm rounded-2xl border border-[#CCC] bg-white p-5 shadow-lg">
+      <div class="flex items-start justify-between gap-4 mb-4">
+        <div>
+          <p id="career-month-modal-title" class="text-sm font-semibold text-[#1A1A1A]">기간 선택</p>
+          <p id="career-month-modal-subtitle" class="text-xs text-[#888] mt-1">시작 월을 선택해주세요</p>
+        </div>
+        <button type="button" id="career-month-modal-close"
+                class="flex h-8 w-8 items-center justify-center rounded-lg border border-[#CCC] text-[#888] transition-colors hover:border-[#1D3CFF] hover:text-[#1D3CFF]">×</button>
+      </div>
+      <div class="mb-4 flex items-center justify-between rounded-xl bg-[#F9FAFC] px-3 py-2">
+        <button type="button" id="career-month-prev"
+                class="flex h-8 w-8 items-center justify-center rounded-lg border border-[#CCC] bg-white text-[#444] transition-colors hover:border-[#1D3CFF] hover:text-[#1D3CFF]">‹</button>
+        <span id="career-month-year" class="text-base font-semibold text-[#1A1A1A]"></span>
+        <button type="button" id="career-month-next"
+                class="flex h-8 w-8 items-center justify-center rounded-lg border border-[#CCC] bg-white text-[#444] transition-colors hover:border-[#1D3CFF] hover:text-[#1D3CFF]">›</button>
+      </div>
+      <div id="career-month-grid" class="grid grid-cols-3 gap-2"></div>
+      <div class="mt-4 flex items-center justify-between text-xs text-[#888]">
+        <span>표시는 `년. 월` 기준입니다</span>
+        <button type="button" id="career-month-clear" class="text-xs font-semibold text-[#0097FF]">선택 초기화</button>
+      </div>
+    </div>
+  </div>
+
   <script>
   function updateProfileProgress() {
     var imgUrlInput = document.querySelector('input[name="imgUrl"]');
@@ -602,10 +672,15 @@
     const row = document.createElement('div');
     row.className = 'career-row flex items-start gap-2';
     row.innerHTML =
-      '<div class="grid grid-cols-1 sm:grid-cols-3 gap-2 flex-1">' +
+      '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-1">' +
         '<input type="text" name="careers[' + idx + '].name" placeholder="직책 / 소속" class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">' +
-        '<input type="date" name="careers[' + idx + '].startDate" class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">' +
-        '<input type="date" name="careers[' + idx + '].endDate" class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">' +
+        '<div class="period-range-field" data-range-kind="career">' +
+          '<input type="hidden" name="careers[' + idx + '].startDate" data-range-start>' +
+          '<input type="hidden" name="careers[' + idx + '].endDate" data-range-end>' +
+          '<button type="button" class="range-pick-btn w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-left hover:border-[#0097FF] transition-colors" data-range-title="경력 기간" data-range-start-label="시작 월" data-range-end-label="종료 월" data-range-open-label="재직 중" data-range-placeholder="기간 선택">' +
+            '<span class="range-pick-label text-[#AAA]">기간 선택</span>' +
+          '</button>' +
+        '</div>' +
       '</div>' +
       '<button type="button" onclick="removeRow(this)" class="mt-0.5 flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg border border-[#CCC] text-[#888] hover:border-red-300 hover:text-red-400 transition-colors">' +
         '<svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
@@ -621,10 +696,15 @@
     const row = document.createElement('div');
     row.className = 'education-row flex items-start gap-2';
     row.innerHTML =
-      '<div class="grid grid-cols-1 sm:grid-cols-3 gap-2 flex-1">' +
+      '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-1">' +
         '<input type="text" name="educations[' + idx + '].name" placeholder="학교명" class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">' +
-        '<input type="date" name="educations[' + idx + '].startDate" class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">' +
-        '<input type="date" name="educations[' + idx + '].endDate" class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">' +
+        '<div class="period-range-field" data-range-kind="education">' +
+          '<input type="hidden" name="educations[' + idx + '].startDate" data-range-start>' +
+          '<input type="hidden" name="educations[' + idx + '].endDate" data-range-end>' +
+          '<button type="button" class="range-pick-btn w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-left hover:border-[#0097FF] transition-colors" data-range-title="학력 기간" data-range-start-label="입학 월" data-range-end-label="졸업 월" data-range-open-label="재학 중" data-range-placeholder="기간 선택">' +
+            '<span class="range-pick-label text-[#AAA]">기간 선택</span>' +
+          '</button>' +
+        '</div>' +
       '</div>' +
       '<button type="button" onclick="removeRow(this)" class="mt-0.5 flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg border border-[#CCC] text-[#888] hover:border-red-300 hover:text-red-400 transition-colors">' +
         '<svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
@@ -686,6 +766,202 @@
   document.getElementById('profile-form').addEventListener('input', function () {
     updateProfileProgress();
   });
+
+  // ── 경력 / 학력 기간 선택기 ───────────────────────────────────
+  (function () {
+    var modal    = document.getElementById('career-month-modal');
+    if (!modal) return;
+    var titleEl  = document.getElementById('career-month-modal-title');
+    var subtitleEl = document.getElementById('career-month-modal-subtitle');
+    var yearLabel = document.getElementById('career-month-year');
+    var monthGrid = document.getElementById('career-month-grid');
+    var closeBtn  = document.getElementById('career-month-modal-close');
+    var prevBtn   = document.getElementById('career-month-prev');
+    var nextBtn   = document.getElementById('career-month-next');
+    var clearBtn  = document.getElementById('career-month-clear');
+
+    var currentYear = new Date().getFullYear();
+    var activeField = null;
+    var activeTarget = 'start';
+    var MONTHS = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+
+    function parseDateValue(value) {
+      if (!value) return null;
+      var parts = value.split('-');
+      if (parts.length < 2) return null;
+      return { year: Number(parts[0]), month: Number(parts[1]) };
+    }
+
+    function formatDisplay(value) {
+      var parsed = parseDateValue(value);
+      if (!parsed) return '';
+      return parsed.year + '. ' + String(parsed.month).padStart(2, '0');
+    }
+
+    function getLastDay(year, month) {
+      return new Date(year, month, 0).getDate();
+    }
+
+    function buildHiddenValue(target, year, month) {
+      var day = target === 'end' ? getLastDay(year, month) : 1;
+      return year + '-' + String(month).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+    }
+
+    function getElements(field) {
+      return {
+        button: field ? field.querySelector('.range-pick-btn') : null,
+        label: field ? field.querySelector('.range-pick-label') : null,
+        startInput: field ? field.querySelector('[data-range-start]') : null,
+        endInput: field ? field.querySelector('[data-range-end]') : null
+      };
+    }
+
+    function compareRange(startValue, endValue) {
+      var startParsed = parseDateValue(startValue);
+      var endParsed = parseDateValue(endValue);
+      if (!startParsed || !endParsed) return 0;
+      var startNumber = startParsed.year * 100 + startParsed.month;
+      var endNumber = endParsed.year * 100 + endParsed.month;
+      if (endNumber < startNumber) return -1;
+      if (endNumber > startNumber) return 1;
+      return 0;
+    }
+
+    function syncFieldDisplay(field) {
+      var els = getElements(field);
+      if (!els.button || !els.label || !els.startInput || !els.endInput) return;
+
+      var startText = formatDisplay(els.startInput.value);
+      var endText = formatDisplay(els.endInput.value);
+      var openLabel = els.button.dataset.rangeOpenLabel || '진행 중';
+      var placeholder = els.button.dataset.rangePlaceholder || '기간 선택';
+      var isInvalid = compareRange(els.startInput.value, els.endInput.value) < 0;
+
+      if (startText) {
+        els.label.textContent = startText + ' - ' + (endText || openLabel);
+        els.label.classList.remove('text-[#AAA]');
+        els.label.classList.add('text-[#1A1A1A]');
+      } else {
+        els.label.textContent = placeholder;
+        els.label.classList.add('text-[#AAA]');
+        els.label.classList.remove('text-[#1A1A1A]');
+      }
+
+      els.button.classList.toggle('border-red-300', isInvalid);
+      els.button.classList.toggle('text-red-600', isInvalid);
+    }
+
+    function syncAllRangeDisplays() {
+      document.querySelectorAll('.period-range-field').forEach(syncFieldDisplay);
+    }
+
+    function updateSubtitle() {
+      if (!subtitleEl || !activeField) return;
+      var button = activeField.querySelector('.range-pick-btn');
+      subtitleEl.textContent = activeTarget === 'start'
+        ? (button.dataset.rangeStartLabel || '시작 월') + '을 선택해주세요'
+        : (button.dataset.rangeEndLabel || '종료 월') + '을 선택해주세요';
+    }
+
+    function renderMonths() {
+      if (!activeField) return;
+      var els = getElements(activeField);
+      if (!els.startInput || !els.endInput) return;
+
+      yearLabel.textContent = currentYear + '년';
+      monthGrid.innerHTML = '';
+
+      var selectedValue = activeTarget === 'start' ? els.startInput.value : els.endInput.value;
+      var selectedParsed = parseDateValue(selectedValue);
+      var referenceParsed = parseDateValue(activeTarget === 'start' ? els.endInput.value : els.startInput.value);
+
+      MONTHS.forEach(function (name, i) {
+        var m = i + 1;
+        var sel = selectedParsed && selectedParsed.year === currentYear && selectedParsed.month === m;
+        var ref = referenceParsed && referenceParsed.year === currentYear && referenceParsed.month === m;
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'rounded-xl border px-3 py-3 text-sm font-semibold transition-colors ';
+        if (sel) {
+          b.className += 'border-[#1D3CFF] bg-[#1D3CFF] text-white';
+        } else if (ref) {
+          b.className += 'border-[#1D3CFF] bg-white text-[#1D3CFF]';
+        } else {
+          b.className += 'border-[#CCC] bg-[#F9FAFC] text-[#444] hover:border-[#1D3CFF] hover:text-[#1D3CFF]';
+        }
+        b.textContent = name;
+        b.addEventListener('click', function () {
+          var selectedTarget = activeTarget;
+          var nextValue = buildHiddenValue(selectedTarget, currentYear, m);
+
+          if (selectedTarget === 'start') {
+            els.startInput.value = nextValue;
+            activeTarget = 'end';
+            updateSubtitle();
+          } else {
+            els.endInput.value = nextValue;
+          }
+
+          syncFieldDisplay(activeField);
+          renderMonths();
+          if (selectedTarget === 'end' && compareRange(els.startInput.value, els.endInput.value) >= 0) {
+            closeModal();
+          }
+          updateProfileProgress();
+        });
+        monthGrid.appendChild(b);
+      });
+    }
+
+    function openModal(field) {
+      activeField = field;
+      activeTarget = 'start';
+      var els = getElements(field);
+      var button = els.button;
+      var startParsed = parseDateValue(els.startInput.value);
+      currentYear = startParsed ? startParsed.year : new Date().getFullYear();
+      if (titleEl) titleEl.textContent = (button && button.dataset.rangeTitle) || '기간 선택';
+      updateSubtitle();
+      renderMonths();
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeModal() {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      activeField = null;
+    }
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
+    prevBtn.addEventListener('click', function () { currentYear--; renderMonths(); });
+    nextBtn.addEventListener('click', function () { currentYear++; renderMonths(); });
+    clearBtn.addEventListener('click', function () {
+      if (!activeField) return;
+      var els = getElements(activeField);
+      if (activeTarget === 'start') {
+        els.startInput.value = '';
+        els.endInput.value = '';
+      } else {
+        els.endInput.value = '';
+      }
+      syncFieldDisplay(activeField);
+      renderMonths();
+      updateProfileProgress();
+    });
+
+    // 동적으로 추가된 행 포함 이벤트 위임
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.range-pick-btn');
+      if (!btn) return;
+      var field = btn.closest('.period-range-field');
+      if (!field) return;
+      openModal(field);
+    });
+
+    syncAllRangeDisplays();
+  })();
 
   updateProfileProgress();
   </script>
