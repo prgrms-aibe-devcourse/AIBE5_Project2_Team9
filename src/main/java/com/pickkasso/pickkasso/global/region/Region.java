@@ -5,16 +5,9 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
-@Table(name = "t_region")
+@MappedSuperclass
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Region {
-    @Id
-    @Column(name = "region_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @Column(name = "address", nullable = false)
     private String address;
 
@@ -23,14 +16,7 @@ public class Region {
 
     @Column(name = "lat", nullable = false)
     private Double lat;
+
     @Column(name = "lng", nullable = false)
     private Double lng;
-
-
-    private Region(String address, String detailAddress, Double lat, Double lng) {
-        this.address = address;
-        this.detailAddress = detailAddress;
-        this.lat = lat;
-        this.lng = lng;
-    }
 }
