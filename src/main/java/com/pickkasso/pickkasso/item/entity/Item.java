@@ -1,6 +1,7 @@
 package com.pickkasso.pickkasso.item.entity;
 
 import com.pickkasso.pickkasso.global.region.Region;
+import com.pickkasso.pickkasso.global.tag.Tag;
 import com.pickkasso.pickkasso.user.entity.Photographer;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -21,8 +22,12 @@ public class Item extends Region {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "photographer_id")
+    @JoinColumn(name = "photographer_id", nullable = false)
     private Photographer photographer;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tag", nullable = false)
+    private Tag tag;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -66,12 +71,15 @@ public class Item extends Region {
 
     private Item(
         Photographer photographer,
-        String name, String description,
+        Tag tag,
+        String name,
+        String description,
         ItemType itemType,
         Integer minBookingLeadTime,
         String cancellationPolicy) {
 
         this.photographer = photographer;
+        this.tag = tag;
         this.name = name;
         this.description = description;
         this.itemType = itemType;
@@ -85,11 +93,13 @@ public class Item extends Region {
     //== 생성 method ==//
     public static Item createItem(
         Photographer photographer,
-        String name, String description,
+        Tag tag,
+        String name,
+        String description,
         ItemType itemType,
         Integer minBookingLeadTime,
         String cancellationPolicy) {
-        return new Item(photographer, name, description, itemType, minBookingLeadTime, cancellationPolicy);
+        return new Item(photographer, tag, name, description, itemType, minBookingLeadTime, cancellationPolicy);
     }
 
     // plan
