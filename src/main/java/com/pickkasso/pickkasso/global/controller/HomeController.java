@@ -3,6 +3,7 @@ package com.pickkasso.pickkasso.global.controller;
 import com.pickkasso.pickkasso.global.tag.TagReference;
 import com.pickkasso.pickkasso.global.tag.TagService;
 import com.pickkasso.pickkasso.item.dto.ItemSearchFormDto;
+import com.pickkasso.pickkasso.item.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,12 +16,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class HomeController {
     private final TagService tagService;
+    private final ItemService itemService;
 
     @GetMapping("/")
     public String home(Model model) {
         List<TagReference> tagList = tagService.findAllTagReference();
         model.addAttribute("tagList", tagList);
         model.addAttribute("itemSearchFormDto", new ItemSearchFormDto());
+        model.addAttribute("scoreItemList", itemService.getScoreItemList(5));
         return "index";
     }
 

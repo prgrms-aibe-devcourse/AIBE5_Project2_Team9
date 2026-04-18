@@ -1,7 +1,10 @@
 package com.pickkasso.pickkasso.item.dto;
 
 import com.pickkasso.pickkasso.global.region.RegionDto;
+import com.pickkasso.pickkasso.global.tag.TagReference;
+import com.pickkasso.pickkasso.item.entity.Item;
 import com.pickkasso.pickkasso.item.entity.ItemType;
+import com.pickkasso.pickkasso.user.dto.photographer.PhotographerSimpleCardDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,13 +19,27 @@ import lombok.Setter;
 public class ItemBoxDto {
     private Long id;
     private String name;
-    private String description;
-    private RegionDto regionDto;
+    private String imgUrl;
+    private TagReference tag;
+    private PhotographerSimpleCardDto photographer;
+    private RegionDto region;
     private Integer avgScore;
     private Integer defaultPrice;
     private ItemType itemType;
-    private String imgUrl;
-    private String photographerName;
     private Integer reviewCount;
-    private String tagName;
+
+    public static ItemBoxDto from(Item item) {
+        return ItemBoxDto.builder()
+            .id(item.getId())
+            .name(item.getName())
+            // .imgUrl() 미구현
+            .tag(TagReference.from(item.getTag()))
+            .photographer(PhotographerSimpleCardDto.from(item.getPhotographer()))
+            .region(RegionDto.from(item))
+            .avgScore(item.getAvgScore())
+            .defaultPrice(item.getDefaultPrice())
+            .itemType(item.getItemType())
+            .reviewCount(item.getReviewCount())
+            .build();
+    }
 }
