@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/default :: layout(~{::title}, ~{::pageStyles}, ~{::main})}">
+<head>
+  <title th:fragment="title">AI Pick — PICKASSO</title>
+  <th:block th:fragment="pageStyles">
+    <style>
+      @keyframes ai-pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50%      { opacity: 0.5; transform: scale(0.85); }
+      }
+      .ai-badge-dot { animation: ai-pulse 1.8s ease-in-out infinite; }
+    </style>
+  </th:block>
+</head>
+<body>
+<main th:fragment="main" class="max-w-[760px] mx-auto px-6 pt-[52px] pb-[100px]">
+
+  <!-- ═══════════════════════════════════════════
+       HERO
+  ════════════════════════════════════════════ -->
+  <section class="text-center mb-12">
+    <div class="inline-flex items-center gap-[7px] mb-5 px-4 py-1.5 rounded-[100px] border border-[#D3DEF2]
+                bg-[linear-gradient(135deg,#D3DEF2,#F9FAFC)] text-[13px] font-bold text-[#1D3CFF]">
+      <span class="ai-badge-dot w-2 h-2 rounded-full bg-[#1D3CFF]"></span>
+      AI PICK
+    </div>
+    <h1 class="text-[32px] font-extrabold text-[#1A1A1A] leading-[1.35] tracking-[-0.02em] mb-3">
+      어떤 촬영을 원하세요?<br>
+      <em class="not-italic text-[#1D3CFF]">AI가 딱 맞는 작가를 찾아드려요</em>
+    </h1>
+    <p class="text-[15px] text-[#888] leading-[1.7]">
+      원하는 분위기, 장소, 예산을 자유롭게 말씀해 주세요.<br>
+      AI가 조건에 맞는 작가를 추천해 드립니다.
+    </p>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       CHAT
+  ════════════════════════════════════════════ -->
+  <div class="bg-white border-[1.5px] border-[#CCC] rounded-[20px] overflow-hidden mb-6
+              shadow-[0_4px_24px_rgba(29,60,255,0.06)]">
+
+    <div class="flex flex-col gap-5 px-7 pt-7 pb-5">
+
+      <!-- TODO(backend): 아래 3개 메시지를 <th:block th:each="msg : ${messages}"> 로 감싸고
+                         th:if="${msg.role == 'ai' / 'user'}" 분기로 전환. 초기 AI 인사만 항상 하드코딩 유지 권장. -->
+
+      <!-- AI 인사 -->
+      <div class="flex gap-3 items-start">
+        <div class="w-9 h-9 rounded-full shrink-0 flex items-center justify-center text-lg
+                    bg-[linear-gradient(135deg,#1D3CFF,#0097FF)]">✨</div>
+        <div>
+          <div class="text-xs font-bold text-[#888] mb-[5px]">PICKKASSO AI</div>
+          <div class="max-w-[80%] px-[18px] py-3.5 rounded-2xl rounded-tl-[4px]
+                      bg-[#F9FAFC] border border-[#CCC] text-sm leading-[1.7] text-[#1A1A1A]">
+            안녕하세요! 어떤 촬영을 원하시나요?<br>
+            분위기, 장소, 날짜, 예산 등을 자유롭게 알려주시면 딱 맞는 작가를 찾아드릴게요 😊
+          </div>
+        </div>
+      </div>
+
+      <!-- 사용자 메시지 (정적 데모) -->
+      <div class="flex gap-3 items-start flex-row-reverse">
+        <div class="w-9 h-9 rounded-full bg-[#D3DEF2] shrink-0 flex items-center justify-center text-base">👤</div>
+        <div>
+          <div class="text-xs font-bold text-[#888] mb-[5px] text-right">나</div>
+          <div class="max-w-[80%] px-[18px] py-3.5 rounded-2xl rounded-tr-[4px]
+                      bg-[#D3DEF2] border border-[#D3DEF2] text-sm leading-[1.7] font-medium text-[#1D3CFF]">
+            다음 주 토요일에 여자친구랑 홍대 근처에서 감성적인 데이트 스냅 찍고 싶어요.
+            예산은 20만원 정도고 자연스러운 분위기를 좋아해요.
+          </div>
+        </div>
+      </div>
+
+      <!-- AI 분석 완료 -->
+      <div class="flex gap-3 items-start">
+        <div class="w-9 h-9 rounded-full shrink-0 flex items-center justify-center text-lg
+                    bg-[linear-gradient(135deg,#1D3CFF,#0097FF)]">✨</div>
+        <div>
+          <div class="text-xs font-bold text-[#888] mb-[5px]">PICKKASSO AI</div>
+          <div class="max-w-[80%] px-[18px] py-3.5 rounded-2xl rounded-tl-[4px]
+                      bg-[#D3DEF2] border border-[#D3DEF2] text-sm leading-[1.7] text-[#1A1A1A]">
+            <span class="text-[#1D3CFF] font-bold">조건을 확인했어요!</span><br>
+            📍 홍대 근처 · 📅 토요일 · 💰 20만원 이내 · 🎨 자연스럽고 감성적인 스타일<br><br>
+            조건에 맞는 작가 3명을 찾았습니다 👇
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 입력 폼 -->
+    <form th:action="@{/ai-pick/search}" method="post"
+          class="bg-white border-t border-[#CCC] px-5 py-4 flex gap-2.5 items-end">
+      <textarea id="ai-query" name="query" rows="1"
+                th:text="${query}"
+                placeholder="원하는 촬영 분위기, 장소, 예산을 자유롭게 적어주세요…"
+                class="flex-1 min-h-[48px] max-h-[120px] bg-[#F9FAFC] border border-[#CCC] rounded-xl
+                       px-4 py-[13px] text-sm text-[#1A1A1A] placeholder-[#AAA] leading-[1.6]
+                       resize-none outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]"></textarea>
+      <button type="submit" aria-label="전송"
+              class="w-12 h-12 shrink-0 bg-white border border-[#1D3CFF] text-[#1D3CFF] rounded-xl
+                     flex items-center justify-center transition-colors
+                     hover:bg-[#1D3CFF] hover:text-white
+                     active:bg-[#1530E0] active:border-[#1530E0]">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+      </button>
+    </form>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SUGGESTION CHIPS
+  ════════════════════════════════════════════ -->
+  <div class="text-xs font-bold text-[#888] mb-2.5 flex items-center gap-1.5">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="12" y1="8" x2="12" y2="12"/>
+      <line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    이런 질문을 해보세요
+  </div>
+  <div class="flex flex-wrap gap-2 mb-10">
+    <button type="button" data-query="커플 사진 · 자연스러운 분위기로 찍고 싶어요"
+            class="chip px-4 py-[9px] bg-white border border-[#CCC] rounded-[100px]
+                   text-[13px] font-medium text-[#444] flex items-center gap-1.5 transition-colors
+                   hover:border-[#1D3CFF] hover:text-[#1D3CFF] hover:bg-[#D3DEF2]">
+      💑 커플 사진 · 자연스러운 분위기
+    </button>
+    <button type="button" data-query="졸업사진을 야외에서 찍고 싶어요"
+            class="chip px-4 py-[9px] bg-white border border-[#CCC] rounded-[100px]
+                   text-[13px] font-medium text-[#444] flex items-center gap-1.5 transition-colors
+                   hover:border-[#1D3CFF] hover:text-[#1D3CFF] hover:bg-[#D3DEF2]">
+      🎓 졸업사진 · 야외 촬영
+    </button>
+    <button type="button" data-query="취업용 프로필 사진 깔끔한 스타일로 찍고 싶어요"
+            class="chip px-4 py-[9px] bg-white border border-[#CCC] rounded-[100px]
+                   text-[13px] font-medium text-[#444] flex items-center gap-1.5 transition-colors
+                   hover:border-[#1D3CFF] hover:text-[#1D3CFF] hover:bg-[#D3DEF2]">
+      🪞 취업용 프로필 · 깔끔한 스타일
+    </button>
+    <button type="button" data-query="야외 정원에서 웨딩 스냅 찍고 싶어요"
+            class="chip px-4 py-[9px] bg-white border border-[#CCC] rounded-[100px]
+                   text-[13px] font-medium text-[#444] flex items-center gap-1.5 transition-colors
+                   hover:border-[#1D3CFF] hover:text-[#1D3CFF] hover:bg-[#D3DEF2]">
+      💍 웨딩 스냅 · 야외 정원
+    </button>
+    <button type="button" data-query="가족사진을 실내 스튜디오에서 찍고 싶어요"
+            class="chip px-4 py-[9px] bg-white border border-[#CCC] rounded-[100px]
+                   text-[13px] font-medium text-[#444] flex items-center gap-1.5 transition-colors
+                   hover:border-[#1D3CFF] hover:text-[#1D3CFF] hover:bg-[#D3DEF2]">
+      👨‍👩‍👧 가족사진 · 실내 스튜디오
+    </button>
+    <button type="button" data-query="제품 사진 화이트톤 배경으로 찍고 싶어요"
+            class="chip px-4 py-[9px] bg-white border border-[#CCC] rounded-[100px]
+                   text-[13px] font-medium text-[#444] flex items-center gap-1.5 transition-colors
+                   hover:border-[#1D3CFF] hover:text-[#1D3CFF] hover:bg-[#D3DEF2]">
+      📦 제품 사진 · 화이트톤 배경
+    </button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       RESULT
+  ════════════════════════════════════════════ -->
+  <section>
+    <div class="flex items-center justify-between mb-5">
+      <div class="flex items-center gap-2 text-[18px] font-extrabold text-[#1A1A1A]">
+        ✨ AI 추천 결과
+        <span class="text-[13px] font-medium text-[#888]">3개의 작가를 찾았어요</span>
+      </div>
+      <a th:href="@{/ai-pick}"
+         class="flex items-center gap-1.5 text-[13px] font-semibold text-[#888] bg-white
+                border border-[#CCC] rounded-lg px-3.5 py-[7px] no-underline transition-colors
+                hover:border-[#1D3CFF] hover:text-[#1D3CFF]">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="1 4 1 10 7 10"/>
+          <path d="M3.51 15a9 9 0 1 0 .49-4.95"/>
+        </svg>
+        다시 추천
+      </a>
+    </div>
+
+    <div class="flex flex-col gap-4">
+
+      <!-- TODO(backend): 아래 3개 카드를 <div th:each="rec, stat : ${recommendations}"> 로 감싸고
+                         - stat.index == 0  → 1순위 파란 배지, 그 외 → 회색 "N순위" 배지
+                         - title/category/photographerName/rating/reviewCount/region/priceFrom/reason 를 rec.* 로 바인딩
+                         - 예약하기 링크: @{/photographer/{id}/profile(id=${rec.photographerId})} -->
+
+      <!-- 추천 1 -->
+      <div class="relative bg-white border-[1.5px] border-[#CCC] rounded-2xl p-5 flex gap-[18px] items-start
+                  transition-all hover:border-[#1D3CFF] hover:shadow-[0_4px_20px_rgba(29,60,255,0.10)]">
+        <div class="absolute -top-2.5 left-5 h-[22px] px-2.5 rounded-[100px]
+                    bg-[#1D3CFF] text-white text-[11px] font-extrabold flex items-center gap-1">
+          ✦ AI 1순위 추천
+        </div>
+        <div class="w-[100px] h-[100px] rounded-xl shrink-0 overflow-hidden border border-[#CCC]
+                    bg-[linear-gradient(135deg,#c8d8f0,#8ca8d8)]
+                    flex items-center justify-center text-xs text-[#888]">
+          대표 이미지
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-[11px] font-semibold text-[#0097FF] tracking-[0.04em] mb-[5px]">방문 촬영 · 데이트 스냅</div>
+          <div class="text-base font-bold text-[#1A1A1A] leading-[1.35] mb-2">
+            감성 데이트 스냅<br>2시간 패키지
+          </div>
+          <div class="flex items-center gap-1.5 text-[13px] text-[#444] mb-2">
+            <div class="w-[22px] h-[22px] rounded-full bg-[#D3DEF2] shrink-0 flex items-center justify-center text-[11px]">📷</div>
+            김민준 작가
+          </div>
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <div class="flex items-center gap-[3px] text-[13px] font-semibold text-[#1A1A1A]">
+              <span class="text-[#0097FF]">★</span>
+              <span>4.9</span>
+            </div>
+            <span class="text-xs text-[#888]">후기 87개</span>
+            <span class="text-xs text-[#CCC]">·</span>
+            <span class="text-xs text-[#888]">📍 마포·홍대</span>
+          </div>
+          <div class="text-base font-extrabold text-[#1D3CFF] mt-2.5">
+            150,000 <span class="text-xs font-medium text-[#888]">원~</span>
+          </div>
+          <div class="mt-2.5 px-[13px] py-2.5 bg-[#D3DEF2] rounded-[9px] text-xs text-[#444] leading-[1.6]
+                      flex gap-[7px] items-start">
+            <span class="text-[#1D3CFF] text-sm shrink-0 mt-px">💬</span>
+            <span>홍대 주변 촬영 경험이 풍부하고, 자연스러운 감성 스타일로 후기 평점이 가장 높아요. 예산 범위에도 딱 맞아요.</span>
+          </div>
+        </div>
+        <div class="shrink-0 pt-1">
+          <a th:href="@{/photographer/{id}/profile(id=1)}"
+             class="inline-flex items-center bg-white border-[1.5px] border-[#1D3CFF] text-[#1D3CFF]
+                    rounded-[9px] px-[18px] py-2.5 text-[13px] font-bold whitespace-nowrap no-underline
+                    transition-colors hover:bg-[#1D3CFF] hover:text-white">
+            예약하기
+          </a>
+        </div>
+      </div>
+
+      <!-- 추천 2 -->
+      <div class="relative bg-white border-[1.5px] border-[#CCC] rounded-2xl p-5 flex gap-[18px] items-start
+                  transition-all hover:border-[#1D3CFF] hover:shadow-[0_4px_20px_rgba(29,60,255,0.10)]">
+        <div class="absolute -top-2.5 left-5 h-[22px] px-2.5 rounded-[100px]
+                    bg-[#F9FAFC] border border-[#CCC] text-[#444] text-[11px] font-extrabold flex items-center gap-1">
+          2순위
+        </div>
+        <div class="w-[100px] h-[100px] rounded-xl shrink-0 overflow-hidden border border-[#CCC]
+                    bg-[linear-gradient(135deg,#d0e4f8,#90b4e0)]
+                    flex items-center justify-center text-xs text-[#888]">
+          대표 이미지
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-[11px] font-semibold text-[#0097FF] tracking-[0.04em] mb-[5px]">방문 촬영 · 데이트 스냅</div>
+          <div class="text-base font-bold text-[#1A1A1A] leading-[1.35] mb-2">
+            커플 감성 스냅<br>야외 패키지
+          </div>
+          <div class="flex items-center gap-1.5 text-[13px] text-[#444] mb-2">
+            <div class="w-[22px] h-[22px] rounded-full bg-[#D3DEF2] shrink-0 flex items-center justify-center text-[11px]">📷</div>
+            이서연 작가
+          </div>
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <div class="flex items-center gap-[3px] text-[13px] font-semibold text-[#1A1A1A]">
+              <span class="text-[#0097FF]">★</span>
+              <span>4.7</span>
+            </div>
+            <span class="text-xs text-[#888]">후기 54개</span>
+            <span class="text-xs text-[#CCC]">·</span>
+            <span class="text-xs text-[#888]">📍 마포·연남</span>
+          </div>
+          <div class="text-base font-extrabold text-[#1D3CFF] mt-2.5">
+            130,000 <span class="text-xs font-medium text-[#888]">원~</span>
+          </div>
+          <div class="mt-2.5 px-[13px] py-2.5 bg-[#D3DEF2] rounded-[9px] text-xs text-[#444] leading-[1.6]
+                      flex gap-[7px] items-start">
+            <span class="text-[#1D3CFF] text-sm shrink-0 mt-px">💬</span>
+            <span>연남동·홍대 골목 전문 작가로, 밝고 따뜻한 색감을 선호하신다면 잘 맞을 거예요.</span>
+          </div>
+        </div>
+        <div class="shrink-0 pt-1">
+          <a th:href="@{/photographer/{id}/profile(id=2)}"
+             class="inline-flex items-center bg-white border-[1.5px] border-[#1D3CFF] text-[#1D3CFF]
+                    rounded-[9px] px-[18px] py-2.5 text-[13px] font-bold whitespace-nowrap no-underline
+                    transition-colors hover:bg-[#1D3CFF] hover:text-white">
+            예약하기
+          </a>
+        </div>
+      </div>
+
+      <!-- 추천 3 -->
+      <div class="relative bg-white border-[1.5px] border-[#CCC] rounded-2xl p-5 flex gap-[18px] items-start
+                  transition-all hover:border-[#1D3CFF] hover:shadow-[0_4px_20px_rgba(29,60,255,0.10)]">
+        <div class="absolute -top-2.5 left-5 h-[22px] px-2.5 rounded-[100px]
+                    bg-[#F9FAFC] border border-[#CCC] text-[#444] text-[11px] font-extrabold flex items-center gap-1">
+          3순위
+        </div>
+        <div class="w-[100px] h-[100px] rounded-xl shrink-0 overflow-hidden border border-[#CCC]
+                    bg-[linear-gradient(135deg,#bcd4f0,#7898c8)]
+                    flex items-center justify-center text-xs text-[#888]">
+          대표 이미지
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-[11px] font-semibold text-[#0097FF] tracking-[0.04em] mb-[5px]">방문 촬영 · 데이트 스냅</div>
+          <div class="text-base font-bold text-[#1A1A1A] leading-[1.35] mb-2">
+            일상 감성 커플 스냅<br>2~3시간
+          </div>
+          <div class="flex items-center gap-1.5 text-[13px] text-[#444] mb-2">
+            <div class="w-[22px] h-[22px] rounded-full bg-[#D3DEF2] shrink-0 flex items-center justify-center text-[11px]">📷</div>
+            박준호 작가
+          </div>
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <div class="flex items-center gap-[3px] text-[13px] font-semibold text-[#1A1A1A]">
+              <span class="text-[#0097FF]">★</span>
+              <span>4.6</span>
+            </div>
+            <span class="text-xs text-[#888]">후기 31개</span>
+            <span class="text-xs text-[#CCC]">·</span>
+            <span class="text-xs text-[#888]">📍 서울 전 지역</span>
+          </div>
+          <div class="text-base font-extrabold text-[#1D3CFF] mt-2.5">
+            180,000 <span class="text-xs font-medium text-[#888]">원~</span>
+          </div>
+          <div class="mt-2.5 px-[13px] py-2.5 bg-[#D3DEF2] rounded-[9px] text-xs text-[#444] leading-[1.6]
+                      flex gap-[7px] items-start">
+            <span class="text-[#1D3CFF] text-sm shrink-0 mt-px">💬</span>
+            <span>예산을 조금 초과하지만 촬영 시간이 길고, 원본 파일을 전부 제공해 가성비가 높은 편이에요.</span>
+          </div>
+        </div>
+        <div class="shrink-0 pt-1">
+          <a th:href="@{/photographer/{id}/profile(id=3)}"
+             class="inline-flex items-center bg-white border-[1.5px] border-[#1D3CFF] text-[#1D3CFF]
+                    rounded-[9px] px-[18px] py-2.5 text-[13px] font-bold whitespace-nowrap no-underline
+                    transition-colors hover:bg-[#1D3CFF] hover:text-white">
+            예약하기
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="mt-7 text-center">
+      <a th:href="@{/ai-pick}"
+         class="inline-flex items-center gap-2 bg-white border-[1.5px] border-[#1D3CFF] text-[#1D3CFF]
+                rounded-xl px-8 py-3 text-sm font-bold no-underline transition-colors
+                hover:bg-[#1D3CFF] hover:text-white">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        조건 바꿔서 다시 찾기
+      </a>
+      <p class="text-xs text-[#AAA] mt-2.5">결과가 마음에 들지 않으면 조건을 수정해 다시 추천받을 수 있어요</p>
+    </div>
+  </section>
+
+  <script>
+    document.querySelectorAll('.chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const textarea = document.getElementById('ai-query');
+        if (!textarea) return;
+        textarea.value = btn.dataset.query;
+        textarea.closest('form')?.submit();
+      });
+    });
+  </script>
+
+</main>
+</body>
+</html>
