@@ -33,6 +33,6 @@ public class ItemController {
         @RequestParam(defaultValue = "5") int count,
         Model model) {
         model.addAttribute("scoreItemList", itemService.getScoreItemList(tagName, count));
-        return "fragments/item_box :: scoreGrid";
+        return "fragments/score_items :: scoreGrid";
     }
 }

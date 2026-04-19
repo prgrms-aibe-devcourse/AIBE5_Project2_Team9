@@ -37,7 +37,7 @@
         }
         .cat-tag:hover, .cat-tag.active { background: #1D3CFF; border-color: #1D3CFF; color: #fff; }
     </style>
-    <link rel="stylesheet" th:href="@{/css/item_box.css}">
+    <link rel="stylesheet" th:href="@{/css/score_items.css}">
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('search-form').addEventListener('submit', function(e) {
@@ -57,7 +57,7 @@
     <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=66fd58e49ef902c79dbaa2577ceb31d2&libraries=services&autoload=false"></script>
 
-    <script src="/js/item_box.js"></script>
+    <script src="/js/score_items.js"></script>
   </th:block>
 </head>
 <body>
@@ -220,7 +220,7 @@
 
         <!-- 별점순 카드 그리드 (fragment 교체 대상) -->
         <div id="scoreGrid">
-          <div th:replace="~{fragments/item_box :: scoreGrid}"></div>
+          <div th:replace="~{fragments/score_items :: scoreGrid}"></div>
         </div>
 
         <hr class="divider">
