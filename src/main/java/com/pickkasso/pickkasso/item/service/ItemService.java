@@ -27,6 +27,7 @@ public class ItemService {
 
     @Transactional(readOnly = true)
     public List<ItemBoxDto> getScoreItemList(String tagName, Integer count) {
+        if (tagName == null) return getScoreItemList(count);
         Pageable pageable = PageRequest.of(0, count);
         List<Item> itemList = itemRepository.findScoreItemListByTagName(tagName, pageable);
         return getItemBoxDtoList(itemList);
@@ -36,8 +37,18 @@ public class ItemService {
         List<ItemBoxDto> resList = new ArrayList<>();
         for (Item item : itemList) {
             ItemBoxDto now = ItemBoxDto.from(item);
+            resList.add(now);
         }
 
         return resList;
+    }
+
+    // 테스트용 랜덤 item 들고오는 코드
+    // 추천 알고리즘 작성 시, 이 항목은 대체됩니다.
+    @Transactional(readOnly = true)
+    public List<ItemBoxDto> getRandomItemList(Integer count) {
+        Pageable pageable = PageRequest.of(0, count);
+        List<Item> itemList = itemRepository.findRandomItemList(pageable);
+        return getItemBoxDtoList(itemList);
     }
 }

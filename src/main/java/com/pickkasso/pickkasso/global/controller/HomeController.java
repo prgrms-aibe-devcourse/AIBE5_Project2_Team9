@@ -24,6 +24,7 @@ public class HomeController {
         model.addAttribute("tagList", tagList);
         model.addAttribute("itemSearchFormDto", new ItemSearchFormDto());
         model.addAttribute("scoreItemList", itemService.getScoreItemList(5));
+        model.addAttribute("customItemList", itemService.getRandomItemList(5));
         return "index";
     }
 

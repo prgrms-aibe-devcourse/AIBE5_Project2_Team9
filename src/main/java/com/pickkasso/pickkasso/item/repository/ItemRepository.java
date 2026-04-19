@@ -24,4 +24,10 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
         "JOIN FETCH i.photographer p " +
         "ORDER BY i.avgScore DESC ")
     List<Item> findScoreItemList(Pageable pageable);
+
+    @Query("SELECT i FROM Item i " +
+        "JOIN FETCH i.tag t " +
+        "JOIN FETCH i.photographer p " +
+        "ORDER BY RAND() ")
+    List<Item> findRandomItemList(Pageable pageable);
 }

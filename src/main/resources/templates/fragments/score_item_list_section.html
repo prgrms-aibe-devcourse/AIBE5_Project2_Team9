@@ -1,0 +1,62 @@
+
+<style>
+  .section-label { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; color: var(--color-text-tertiary); text-transform: uppercase; margin-bottom: 6px; }
+  .section-title { font-size: 22px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 4px; }
+  .section-sub { font-size: 14px; color: var(--color-text-secondary); margin: 0 0 20px; }
+  .tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+  .tag { padding: 6px 14px; border-radius: 999px; border: 0.5px solid var(--color-border-secondary); font-size: 13px; color: var(--color-text-secondary); cursor: pointer; background: var(--color-background-primary); transition: all 0.15s; }
+  .tag.active { background: #1D3CFF; color: #fff; border-color: #1D3CFF; }
+  .card-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 48px; }
+  .card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; text-decoration: none; display: block; transition: transform 0.15s; }
+  .card:hover { transform: translateY(-2px); border-color: var(--color-border-secondary); }
+  .card-img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; }
+  .card-body { padding: 10px 12px 12px; }
+  .card-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card-meta { font-size: 11px; color: var(--color-text-secondary); margin: 0 0 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card-footer { display: flex; align-items: center; justify-content: space-between; }
+  .score { display: flex; align-items: center; gap: 3px; font-size: 12px; font-weight: 500; color: var(--color-text-primary); }
+  .star { color: #0097FF; font-size: 13px; }
+  .review-count { font-size: 11px; color: var(--color-text-tertiary); font-weight: 400; }
+  .price { font-size: 13px; font-weight: 500; color: #1D3CFF; }
+  .badge { position: absolute; top: 10px; left: 10px; background: #1D3CFF; color: #fff; font-size: 10px; font-weight: 700; padding: 3px 7px; border-radius: 4px; letter-spacing: 0.05em; }
+  .card-img-wrap { position: relative; }
+  .empty-state { grid-column: 1 / -1; padding: 48px 0; text-align: center; }
+  .empty-icon { font-size: 32px; margin-bottom: 12px; color: var(--color-text-tertiary); }
+  .empty-text { font-size: 15px; color: var(--color-text-secondary); margin: 0 0 4px; }
+  .empty-sub { font-size: 13px; color: var(--color-text-tertiary); margin: 0; }
+  .divider { border: none; border-top: 0.5px solid var(--color-border-tertiary); margin: 0 0 40px; }
+  .custom-label { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; color: var(--color-text-tertiary); text-transform: uppercase; margin-bottom: 6px; }
+  .custom-title { font-size: 22px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 4px; }
+  .custom-sub { font-size: 14px; color: var(--color-text-secondary); margin: 0 0 20px; }
+</style>
+<script src="/js/item_box.js"></script>
+
+<div style="padding: 2rem 0 1rem;">
+
+  <div class="section-label">인기 작가</div>
+  <h2 class="section-title">별점순 추천</h2>
+  <p class="section-sub">지금 가장 사랑받는 작가들을 만나보세요</p>
+
+  <div class="tag-row" id="tagRow">
+    <span class="tag active" data-tag="all">전체</span>
+    <span class="tag" data-tag="감성 스냅">감성 스냅</span>
+    <span class="tag" data-tag="웨딩 스냅">웨딩 스냅</span>
+    <span class="tag" data-tag="졸업사진">졸업사진</span>
+    <span class="tag" data-tag="프로필">프로필</span>
+    <span class="tag" data-tag="가족사진">가족사진</span>
+    <span class="tag" data-tag="데이트 스냅">데이트 스냅</span>
+    <span class="tag" data-tag="자연광 스냅">자연광 스냅</span>
+  </div>
+
+  <div class="card-grid" id="scoreGrid"></div>
+
+  <hr class="divider">
+
+  <div class="custom-label">이달의 큐레이션</div>
+  <h2 class="custom-title" id="customTitle">4월 추천 매칭</h2>
+  <p class="custom-sub">편집팀이 직접 선별한 이달의 작가</p>
+
+  <div class="card-grid" id="customGrid"></div>
+</div>
+
+
