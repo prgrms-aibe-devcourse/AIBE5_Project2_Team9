@@ -20,6 +20,42 @@
           background-position: right 8px center;
         }
       </style>
+      <style>
+          /* 작가 카드 썸네일 그라디언트 플레이스홀더 */
+          .thumb-grad-1  { background: linear-gradient(135deg, #c9d6df, #e2ebf0); }
+          .thumb-grad-2  { background: linear-gradient(135deg, #a8c5a0, #c8dfc5); }
+          .thumb-grad-3  { background: linear-gradient(135deg, #b8c8d8, #d5e0ea); }
+          .thumb-grad-4  { background: linear-gradient(135deg, #d4c5b8, #e8ddd5); }
+          .thumb-grad-5  { background: linear-gradient(135deg, #c5b8cc, #ddd5e8); }
+          .thumb-grad-6  { background: linear-gradient(135deg, #b8c5c8, #d5e0e2); }
+          .thumb-grad-7  { background: linear-gradient(135deg, #c8c5a0, #e2dfbb); }
+          .thumb-grad-8  { background: linear-gradient(135deg, #c5c8b8, #dfe2d5); }
+          .thumb-grad-9  { background: linear-gradient(135deg, #b8c8c5, #d5e2e0); }
+          .thumb-grad-10 { background: linear-gradient(135deg, #c8b8c5, #e2d5df); }
+          /* CTA 작가 카드 썸네일 */
+          .cta-card-thumb { background: linear-gradient(135deg, #b8c8d8 0%, #c5d5e5 50%, #d5e5f5 100%); }
+          /* 날짜 스트립 스크롤바 숨김 */
+          .date-strip::-webkit-scrollbar { display: none; }
+          /* 날짜 아이템 공통 스타일 + 상태 */
+          .date-item {
+              flex-shrink: 0; width: 2.75rem; height: 2.75rem;
+              display: flex; align-items: center; justify-content: center;
+              border-radius: 9999px; font-size: 0.875rem; font-weight: 500;
+              color: #444; cursor: pointer; transition: background 0.15s, color 0.15s;
+          }
+          .date-item:hover { background: #D3DEF2; color: #1D3CFF; }
+          .date-item.today { background: #1D3CFF; color: #fff; font-weight: 700; }
+          /* 카테고리 태그 공통 스타일 + 활성 상태 */
+          .cat-tag {
+              font-size: 0.8125rem; font-weight: 500; color: #444;
+              background: #F9FAFC; border: 1.5px solid #CCC; border-radius: 20px;
+              padding: 6px 16px; cursor: pointer; transition: all 0.15s;
+          }
+          .cat-tag:hover, .cat-tag.active { background: #1D3CFF; border-color: #1D3CFF; color: #fff; }
+      </style>
+      <link rel="stylesheet" th:href="@{/css/score_items.css}">
+      <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+      <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=66fd58e49ef902c79dbaa2577ceb31d2&libraries=services&autoload=false"></script>
       <script>
           document.addEventListener('DOMContentLoaded', function() {
               document.getElementById('search-form').addEventListener('submit', function(e) {
@@ -67,39 +103,47 @@
             <!-- 현재 파라미터 보존용 hidden inputs -->
             <input
               type="hidden"
+              id="h-region"
               name="address"
               th:value="${itemSearchFormDto.address}"
             />
             <input
               type="hidden"
+              id="h-lat"
               name="lat"
               th:value="${itemSearchFormDto.lat}"
             />
             <input
               type="hidden"
+              id="h-lng"
               name="lng"
               th:value="${itemSearchFormDto.lng}"
             />
             <input
               type="hidden"
+              id="h-category"
               name="tag"
               th:value="${itemSearchFormDto.tag}"
             />
             <input
               type="hidden"
+              id="h-date"
               name="date"
               th:value="${itemSearchFormDto.date}"
             />
             <input
               type="hidden"
+              id="order-by"
               name="orderBy"
               th:value="${itemSearchFormDto.orderBy}"
             />
+            <input type="hidden" name="page" id="h-page" th:value="${itemSearchFormDto.page}" />
             <!-- address는 아래 text input으로 대신 제출 -->
 
             <!-- 지역선택 버튼 (표시용) -->
             <button
               type="button"
+              onclick="locationModal.open()"
               class="flex items-center gap-1.5 px-[18px] h-full bg-transparent border-0 border-r border-[#E8E8E8] text-sm font-medium text-[#444] hover:text-[#1D3CFF] transition-colors whitespace-nowrap cursor-pointer"
             >
               <svg
@@ -117,6 +161,7 @@
                 <circle cx="12" cy="9" r="2.5" />
               </svg>
               <span
+                  id="display-region"
                 th:text="${itemSearchFormDto.address != null and !#strings.isEmpty(itemSearchFormDto.address) ? itemSearchFormDto.address : '지역선택'}"
                 >지역선택</span
               >
@@ -136,6 +181,7 @@
             <!-- 촬영유형 버튼 (표시용) -->
             <button
               type="button"
+              onclick="categoryModal.open()"
               class="flex items-center gap-1.5 px-[18px] h-full bg-transparent border-0 border-r border-[#E8E8E8] text-sm font-medium text-[#444] hover:text-[#1D3CFF] transition-colors whitespace-nowrap cursor-pointer"
             >
               <svg
@@ -152,6 +198,7 @@
                 <circle cx="12" cy="14" r="3" />
               </svg>
               <span
+                id="display-category"
                 th:text="${itemSearchFormDto.tag != null and !#strings.isEmpty(itemSearchFormDto.tag) ? itemSearchFormDto.tag : '촬영유형'}"
                 >촬영유형</span
               >
@@ -171,6 +218,7 @@
             <!-- 날짜 버튼 (표시용) -->
             <button
               type="button"
+              onclick="dateModal.open()"
               class="flex items-center gap-1.5 px-[18px] h-full bg-transparent border-0 border-r border-[#E8E8E8] text-sm font-medium text-[#444] hover:text-[#1D3CFF] transition-colors whitespace-nowrap cursor-pointer"
             >
               <svg
@@ -188,6 +236,7 @@
                 <line x1="3" y1="10" x2="21" y2="10" />
               </svg>
               <span
+                id="display-date"
                 th:text="${itemSearchFormDto.date != null ? #temporals.format(itemSearchFormDto.date, 'MM/dd') : '날짜'}"
                 >날짜</span
               >
@@ -241,48 +290,16 @@
             AI PICK
           </a>
         </div>
+
+        <th:block th:replace="~{fragments/modal/location-modal :: locationModal(${favoriteList})}" />
+        <th:block th:replace="~{fragments/modal/category-modal :: categoryModal(${tagList})}" />
+        <th:block th:replace="~{fragments/modal/date-modal :: dateModal}" />
       </section>
 
       <!-- ─── 메인 컨텐츠 ──────────────────────────────── -->
       <div class="max-w-[1216px] mx-auto px-6 pt-8 pb-16">
         <!-- 필터 탭 + 결과 수 + 정렬 -->
         <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
-          <!-- 카테고리 필터 탭 -->
-          <div class="flex items-center gap-2 flex-wrap">
-            <!-- 전체 탭 -->
-            <a
-              th:href="@{/search(address=${itemSearchFormDto.address},
-                               lat=${itemSearchFormDto.lat},
-                               lng=${itemSearchFormDto.lng},
-                               date=${itemSearchFormDto.date},
-                               orderBy=${itemSearchFormDto.orderBy})}"
-              th:classappend="${itemSearchFormDto.tag == null or #strings.isEmpty(itemSearchFormDto.tag)}
-
-             ? 'bg-[#1D3CFF] border-[#1D3CFF] text-white font-semibold'
-             : 'bg-white border-[#CCC] text-[#444] hover:border-[#1D3CFF] hover:text-[#1D3CFF]'"
-              class="px-[18px] py-2 rounded-full text-sm border-[1.5px] transition-all no-underline cursor-pointer search-tag-option"
-            >
-              전체
-            </a>
-
-            <!-- 태그별 탭 (동적) -->
-            <a
-              th:each="t : ${tags}"
-              th:href="@{/search(address=${itemSearchFormDto.address},
-                               lat=${itemSearchFormDto.lat},
-                               lng=${itemSearchFormDto.lng},
-                               date=${itemSearchFormDto.date},
-                               orderBy=${itemSearchFormDto.orderBy},
-                               tag=${t.name})}"
-              th:text="${t.name}"
-              th:classappend="${itemSearchFormDto.tag != null and itemSearchFormDto.tag == t.name}
-             ? 'bg-[#1D3CFF] border-[#1D3CFF] text-white font-semibold'
-             : 'bg-white border-[#CCC] text-[#444] hover:border-[#1D3CFF] hover:text-[#1D3CFF]'"
-              class="px-[18px] py-2 rounded-full text-sm border-[1.5px] transition-all no-underline cursor-pointer search-tag-option"
-            >
-            </a>
-          </div>
-
           <!-- 결과 수 + 정렬 드롭다운 -->
           <div class="flex items-center gap-3 shrink-0">
             <span class="text-sm text-[#888]">
@@ -331,105 +348,42 @@
         </div>
 
         <!-- ─── 카드 그리드 ──────────────────────────── -->
-        <div
-          th:if="${items != null and !#lists.isEmpty(items)}"
-          class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5"
-        >
-          <a
-            th:each="item : ${items}"
-            th:href="@{/item/{id}(id=${item.id})}"
-            class="bg-white border border-[#CCC] rounded-2xl overflow-hidden hover:shadow-[0_4px_20px_rgba(0,0,0,0.10)] hover:border-[#B8C8E8] transition-all no-underline text-inherit flex flex-col cursor-pointer"
-          >
-            <!-- 썸네일 -->
-            <div
-              class="w-full aspect-[4/3] overflow-hidden bg-[#D3DEF2] flex items-center justify-center"
-            >
-              <img
-                th:if="${item.imgUrl != null and !#strings.isEmpty(item.imgUrl)}"
-                th:src="${item.imgUrl}"
-                th:alt="${item.name}"
-                class="w-full h-full object-cover block"
-                loading="lazy"
-              />
-              <div
-                th:unless="${item.imgUrl != null and !#strings.isEmpty(item.imgUrl)}"
-                class="flex items-center justify-center w-full h-full"
-              >
-                <svg
-                  class="text-[#AAA] opacity-50"
-                  width="36"
-                  height="36"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-                  />
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
-              </div>
+        <div class="card-grid">
+          <th:block th:if="${#lists.isEmpty(items)}">
+            <div class="empty-state">
+              <p class="empty-text">준비 중입니다</p>
             </div>
-
-            <!-- 카드 바디 -->
-            <div class="p-3.5 flex flex-col gap-1.5 flex-1">
-              <!-- 카테고리 -->
-              <span
-                class="text-[11px] font-medium text-[#0097FF] tracking-wide"
-                th:text="${item.tagName != null ? item.tagName : (item.itemType != null ? item.itemType.name() : '')}"
-                >카테고리</span
-              >
-
-              <!-- 제목 -->
-              <p
-                class="text-[13px] font-semibold text-[#1A1A1A] leading-snug line-clamp-2"
-                th:text="${item.name}"
-              >
-                서비스 제목
-              </p>
-
-              <!-- 별점 + 리뷰 수 + 작가명 -->
-              <div class="flex items-center gap-1 mt-0.5 text-xs flex-wrap">
-                <span class="text-[#0097FF] text-[12px] leading-none">★</span>
-                <span
-                  class="font-semibold text-[#1A1A1A]"
-                  th:text="${item.avgScore != null ? #numbers.formatDecimal(item.avgScore / 10.0, 1, 1) : '0.0'}"
-                  >0.0</span
-                >
-                <span
-                  class="text-[#888]"
-                  th:text="'(' + (${item.reviewCount != null ? item.reviewCount : 0}) + ')'"
-                ></span>
-                <span
-                  class="text-[#888]"
-                  th:if="${item.photographerName != null and !#strings.isEmpty(item.photographerName)}"
-                  th:text="'· ' + ${item.photographerName}"
-                ></span>
+          </th:block>
+          <th:block th:unless="${#lists.isEmpty(items)}"
+                    th:each="item : ${items}">
+            <a th:href="@{/item/{id}(id=${item.id})}" class="card">
+              <div class="card-img-wrap">
+                <img class="card-img"
+                     th:src="${item.imgUrl != null ? item.imgUrl : 'https://picsum.photos/seed/' + item.id + '/400/533'}"
+                     th:alt="${item.name}"
+                     loading="lazy"
+                     th:onerror="'this.src=\'https://picsum.photos/seed/' + ${item.id} + '/400/533\''">
+                <!-- <span class="badge">NEW</span> 필요 시 조건 추가 -->
               </div>
-
-              <!-- 가격 -->
-              <div
-                class="flex items-baseline gap-1 mt-auto pt-2 border-t border-[#F0F0F0]"
-              >
-                <span class="text-[11px] text-[#AAA]">가격</span>
-                <span
-                  class="text-[15px] font-bold text-[#1D3CFF]"
-                  th:text="${item.defaultPrice != null ? #numbers.formatInteger(item.defaultPrice, 3, 'COMMA') : '-'}"
-                  >0</span
-                >
-                <span class="text-[11px] text-[#888]">원~</span>
+              <div class="card-body">
+                <!-- 상품명 -->
+                <p class="card-item-name" th:text="${item.name}"></p>
+                <!-- 작가명 -->
+                <p class="card-name" th:text="${item.photographer.name}"></p>
+                <!-- 지역 · 태그 -->
+                <p class="card-meta" th:text="${item.region.address + ' · ' + item.tag.name}"></p>
+                <div class="card-footer">
+                  <div class="score">
+                    <span class="star">★</span>
+                    <span th:text="${#numbers.formatDecimal(item.avgScore / 100.0, 1, 2)}"></span>
+                    <span class="review-count" th:text="'(' + ${item.reviewCount} + ')'"></span>
+                  </div>
+                  <span class="price" th:text="${#numbers.formatInteger(item.defaultPrice, 3, 'COMMA') + '원~'}"></span>
+                </div>
               </div>
-            </div>
-          </a>
+            </a>
+          </th:block>
         </div>
-
         <!-- ─── 빈 결과 상태 ─────────────────────────── -->
         <div
           th:unless="${items != null and !#lists.isEmpty(items)}"

@@ -254,15 +254,19 @@
                 <!-- <span class="badge">NEW</span> 필요 시 조건 추가 -->
               </div>
               <div class="card-body">
+                <!-- 상품명 -->
+                <p class="card-item-name" th:text="${item.name}"></p>
+                <!-- 작가명 -->
                 <p class="card-name" th:text="${item.photographer.name}"></p>
+                <!-- 지역 · 태그 -->
                 <p class="card-meta" th:text="${item.region.address + ' · ' + item.tag.name}"></p>
                 <div class="card-footer">
                   <div class="score">
                     <span class="star">★</span>
-                    <span th:text="${item.avgScore}"></span>
+                    <span th:text="${#numbers.formatDecimal(item.avgScore / 100.0, 1, 2)}"></span>
                     <span class="review-count" th:text="'(' + ${item.reviewCount} + ')'"></span>
                   </div>
-                  <span class="price" th:text="${item.defaultPrice} + '원~'"></span>
+                  <span class="price" th:text="${#numbers.formatInteger(item.defaultPrice, 3, 'COMMA') + '원~'}"></span>
                 </div>
               </div>
             </a>
