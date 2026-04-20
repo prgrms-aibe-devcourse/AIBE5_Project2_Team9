@@ -231,3 +231,9 @@
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+.card-distance {
+    font-size: 12px;
+    color: #0097FF;
+    margin: 0 0 10px;
+}

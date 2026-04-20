@@ -19,5 +19,5 @@ public class TagService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<TagReference> findByName(String name) { return tagRepository.findTagByName(name); }
+    public Optional<Tag> findByName(String name) { return tagRepository.findTagByName(name); }
 }

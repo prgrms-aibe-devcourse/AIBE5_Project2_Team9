@@ -27,6 +27,7 @@ public class ItemBoxDto {
     private Integer defaultPrice;
     private ItemType itemType;
     private Integer reviewCount;
+    private Double distance;
 
     public static ItemBoxDto from(Item item) {
         return ItemBoxDto.builder()

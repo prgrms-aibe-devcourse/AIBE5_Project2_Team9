@@ -61,6 +61,7 @@
               document.getElementById('search-form').addEventListener('submit', function(e) {
                   e.preventDefault();
 
+                  document.getElementById("h-page").value = '';
                   const inputs = this.querySelectorAll('input[type="hidden"]');
                   inputs.forEach(input => {
                       if (!input.value) {
@@ -86,6 +87,40 @@
                   });
               });
           });
+
+          function resetUrl(url) {
+              const params = {
+                  address: document.getElementById("h-region").value,
+                  lat: document.getElementById("h-lat").value,
+                  lng: document.getElementById("h-lng").value,
+                  tag: document.getElementById("h-category").value,
+                  date: document.getElementById("h-date").value,
+              };
+
+              // 기존 파라미터 초기화
+              url.search = "";
+
+              Object.entries(params).forEach(([key, value]) => {
+                  if (value !== "" && value !== "null") url.searchParams.set(key, value);
+              });
+
+              return url;
+          }
+
+          function changeSortOrder(value) {
+              const url = resetUrl(new URL(window.location.href));
+
+              url.searchParams.set("page", '');
+              url.searchParams.set("orderBy", value);
+
+              window.location.href = url.toString();
+          }
+          function changePage(page) {
+              const url = resetUrl(new URL(window.location.href));
+
+              url.searchParams.set("page", page);
+              window.location.href = url.toString();
+          }
       </script>
     </th:block>
   </head>
@@ -264,8 +299,8 @@
 
             <!-- 검색 버튼 -->
             <button
-              type="submit"
-              class="w-10 h-10 ml-1 flex items-center justify-center rounded-lg bg-transparent border-0 text-[#444] hover:bg-[#F0F4FF] hover:text-[#1D3CFF] transition-colors cursor-pointer shrink-0"
+                type="submit"
+                class="w-10 h-10 ml-auto flex items-center justify-center rounded-lg bg-transparent border-0 text-[#444] hover:bg-[#F0F4FF] hover:text-[#1D3CFF] transition-colors cursor-pointer shrink-0"
             >
               <svg
                 width="19"
@@ -326,34 +361,41 @@
                 인기순
               </option>
               <option
-                value="createdAt"
-                th:selected="${itemSearchFormDto.orderBy == 'createdAt'}"
+                  value="created-at-cesc"
+                  th:selected="${itemSearchFormDto.orderBy == 'created-at-desc'}"
               >
                 최신순
               </option>
               <option
-                value="price_asc"
+                  value="created-at-asc"
+                  th:selected="${itemSearchFormDto.orderBy == 'created-at-asc'}"
+              >
+                오래된 순
+              </option>
+              <option
+                value="price-asc"
                 th:selected="${itemSearchFormDto.orderBy == 'price-asc'}"
               >
                 낮은 가격순
               </option>
               <option
-                value="price_desc"
-                th:selected="${itemSearchFormDto.orderBy == 'price-desc'}"
+                  value="price-desc"
+                  th:selected="${itemSearchFormDto.orderBy == 'price-desc'}"
               >
                 높은 가격순
+              </option>
+              <option
+                  value="distance"
+                  th:selected="${itemSearchFormDto.orderBy == 'distance'}"
+              >
+                가까운 순
               </option>
             </select>
           </div>
         </div>
 
         <!-- ─── 카드 그리드 ──────────────────────────── -->
-        <div class="card-grid">
-          <th:block th:if="${#lists.isEmpty(items)}">
-            <div class="empty-state">
-              <p class="empty-text">준비 중입니다</p>
-            </div>
-          </th:block>
+        <div class="card-grid" >
           <th:block th:unless="${#lists.isEmpty(items)}"
                     th:each="item : ${items}">
             <a th:href="@{/item/{id}(id=${item.id})}" class="card">
@@ -372,6 +414,10 @@
                 <p class="card-name" th:text="${item.photographer.name}"></p>
                 <!-- 지역 · 태그 -->
                 <p class="card-meta" th:text="${item.region.address + ' · ' + item.tag.name}"></p>
+                <!-- 거리 -->
+                <p class="card-distance" th:if="${item.distance != null}"
+                   th:text="${#numbers.formatDecimal(item.distance / 1000.0, 1, 1) + 'km'}"></p>
+
                 <div class="card-footer">
                   <div class="score">
                     <span class="star">★</span>
@@ -386,7 +432,7 @@
         </div>
         <!-- ─── 빈 결과 상태 ─────────────────────────── -->
         <div
-          th:unless="${items != null and !#lists.isEmpty(items)}"
+          th:if="${#lists.isEmpty(items)}"
           class="flex flex-col items-center justify-center py-24 text-center"
         >
           <svg
@@ -411,33 +457,58 @@
 
         <!-- ─── 페이지네이션 ──────────────────────────── -->
         <div
-          th:if="${items != null and !#lists.isEmpty(items)}"
-          class="flex items-center justify-center gap-1.5 mt-12"
+            th:if="${!#lists.isEmpty(items)}"
+            class="flex items-center justify-center gap-1.5 mt-12"
         >
+          <!-- 처음 버튼 -->
           <button
-            class="w-9 h-9 flex items-center justify-center rounded-lg border border-[#CCC] bg-white text-sm text-[#888] hover:border-[#1D3CFF] hover:text-[#1D3CFF] transition-all cursor-pointer"
+            th:disabled="${currentPage == 1}"
+            th:onclick="|changePage(1)|"
+            class="w-9 h-9 flex items-center justify-center rounded-lg border border-[#CCC] bg-white text-sm text-[#888] hover:border-[#1D3CFF] hover:text-[#1D3CFF] transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            &#8676;
+          </button>
+
+          <!-- 이전 버튼 -->
+          <button
+            th:disabled="${currentPage == 1}"
+            th:onclick="|changePage(${currentPage - 1})|"
+            class="w-9 h-9 flex items-center justify-center rounded-lg border border-[#CCC] bg-white text-sm text-[#888] hover:border-[#1D3CFF] hover:text-[#1D3CFF] transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >
             &#8592;
           </button>
+
+          <!-- 페이지 번호 -->
+          <th:block th:each="i : ${#numbers.sequence(startPage, endPage)}">
+            <button
+              th:onclick="|changePage(${i})|"
+              th:classappend="${i == currentPage} ? 'border-[#1D3CFF] bg-[#1D3CFF] text-white font-bold' : 'border-[#CCC] bg-white text-[#888] hover:border-[#1D3CFF] hover:text-[#1D3CFF]'"
+              class="w-9 h-9 flex items-center justify-center rounded-lg border text-sm transition-all cursor-pointer"
+              th:text="${i}"
+            ></button>
+          </th:block>
+
+          <!-- 다음 버튼 -->
           <button
-            class="w-9 h-9 flex items-center justify-center rounded-lg border border-[#1D3CFF] bg-[#1D3CFF] text-sm font-bold text-white cursor-pointer"
-          >
-            1
-          </button>
-          <button
-            class="w-9 h-9 flex items-center justify-center rounded-lg border border-[#CCC] bg-white text-sm text-[#888] hover:border-[#1D3CFF] hover:text-[#1D3CFF] transition-all cursor-pointer"
+            th:disabled="${currentPage == totalPages}"
+            th:onclick="|changePage(${currentPage + 1})|"
+            class="w-9 h-9 flex items-center justify-center rounded-lg border border-[#CCC] bg-white text-sm text-[#888] hover:border-[#1D3CFF] hover:text-[#1D3CFF] transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >
             &#8594;
+          </button>
+
+          <!-- 끝 버튼 -->
+          <button
+            th:disabled="${currentPage == totalPages}"
+            th:onclick="|changePage(${totalPages})|"
+            class="w-9 h-9 flex items-center justify-center rounded-lg border border-[#CCC] bg-white text-sm text-[#888] hover:border-[#1D3CFF] hover:text-[#1D3CFF] transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            &#8677;
           </button>
         </div>
       </div>
 
       <script>
-        function changeSortOrder(value) {
-          const url = new URL(window.location.href);
-          url.searchParams.set("orderBy", value);
-          window.location.href = url.toString();
-        }
       </script>
     </main>
   </body>
