@@ -20,8 +20,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/", "/login", "/signup/**", "/find-account","/css/**", "/js/**", "/images/**").permitAll()
-                .anyRequest().authenticated()
+                    .requestMatchers("/", "/login", "/signup/**", "/find-account","/css/**", "/js/**", "/images/**","/find-id/**", "/find-pw/**").permitAll()
+                    .requestMatchers("/photographer/**").hasRole("PHOTOGRAPHER")
+                    .requestMatchers("/member/**").hasRole("MEMBER")
+                    .anyRequest().authenticated()
             )
                 .formLogin(login -> login
                 .loginPage("/login")
@@ -35,7 +37,7 @@ public class SecurityConfig {
                         .userInfoEndpoint(user -> user
                                 .userService(customOAuth2UserService)
                         )
-                        .successHandler(customSuccessHandler)
+                        .defaultSuccessUrl("/", true)
                 )
                .logout(logout -> logout
                 .logoutUrl("/logout")

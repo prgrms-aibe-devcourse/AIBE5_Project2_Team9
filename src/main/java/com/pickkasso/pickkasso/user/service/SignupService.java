@@ -18,6 +18,15 @@ public class SignupService {
 
     public void signup(SignupDto dto) {
 
+        if (!dto.getPassword().matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*]).{8,30}$")) {
+            throw new IllegalStateException("비밀번호 규칙 위반");
+        }
+
+
+        if (!dto.getPassword().equals(dto.getPasswordConfirm())) {
+            throw new IllegalStateException("비밀번호 불일치");
+        }
+
         // Account 생성
         Account account = accountService.saveAccount(
                 new AccountDto(

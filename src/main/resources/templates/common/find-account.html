@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PICKKASSO - 아이디/비밀번호 찾기</title>
+    <!-- Spring Security CSRF (fetch 요청용) -->
+    <meta name="_csrf"        th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <link rel="stylesheet" th:href="@{/css/global.css}">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -19,6 +23,7 @@
             }
         }
     </script>
+
 
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -67,14 +72,12 @@
             gap: 8px;
             margin-bottom: 28px;
         }
+
         .logo-area .logo-emoji img {
             width: 60px;
             height: auto;
         }
-        .logo-area {
-            font-size: 18px; font-weight: 100;
-            letter-spacing: .12em; color: var(--primary);
-        }
+
 
         /* ── Card ── */
         .card {
@@ -255,16 +258,159 @@
         /* ── Method panels ── */
         .method-panel { display: none; }
         .method-panel.active { display: block; }
+
+        /* ── Modal Overlay ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 20, 50, 0.45);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .25s ease;
+        }
+        .modal-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .modal {
+            background: #fff;
+            border-radius: 24px;
+            padding: 40px 36px 32px;
+            width: 100%;
+            max-width: 380px;
+            margin: 16px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(45,78,245,.15), 0 4px 16px rgba(0,0,0,.08);
+            transform: translateY(16px) scale(.97);
+            transition: transform .3s cubic-bezier(.22,.68,0,1.2);
+        }
+        .modal-overlay.show .modal {
+            transform: translateY(0) scale(1);
+        }
+
+        /* ── 아이디 찾기 결과 모달 ── */
+        .modal-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 28px;
+        }
+        .modal-icon.blue { background: rgba(45,78,245,.1); }
+        .modal-icon.green { background: rgba(16,185,129,.1); }
+
+        .modal-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+        .modal-sub {
+            font-size: 13.5px;
+            color: var(--text-sub);
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        /* 아이디 결과 박스 */
+        .modal-id-box {
+            background: #F0F3FF;
+            border: 1.5px solid #C7D4FF;
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+        }
+        .modal-id-label {
+            font-size: 12px;
+            color: var(--text-sub);
+            margin-bottom: 4px;
+        }
+        .modal-id-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: .04em;
+        }
+
+        /* 임시 비밀번호 결과 박스 */
+        .modal-pw-box {
+            background: #F0FDF8;
+            border: 1.5px solid #A7F3D0;
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+        }
+        .modal-pw-label {
+            font-size: 12px;
+            color: #6B7280;
+            margin-bottom: 6px;
+        }
+        .modal-pw-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #059669;
+            letter-spacing: .12em;
+            font-family: 'Courier New', monospace;
+        }
+        .modal-pw-warn {
+            font-size: 12.5px;
+            color: #D97706;
+            background: #FFFBEB;
+            border: 1px solid #FDE68A;
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-align: left;
+        }
+        .modal-pw-warn::before { content: '⚠️'; flex-shrink: 0; }
+
+        /* 모달 버튼 */
+        .modal-btn {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all .2s;
+            margin-bottom: 8px;
+        }
+        .modal-btn:last-child { margin-bottom: 0; }
+        .modal-btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+        .modal-btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(45,78,245,.3); }
+        .modal-btn-ghost {
+            background: transparent;
+            color: var(--text-sub);
+            border: 1.5px solid var(--border);
+        }
+        .modal-btn-ghost:hover { border-color: #c5cce8; color: var(--text-main); }
     </style>
 </head>
 <body>
 
 <div class="find-wrapper">
     <!-- Logo -->
-    <div class="logo-area">
-        <span class="logo-emoji"><img th:src="@{/images/logo.png}" alt="PICKKASSO 로고" class="h-12 w-auto"></span>
-        <span class="font-angelica text-[22px] text-[#1D3CFF] tracking-wide">PICKKASSO</span>
-    </div>
+    <a th:href="@{/}">
+        <div class="logo-area">
+            <span class="logo-emoji"><img th:src="@{/images/logo.png}" alt="PICKKASSO 로고"></span>
+            <span class="font-angelica text-[22px] text-[#1D3CFF] tracking-wide">PICKKASSO</span>
+        </div></a>
 
     <div class="card">
         <!-- Server messages -->
@@ -279,75 +425,118 @@
 
         <!-- ════════════════════ 아이디 찾기 Panel ════════════════════ -->
         <div class="panel active" id="panel-id">
-            <p class="panel-desc">가입 시 등록한 이름과 이메일로<br>아이디를 확인하실 수 있습니다.</p>
 
-            <form th:action="@{/find-id/email}" method="post" onsubmit="return validateIdEmail()">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf}"/>
-                <div class="field-group">
-                    <div class="field">
-                        <label>이름</label>
-                        <input type="text" name="name" id="id-email-name" placeholder="이름을 입력해 주세요." th:value="${findIdName}"/>
-                        <div class="error-msg" id="id-email-name-err">이름을 입력해 주세요.</div>
-                    </div>
-                    <div class="field">
-                        <label>이메일</label>
-                        <input type="email" name="email" id="id-email-email" placeholder="example@email.com" th:value="${findIdEmail}"/>
-                        <div class="error-msg" id="id-email-email-err">올바른 이메일을 입력해 주세요.</div>
-                    </div>
-                </div>
+                <input type="hidden"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}">
+                <p class="panel-desc">가입 시 등록한 이름과 이메일로<br>아이디를 확인하실 수 있습니다.</p>
 
-                <!-- Server result -->
-                <div class="result-box success" th:if="${foundId}" th:classappend="show">
-                    회원님의 아이디는 <strong th:text="${foundId}"></strong> 입니다.
+            <div class="field-group">
+                <div class="field">
+                    <label>이름</label>
+                    <input type="text" name="name" id="id-email-name" placeholder="이름을 입력해 주세요."/>
+                    <div class="error-msg" id="id-email-name-err">이름을 입력해 주세요.</div>
                 </div>
-                <div class="result-box fail" th:if="${idNotFound}" th:classappend="show">
-                    일치하는 회원 정보를 찾을 수 없습니다.
+                <div class="field">
+                    <label>이메일</label>
+                    <input type="email" name="email" id="id-email-email" placeholder="example@email.com"/>
+                    <div class="error-msg" id="id-email-email-err">올바른 이메일을 입력해 주세요.</div>
                 </div>
+            </div>
 
-                <button type="submit" class="btn-submit">아이디 찾기</button>
-            </form>
+            <div class="result-box fail" id="id-fail-msg">
+                일치하는 회원 정보를 찾을 수 없습니다.
+            </div>
+
+            <button type="button" class="btn-submit" onclick="submitFindId()">아이디 찾기</button>
+
         </div>
 
         <!-- ════════════════════ 비밀번호 찾기 Panel ════════════════════ -->
         <div class="panel" id="panel-pw">
-            <p class="panel-desc">가입 시 등록한 아이디와 이메일로<br>비밀번호를 재설정할 수 있습니다.</p>
+            <p class="panel-desc">가입 시 등록한 아이디와 이메일로<br>임시 비밀번호를 발급받을 수 있습니다.</p>
 
-            <form th:action="@{/find-pw/email}" method="post" onsubmit="return validatePwEmail()">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf}"/>
-                <div class="field-group">
-                    <div class="field">
-                        <label>아이디</label>
-                        <input type="text" name="loginId" id="pw-email-id" placeholder="아이디를 입력해 주세요."/>
-                        <div class="error-msg" id="pw-email-id-err">아이디를 입력해 주세요.</div>
-                    </div>
-                    <div class="field">
-                        <label>이메일</label>
-                        <input type="email" name="email" id="pw-email-email" placeholder="example@email.com"/>
-                        <div class="error-msg" id="pw-email-email-err">올바른 이메일을 입력해 주세요.</div>
-                    </div>
+            <div class="field-group">
+                <div class="field">
+                    <label>아이디</label>
+                    <input type="text" id="pw-email-id" placeholder="아이디를 입력해 주세요."/>
+                    <div class="error-msg" id="pw-email-id-err">아이디를 입력해 주세요.</div>
                 </div>
+                <div class="field">
+                    <label>이메일</label>
+                    <input type="email" id="pw-email-email" placeholder="example@email.com"/>
+                    <div class="error-msg" id="pw-email-email-err">올바른 이메일을 입력해 주세요.</div>
+                </div>
+            </div>
 
-                <div class="result-box success" th:if="${pwEmailSent}" th:classappend="show">
-                    입력하신 이메일로 비밀번호 재설정 링크를 발송했습니다.
-                </div>
-                <div class="result-box fail" th:if="${pwNotFound}" th:classappend="show">
-                    일치하는 회원 정보를 찾을 수 없습니다.
-                </div>
+            <div class="result-box fail" id="pw-fail-msg">
+                일치하는 회원 정보를 찾을 수 없습니다.
+            </div>
 
-                <button type="submit" class="btn-submit">비밀번호 재설정 메일 발송</button>
-            </form>
+            <button type="submit" class="btn-submit" onclick="submitFindPw()">임시 비밀번호 발급</button>
         </div>
 
         <!-- Bottom nav -->
         <div class="bottom-nav">
             <a th:href="@{/login}">로그인</a>
             <span>|</span>
-            <a th:href="@{/signup}">회원가입</a>
+            <a th:href="@{/register}">회원가입</a>
         </div>
     </div>
 </div>
 
+<!-- ════ 아이디 찾기 결과 모달 ════ -->
+<div class="modal-overlay" id="modal-id" >
+    <div class="modal">
+        <div class="modal-icon blue">🔍</div>
+        <div class="modal-title">아이디를 찾았어요!</div>
+        <div class="modal-sub">회원님의 아이디는 아래와 같습니다.</div>
+        <div class="modal-id-box">
+            <div class="modal-id-label">아이디</div>
+            <div class="modal-id-value" id="modal-id-value">
+            </div>
+        </div>
+        <button class="modal-btn modal-btn-primary" th:onclick="|window.location.href='@{/login}'|">로그인 하러 가기</button>
+        <button class="modal-btn modal-btn-ghost" onclick="closeModal('modal-id')">닫기</button>
+    </div>
+</div>
+
+<!-- ════ 임시 비밀번호 발급 결과 모달 ════ -->
+<div class="modal-overlay" id="modal-pw">
+    <div class="modal">
+        <div class="modal-icon green">🔐</div>
+        <div class="modal-title">임시 비밀번호가 발급되었습니다</div>
+        <div class="modal-sub">아래 임시 비밀번호로 로그인 후<br>반드시 비밀번호를 변경해 주세요.</div>
+        <div class="modal-pw-box">
+            <div class="modal-pw-label">임시 비밀번호</div>
+            <div class="modal-pw-value" id="modal-pw-value"></div>
+        </div>
+        <div class="modal-pw-warn">로그인 후 반드시 비밀번호를 변경해주세요.</div>
+        <button class="modal-btn modal-btn-primary" th:onclick="|window.location.href='@{/login}'|">로그인 하러 가기</button>
+        <button class="modal-btn modal-btn-ghost" onclick="closeModal('modal-pw')">닫기</button>
+    </div>
+</div>
+
 <script>
+
+    /* ── CSRF 토큰 (Spring Security) ── */
+    const csrfToken  = document.querySelector('meta[name="_csrf"]')?.content || '';
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content || 'X-CSRF-TOKEN';
+
+    /* ── Modal ── */
+    function openModal(id)  { document.getElementById(id).classList.add('show'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', function(e) {
+            if (e.target === this) closeModal(this.id);
+        });
+    });
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape')
+            document.querySelectorAll('.modal-overlay.show').forEach(m => closeModal(m.id));
+    });
+
     /* ── Top tab ── */
     function switchTop(tab) {
         ['id','pw'].forEach(t => {
@@ -360,32 +549,112 @@
     function req(id, errId, msg) {
         const el = document.getElementById(id);
         const ok = el && el.value.trim();
-        if (!ok && errId) {
+        if (!ok) {
             const errEl = document.getElementById(errId);
             if (errEl) { errEl.textContent = msg; errEl.classList.add('show'); }
         }
         return !!ok;
     }
-
-    /* ── ID 찾기 validation ── */
-    function validateIdEmail() {
-        let v = true;
+    function clearErrors() {
         document.querySelectorAll('.error-msg').forEach(e => e.classList.remove('show'));
-        if (!req('id-email-name', 'id-email-name-err', '이름을 입력해 주세요.')) v = false;
-        if (!req('id-email-email', 'id-email-email-err', '이메일을 입력해 주세요.')) v = false;
-        return v;
+        document.querySelectorAll('.result-box.fail').forEach(e => e.classList.remove('show'));
     }
 
-    /* ── PW 찾기 validation ── */
-    function validatePwEmail() {
-        let v = true;
-        document.querySelectorAll('.error-msg').forEach(e => e.classList.remove('show'));
-        if (!req('pw-email-id', 'pw-email-id-err', '아이디를 입력해 주세요.')) v = false;
-        if (!req('pw-email-email', 'pw-email-email-err', '이메일을 입력해 주세요.')) v = false;
-        return v;
+    /* ── 프리뷰용: 버튼 클릭 시 바로 모달 오픈 (실제 배포 시 submitFindId/submitFindPw로 교체) ── */
+    function previewFindId() {
+        clearErrors();
+        let valid = true;
+        if (!req('id-email-name',  'id-email-name-err',  '이름을 입력해 주세요.'))  valid = false;
+        if (!req('id-email-email', 'id-email-email-err', '이메일을 입력해 주세요.')) valid = false;
+        if (!valid) return;
+
+        const name = document.getElementById('id-email-name').value.trim();
+        // 찾은 아이디를 name 기반으로 예시 표시
+        document.getElementById('modal-id-value').textContent = name.toLowerCase().replace(' ', '') + '123';
+        openModal('modal-id');
     }
 
-    /* ── Restore state from Thymeleaf model ── */
+    function previewFindPw() {
+        clearErrors();
+        let valid = true;
+        if (!req('pw-email-id',    'pw-email-id-err',    '아이디를 입력해 주세요.'))  valid = false;
+        if (!req('pw-email-email', 'pw-email-email-err', '이메일을 입력해 주세요.')) valid = false;
+        if (!valid) return;
+
+        // 랜덤 임시 비밀번호 생성
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+        const tempPw = Array.from({length: 8}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+        document.getElementById('modal-pw-value').textContent = tempPw;
+        openModal('modal-pw');
+    }
+
+    /* ── 아이디 찾기 (실제 서버 연동용) ── */
+    async function submitFindId() {
+        clearErrors();
+        let valid = true;
+        if (!req('id-email-name',  'id-email-name-err',  '이름을 입력해 주세요.'))  valid = false;
+        if (!req('id-email-email', 'id-email-email-err', '이메일을 입력해 주세요.')) valid = false;
+        if (!valid) return;
+
+        const name  = document.getElementById('id-email-name').value.trim();
+        const email = document.getElementById('id-email-email').value.trim();
+
+        try {
+            const res  = await fetch('/find-id/email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                },
+                body: JSON.stringify({ name, email })
+            });
+            const data = await res.json();
+
+            if (data.success && data.loginId) {
+                document.getElementById('modal-id-value').textContent = data.loginId;
+                openModal('modal-id');
+            } else {
+                document.getElementById('id-fail-msg').classList.add('show');
+            }
+        } catch (err) {
+            document.getElementById('id-fail-msg').classList.add('show');
+        }
+    }
+
+    /* ── 임시 비밀번호 발급 ── */
+    async function submitFindPw() {
+        clearErrors();
+        let valid = true;
+        if (!req('pw-email-id',    'pw-email-id-err',    '아이디를 입력해 주세요.'))  valid = false;
+        if (!req('pw-email-email', 'pw-email-email-err', '이메일을 입력해 주세요.')) valid = false;
+        if (!valid) return;
+
+        const loginId = document.getElementById('pw-email-id').value.trim();
+        const email   = document.getElementById('pw-email-email').value.trim();
+
+        try {
+            const res  = await fetch('/find-pw/email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                },
+                body: JSON.stringify({ loginId, email })
+            });
+            const data = await res.json();
+
+            if (data.success && data.tempPw) {
+                document.getElementById('modal-pw-value').textContent = data.tempPw;
+                openModal('modal-pw');
+            } else {
+                document.getElementById('pw-fail-msg').classList.add('show');
+            }
+        } catch (err) {
+            document.getElementById('pw-fail-msg').classList.add('show');
+        }
+    }
+
+    /* ── 탭 초기화 ── */
     (function () {
         const activeTop = /*[[${activeTab}]]*/ 'id';
         if (activeTop === 'pw') switchTop('pw');

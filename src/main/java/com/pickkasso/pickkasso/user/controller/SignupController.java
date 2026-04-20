@@ -7,9 +7,11 @@ import com.pickkasso.pickkasso.user.service.SignupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import jakarta.validation.Valid;
 
 @Controller
 @RequiredArgsConstructor
@@ -35,7 +37,12 @@ public class SignupController {
     }
 
     @PostMapping("/signup/user")
-    public String signupUser(@ModelAttribute SignupDto dto, Model model) {
+    public String signupUser(@Valid @ModelAttribute SignupDto dto, BindingResult result, Model model) {
+
+        if (result.hasErrors()) {
+            return "common/signup-user";
+        }
+
         try {
             dto.setRole(Role.MEMBER);
             signupService.signup(dto);
@@ -47,7 +54,12 @@ public class SignupController {
     }
 
     @PostMapping("/signup/photographer")
-    public String signupPhotograper(@ModelAttribute SignupDto dto, Model model) {
+    public String signupPhotograper(@Valid @ModelAttribute SignupDto dto, BindingResult result, Model model) {
+
+        if (result.hasErrors()) {
+            return "common/signup-photographer";
+        }
+
         try {
             dto.setRole(Role.PHOTOGRAPHER);
             signupService.signup(dto);

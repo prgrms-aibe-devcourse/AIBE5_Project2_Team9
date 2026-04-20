@@ -32,8 +32,22 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
 
 
         //일반 로그인 처리
+        String memberType = request.getParameter("memberType"); // user or photographer
         String role = authentication.getAuthorities().iterator().next().getAuthority();
 
+        // 일반회원 로그인 눌렀는데 작가 계정이면 차단
+        if ("user".equals(memberType) && role.equals("ROLE_PHOTOGRAPHER")) {
+            response.sendRedirect("/login?error=true");
+            return;
+        }
+
+        // 작가 로그인 눌렀는데 일반회원이면 차단
+        if ("photographer".equals(memberType) && role.equals("ROLE_MEMBER")) {
+            response.sendRedirect("/login?error=true");
+            return;
+        }
+
+        // 정상 로그인
         if (role.equals("ROLE_MEMBER")) {
             response.sendRedirect("/");
         } else if (role.equals("ROLE_PHOTOGRAPHER")) {
