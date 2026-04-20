@@ -50,7 +50,9 @@ public class PortfolioController {
         model.addAttribute("portfolioName", portfolioDto.name());
         model.addAttribute("portfolioDescription", portfolioDto.description());
         model.addAttribute("portfolioTagNames", portfolioService.getPortfolioTagNames(photographerId, portfolioId));
+        model.addAttribute("portfolioProjectType", portfolioDto.projectType());
         model.addAttribute("photographerId", photographerId);
+        model.addAttribute("portfolioId", portfolioId);
         model.addAttribute("photographerNickname", "");
         model.addAttribute("photographerImgUrl", null);
         model.addAttribute("photographerRating", 0.0);
@@ -89,6 +91,19 @@ public class PortfolioController {
             model.addAttribute("portfolioId", portfolioId);
             model.addAttribute("formAction", "/photographer/" + photographerId + "/portfolio/" + portfolioId + "/edit");
             return "photographer/editPortfolio";
+        }
+    }
+
+    @PostMapping("/{portfolioId}/delete")
+    public String deletePortfolio(
+            @PathVariable Long photographerId,
+            @PathVariable Long portfolioId
+    ) {
+        try {
+            portfolioService.deletePortfolio(photographerId, portfolioId);
+            return "redirect:/photographer/" + photographerId + "/profile";
+        } catch (IllegalArgumentException e) {
+            return "redirect:/photographer/" + photographerId + "/portfolio/" + portfolioId;
         }
     }
 }
