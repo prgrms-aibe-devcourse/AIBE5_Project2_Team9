@@ -20,6 +20,37 @@
           background-position: right 8px center;
         }
       </style>
+      <script>
+          document.addEventListener('DOMContentLoaded', function() {
+              document.getElementById('search-form').addEventListener('submit', function(e) {
+                  e.preventDefault();
+
+                  const inputs = this.querySelectorAll('input[type="hidden"]');
+                  inputs.forEach(input => {
+                      if (!input.value) {
+                          input.disabled = true; // disabled된 input은 전송 안됨
+                      }
+                  });
+
+                  this.submit();
+              });
+
+              document.querySelectorAll('.search-tag-option').forEach(link => {
+                  link.addEventListener('click', function(e) {
+                      e.preventDefault();
+                      const url = new URL(this.href);
+
+                      const keysToDelete = [];
+                      url.searchParams.forEach((value, key) => {
+                          if (value === '' || value === 'null') keysToDelete.push(key);
+                      });
+                      keysToDelete.forEach(key => url.searchParams.delete(key));
+
+                      window.location.href = url.toString();
+                  });
+              });
+          });
+      </script>
     </th:block>
   </head>
   <body>
@@ -31,8 +62,14 @@
             th:action="@{/search}"
             method="get"
             class="flex-1 flex items-center bg-white border-[1.5px] border-[#CCC] rounded-xl h-[52px] overflow-hidden px-1.5 gap-0"
+            id="search-form"
           >
             <!-- 현재 파라미터 보존용 hidden inputs -->
+            <input
+              type="hidden"
+              name="address"
+              th:value="${itemSearchFormDto.address}"
+            />
             <input
               type="hidden"
               name="lat"
@@ -167,14 +204,14 @@
               </svg>
             </button>
 
-            <!-- address 실제 제출 input (화면에서 숨김, sr-only 사용 불가하므로 opacity-0 width-0) -->
-            <input
-              type="text"
-              name="address"
-              th:value="${itemSearchFormDto.address}"
-              class="w-0 h-0 p-0 border-0 opacity-0 absolute"
-              aria-hidden="true"
-            />
+<!--            &lt;!&ndash; address 실제 제출 input (화면에서 숨김, sr-only 사용 불가하므로 opacity-0 width-0) &ndash;&gt;-->
+<!--            <input-->
+<!--              type="text"-->
+<!--              name="address"-->
+<!--              th:value="${itemSearchFormDto.address}"-->
+<!--              class="w-0 h-0 p-0 border-0 opacity-0 absolute"-->
+<!--              aria-hidden="true"-->
+<!--            />-->
 
             <!-- 검색 버튼 -->
             <button
@@ -220,9 +257,10 @@
                                date=${itemSearchFormDto.date},
                                orderBy=${itemSearchFormDto.orderBy})}"
               th:classappend="${itemSearchFormDto.tag == null or #strings.isEmpty(itemSearchFormDto.tag)}
+
              ? 'bg-[#1D3CFF] border-[#1D3CFF] text-white font-semibold'
              : 'bg-white border-[#CCC] text-[#444] hover:border-[#1D3CFF] hover:text-[#1D3CFF]'"
-              class="px-[18px] py-2 rounded-full text-sm border-[1.5px] transition-all no-underline cursor-pointer"
+              class="px-[18px] py-2 rounded-full text-sm border-[1.5px] transition-all no-underline cursor-pointer search-tag-option"
             >
               전체
             </a>
@@ -240,7 +278,7 @@
               th:classappend="${itemSearchFormDto.tag != null and itemSearchFormDto.tag == t.name}
              ? 'bg-[#1D3CFF] border-[#1D3CFF] text-white font-semibold'
              : 'bg-white border-[#CCC] text-[#444] hover:border-[#1D3CFF] hover:text-[#1D3CFF]'"
-              class="px-[18px] py-2 rounded-full text-sm border-[1.5px] transition-all no-underline cursor-pointer"
+              class="px-[18px] py-2 rounded-full text-sm border-[1.5px] transition-all no-underline cursor-pointer search-tag-option"
             >
             </a>
           </div>
@@ -443,6 +481,7 @@
       <script>
         function changeSortOrder(value) {
           const url = new URL(window.location.href);
+          url.searchParams.set("orderBy", value);
           window.location.href = url.toString();
         }
       </script>
