@@ -4,12 +4,15 @@ import com.pickkasso.pickkasso.user.entity.Account;
 import com.pickkasso.pickkasso.user.entity.Role;
 import com.pickkasso.pickkasso.user.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.Map;
 
 @Service
@@ -25,7 +28,19 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Map<String, Object> attributes = user.getAttributes();
         System.out.println("카카오 전체 데이터" + attributes);
 
-        return user;
+        // 카카오 이메일 꺼내기
+        Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
+        String email = (String) kakaoAccount.get("email");
+
+        // DB 저장 or 조회
+        Account account = processOAuthUser(email);
+
+        // spring Security용 사용자로 변환 (핵심)
+        return new DefaultOAuth2User(
+                Collections.singleton(new SimpleGrantedAuthority("ROLE_" + account.getRole().name())),
+                attributes,
+                "id" // 카카오 기본 식별 키
+        );
     }
 
     public Account processOAuthUser(String email) {
