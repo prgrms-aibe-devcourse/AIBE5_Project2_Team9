@@ -17,4 +17,5 @@ public class ItemSearchFormDto {
     private LocalDate date;
     private String orderBy;
     private Integer page;
+    private String itemType;
 }

@@ -52,7 +52,20 @@
 
                 this.submit();
             });
+
+            const region = document.getElementById('h-region').value;
+            if (region) {
+                document.getElementById('clear-region-btn').classList.remove('hidden');
+            }
         });
+        function clearRegion() {
+            event.stopPropagation(); // ← 부모로 이벤트 전파 차단
+            document.getElementById("h-region").value = "";
+            document.getElementById("h-lat").value = "";
+            document.getElementById("h-lng").value = "";
+            document.getElementById("display-region").textContent = "지역선택";
+            document.getElementById('clear-region-btn').classList.add('hidden');
+        }
     </script>
     <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=66fd58e49ef902c79dbaa2577ceb31d2&libraries=services&autoload=false"></script>
@@ -81,22 +94,31 @@
       <input type="hidden" id="h-date"     th:field="*{date}" />
       <input type="hidden" th:field="*{orderBy}" />
       <!-- 검색바 -->
-      <div class="bg-white rounded-[50px] flex items-center w-full max-w-[780px] shadow-[0_8px_32px_rgba(0,0,0,0.18)] pl-5 pr-1.5 py-1.5">
+      <div class="bg-white rounded-[50px] flex items-center w-full max-w-[900px] shadow-[0_8px_32px_rgba(0,0,0,0.18)] pl-5 pr-1.5 py-1.5">
 
         <!-- 지역 -->
         <div onclick="locationModal.open()"
-             class="flex items-center gap-2 px-4 py-1.5 flex-1 border-r border-[#E8E8E8] cursor-pointer hover:text-[#1D3CFF] transition-colors">
+             class="flex items-center gap-2 px-4 py-1.5 flex-1 min-w-[200px] border-r border-[#E8E8E8] cursor-pointer hover:text-[#1D3CFF] transition-colors">
           <svg class="text-[#0097FF] shrink-0" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
           </svg>
           <span id="display-region" class="text-sm text-[#555] whitespace-nowrap"
                 th:text="${param.region} ?: '지역선택'"></span>
+          <button type="button"
+                  id="clear-region-btn"
+                  onclick="clearRegion(event)"
+                  class="hidden text-[#AAA] hover:text-[#FF3B3B] transition-colors bg-transparent border-0 cursor-pointer shrink-0 p-0">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
         </div>
 
         <!-- 촬영유형 -->
         <div onclick="categoryModal.open()"
-             class="flex items-center gap-2 px-4 py-1.5 flex-1 border-r border-[#E8E8E8] cursor-pointer hover:text-[#1D3CFF] transition-colors">
+             class="flex items-center gap-2 px-4 py-1.5 flex-1 min-w-[120px] border-r border-[#E8E8E8] cursor-pointer hover:text-[#1D3CFF] transition-colors">
           <svg class="text-[#0097FF] shrink-0" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -107,7 +129,7 @@
 
         <!-- 날짜 -->
         <div onclick="dateModal.open()"
-             class="flex items-center gap-2 px-4 py-1.5 flex-1 border-r border-[#E8E8E8] cursor-pointer hover:text-[#1D3CFF] transition-colors">
+             class="flex items-center gap-2 px-4 py-1.5 flex-1 min-w-[140px] border-r border-[#E8E8E8] cursor-pointer hover:text-[#1D3CFF] transition-colors">
           <svg class="text-[#0097FF] shrink-0" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
             <line x1="16" y1="2" x2="16" y2="6"/>
@@ -117,7 +139,18 @@
           <span id="display-date" class="text-sm text-[#555] whitespace-nowrap"
                 th:text="${param.date} ?: '날짜'"></span>
         </div>
-
+        <!-- 촬영 방식 -->
+        <div class="flex items-center gap-2 px-4 py-1.5 flex-1 min-w-[140px] border-r border-[#E8E8E8]">
+          <svg class="text-[#0097FF] shrink-0" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+          </svg>
+          <select id="display-item-type" name="itemType"
+                  class="text-sm text-[#555] bg-transparent border-0 outline-none cursor-pointer w-full">
+            <option value="" th:selected="${param.itemType == null}">촬영방식</option>
+            <option value="IN" th:selected="${param.itemType == 'IN'}">스튜디오</option>
+            <option value="OUT" th:selected="${param.itemType == 'OUT'}">출장촬영</option>
+          </select>
+        </div>
         <!-- 검색 버튼 -->
         <button type="submit"
                 class="p-2 mx-1 text-[#888] hover:text-[#1D3CFF] transition-colors shrink-0 bg-transparent border-0"
@@ -151,55 +184,6 @@
   ════════════════════════════════════════════ -->
   <section class="pt-8 bg-[#F9FAFC]">
     <div class="max-w-[1216px] mx-auto px-6">
-
-      <!-- 월 헤더 -->
-      <div class="flex items-baseline gap-3 mb-4">
-        <span class="text-[42px] font-extrabold text-[#1A1A1A] leading-none">04</span>
-        <span class="text-lg font-semibold text-[#444]">월</span>
-        <span class="text-lg font-medium text-[#888] ml-1">2026</span>
-        <div class="flex items-center gap-1.5 ml-2">
-          <button class="bg-transparent border-0 text-[#888] hover:text-[#1D3CFF] transition-colors p-0.5 flex items-center" aria-label="이전 달">
-            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-          </button>
-          <button class="bg-transparent border-0 text-[#888] hover:text-[#1D3CFF] transition-colors p-0.5 flex items-center" aria-label="다음 달">
-            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- 날짜 스트립 -->
-      <div class="date-strip flex gap-1.5 overflow-x-auto pb-2 mb-5 [scrollbar-width:none]">
-        <div class="date-item">1</div>
-        <div class="date-item">2</div>
-        <div class="date-item">3</div>
-        <div class="date-item">4</div>
-        <div class="date-item">5</div>
-        <div class="date-item">6</div>
-        <div class="date-item">7</div>
-        <div class="date-item">8</div>
-        <div class="date-item">9</div>
-        <div class="date-item">10</div>
-        <div class="date-item">11</div>
-        <div class="date-item">12</div>
-        <div class="date-item">13</div>
-        <div class="date-item">14</div>
-        <div class="date-item today">15</div>
-        <div class="date-item">16</div>
-        <div class="date-item">17</div>
-        <div class="date-item">18</div>
-        <div class="date-item">19</div>
-        <div class="date-item">20</div>
-        <div class="date-item">21</div>
-        <div class="date-item">22</div>
-        <div class="date-item">23</div>
-        <div class="date-item">24</div>
-        <div class="date-item">25</div>
-        <div class="date-item">26</div>
-        <div class="date-item">27</div>
-        <div class="date-item">28</div>
-        <div class="date-item">29</div>
-        <div class="date-item">30</div>
-      </div>
 
       <!-- 별점순 추천 섹션 -->
       <div style="padding: 2rem 0 1rem;">

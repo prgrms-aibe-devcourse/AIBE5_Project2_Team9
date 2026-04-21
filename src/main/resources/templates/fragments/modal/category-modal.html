@@ -11,6 +11,13 @@
 
       <div id="category-list" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
 
+        <!-- 전체 버튼 -->
+        <div class="cat-item"
+             data-value=""
+             onclick="categoryModal.select(this)"
+             style="grid-column: 1 / -1;">
+          <span class="cat-label">전체</span>
+        </div>
         <div th:each="tag : ${tagList}"
              class="cat-item"
              th:data-value="${tag.name}"
@@ -45,13 +52,12 @@
           selectedValue: null,
 
           open() {
-              // 현재 hidden input 값으로 선택 상태 복원
               const current = document.getElementById('h-category').value;
               document.querySelectorAll('.cat-item').forEach(item => {
                   item.dataset.selected = (item.dataset.value === current) ? 'true' : 'false';
               });
-              this.selectedValue = current || null;
-              this.setConfirmEnabled(!!current);
+              this.selectedValue = current;
+              this.setConfirmEnabled(true); // 전체는 항상 선택 가능
               document.getElementById('category-modal').style.display = 'flex';
           },
 
@@ -64,7 +70,7 @@
                   item.dataset.selected = 'false';
               });
               el.dataset.selected = 'true';
-              this.selectedValue = el.dataset.value;
+              this.selectedValue = el.dataset.value; // 빈 문자열도 허용
               this.setConfirmEnabled(true);
           },
 
@@ -76,9 +82,12 @@
           },
 
           confirm() {
-              if (!this.selectedValue) return;
               document.getElementById('h-category').value = this.selectedValue;
-              document.getElementById('display-category').textContent = this.selectedValue;
+              if (this.selectedValue === '') {
+                  document.getElementById('display-category').textContent = '촬영유형';
+              } else {
+                  document.getElementById('display-category').textContent = this.selectedValue;
+              }
               this.close();
           },
       };
