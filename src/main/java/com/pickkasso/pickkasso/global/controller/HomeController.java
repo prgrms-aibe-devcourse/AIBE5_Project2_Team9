@@ -1,14 +1,26 @@
 package com.pickkasso.pickkasso.global.controller;
 
+import com.pickkasso.pickkasso.global.tag.TagReference;
+import com.pickkasso.pickkasso.global.tag.TagService;
+import com.pickkasso.pickkasso.item.dto.ItemSearchFormDto;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import java.util.List;
+
 @Controller
+@RequiredArgsConstructor
 public class HomeController {
+    private final TagService tagService;
 
     @GetMapping("/")
-    public String home() {
+    public String home(Model model) {
+        List<TagReference> tagList = tagService.findAllTagReference();
+        model.addAttribute("tagList", tagList);
+        model.addAttribute("itemSearchFormDto", new ItemSearchFormDto());
         return "index";
     }
 

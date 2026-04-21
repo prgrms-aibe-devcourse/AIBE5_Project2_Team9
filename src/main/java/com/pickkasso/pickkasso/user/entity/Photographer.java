@@ -1,6 +1,7 @@
 package com.pickkasso.pickkasso.user.entity;
 
 
+import com.pickkasso.pickkasso.item.entity.Item;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -32,6 +33,8 @@ public class Photographer extends UserBasicInfo {
     private List<Education> educationList = new ArrayList<>();
     @OneToMany(mappedBy = "photographer", cascade = CascadeType.ALL)
     private List<Career> careerList = new ArrayList<>();
+    @OneToMany(mappedBy = "photographer", cascade = CascadeType.ALL)
+    private List<Item> itemList = new ArrayList<>();
 
     private Photographer(
         Account account,
@@ -63,4 +66,8 @@ public class Photographer extends UserBasicInfo {
     public void connectProfile(PhotographerProfile photographerProfile) {
         this.photographerProfile = photographerProfile;
     }
+
+    public void addItem(Item item) { itemList.add(item); }
+
+    public void removeItem(Item item) { itemList.remove(item); }
 }

@@ -1,0 +1,468 @@
+<!doctype html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{layouts/default :: layout(~{::title}, ~{::pageStyles}, ~{::main})}"
+>
+  <head>
+    <title th:fragment="title">검색 결과 | PICKKASSO</title>
+    <th:block th:fragment="pageStyles">
+      <style>
+        .line-clamp-2 {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        .sort-select {
+          appearance: none;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+          background-repeat: no-repeat;
+          background-position: right 8px center;
+        }
+      </style>
+    </th:block>
+  </head>
+  <body>
+    <main th:fragment="main">
+      <!-- ─── 검색바 섹션 ───────────────────────────────── -->
+      <section class="bg-[#F9FAFC] border-b border-[#E0E6F0] py-4">
+        <div class="max-w-[1216px] mx-auto px-6 flex items-center gap-2.5">
+          <form
+            th:action="@{/search}"
+            method="get"
+            class="flex-1 flex items-center bg-white border-[1.5px] border-[#CCC] rounded-xl h-[52px] overflow-hidden px-1.5 gap-0"
+          >
+            <!-- 현재 파라미터 보존용 hidden inputs -->
+            <input
+              type="hidden"
+              name="lat"
+              th:value="${itemSearchFormDto.lat}"
+            />
+            <input
+              type="hidden"
+              name="lng"
+              th:value="${itemSearchFormDto.lng}"
+            />
+            <input
+              type="hidden"
+              name="tag"
+              th:value="${itemSearchFormDto.tag}"
+            />
+            <input
+              type="hidden"
+              name="date"
+              th:value="${itemSearchFormDto.date}"
+            />
+            <input
+              type="hidden"
+              name="orderBy"
+              th:value="${itemSearchFormDto.orderBy}"
+            />
+            <input
+              type="hidden"
+              name="isAsc"
+              th:value="${itemSearchFormDto.isAsc}"
+            />
+            <!-- address는 아래 text input으로 대신 제출 -->
+
+            <!-- 지역선택 버튼 (표시용) -->
+            <button
+              type="button"
+              class="flex items-center gap-1.5 px-[18px] h-full bg-transparent border-0 border-r border-[#E8E8E8] text-sm font-medium text-[#444] hover:text-[#1D3CFF] transition-colors whitespace-nowrap cursor-pointer"
+            >
+              <svg
+                class="text-[#0097FF] shrink-0"
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"
+                />
+                <circle cx="12" cy="9" r="2.5" />
+              </svg>
+              <span
+                th:text="${itemSearchFormDto.address != null and !#strings.isEmpty(itemSearchFormDto.address) ? itemSearchFormDto.address : '지역선택'}"
+                >지역선택</span
+              >
+              <svg
+                class="text-[#AAA] shrink-0"
+                width="11"
+                height="11"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+
+            <!-- 촬영유형 버튼 (표시용) -->
+            <button
+              type="button"
+              class="flex items-center gap-1.5 px-[18px] h-full bg-transparent border-0 border-r border-[#E8E8E8] text-sm font-medium text-[#444] hover:text-[#1D3CFF] transition-colors whitespace-nowrap cursor-pointer"
+            >
+              <svg
+                class="text-[#0097FF] shrink-0"
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <rect x="2" y="7" width="20" height="14" rx="2" />
+                <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+                <circle cx="12" cy="14" r="3" />
+              </svg>
+              <span
+                th:text="${itemSearchFormDto.tag != null and !#strings.isEmpty(itemSearchFormDto.tag) ? itemSearchFormDto.tag : '촬영유형'}"
+                >촬영유형</span
+              >
+              <svg
+                class="text-[#AAA] shrink-0"
+                width="11"
+                height="11"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+
+            <!-- 날짜 버튼 (표시용) -->
+            <button
+              type="button"
+              class="flex items-center gap-1.5 px-[18px] h-full bg-transparent border-0 border-r border-[#E8E8E8] text-sm font-medium text-[#444] hover:text-[#1D3CFF] transition-colors whitespace-nowrap cursor-pointer"
+            >
+              <svg
+                class="text-[#0097FF] shrink-0"
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+              <span
+                th:text="${itemSearchFormDto.date != null ? #temporals.format(itemSearchFormDto.date, 'MM/dd') : '날짜'}"
+                >날짜</span
+              >
+              <svg
+                class="text-[#AAA] shrink-0"
+                width="11"
+                height="11"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+
+            <!-- address 실제 제출 input (화면에서 숨김, sr-only 사용 불가하므로 opacity-0 width-0) -->
+            <input
+              type="text"
+              name="address"
+              th:value="${itemSearchFormDto.address}"
+              class="w-0 h-0 p-0 border-0 opacity-0 absolute"
+              aria-hidden="true"
+            />
+
+            <!-- 검색 버튼 -->
+            <button
+              type="submit"
+              class="w-10 h-10 ml-1 flex items-center justify-center rounded-lg bg-transparent border-0 text-[#444] hover:bg-[#F0F4FF] hover:text-[#1D3CFF] transition-colors cursor-pointer shrink-0"
+            >
+              <svg
+                width="19"
+                height="19"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.2"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35" />
+              </svg>
+            </button>
+          </form>
+
+          <!-- AI PICK 버튼 -->
+          <a
+            th:href="@{/ai-pick}"
+            class="flex items-center gap-2 px-5 h-[52px] bg-white border-[1.5px] border-[#1D3CFF] rounded-xl text-[15px] font-bold text-[#1D3CFF] hover:bg-[#1D3CFF] hover:text-white transition-colors no-underline shrink-0"
+          >
+            <div class="w-2 h-2 bg-[#0097FF] rounded-full shrink-0"></div>
+            AI PICK
+          </a>
+        </div>
+      </section>
+
+      <!-- ─── 메인 컨텐츠 ──────────────────────────────── -->
+      <div class="max-w-[1216px] mx-auto px-6 pt-8 pb-16">
+        <!-- 필터 탭 + 결과 수 + 정렬 -->
+        <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
+          <!-- 카테고리 필터 탭 -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <!-- 전체 탭 -->
+            <a
+              th:href="@{/search(address=${itemSearchFormDto.address},
+                               lat=${itemSearchFormDto.lat},
+                               lng=${itemSearchFormDto.lng},
+                               date=${itemSearchFormDto.date},
+                               orderBy=${itemSearchFormDto.orderBy},
+                               isAsc=${itemSearchFormDto.isAsc})}"
+              th:classappend="${itemSearchFormDto.tag == null or #strings.isEmpty(itemSearchFormDto.tag)}
+             ? 'bg-[#1D3CFF] border-[#1D3CFF] text-white font-semibold'
+             : 'bg-white border-[#CCC] text-[#444] hover:border-[#1D3CFF] hover:text-[#1D3CFF]'"
+              class="px-[18px] py-2 rounded-full text-sm border-[1.5px] transition-all no-underline cursor-pointer"
+            >
+              전체
+            </a>
+
+            <!-- 태그별 탭 (동적) -->
+            <a
+              th:each="t : ${tags}"
+              th:href="@{/search(address=${itemSearchFormDto.address},
+                               lat=${itemSearchFormDto.lat},
+                               lng=${itemSearchFormDto.lng},
+                               date=${itemSearchFormDto.date},
+                               orderBy=${itemSearchFormDto.orderBy},
+                               isAsc=${itemSearchFormDto.isAsc},
+                               tag=${t.name})}"
+              th:text="${t.name}"
+              th:classappend="${itemSearchFormDto.tag != null and itemSearchFormDto.tag == t.name}
+             ? 'bg-[#1D3CFF] border-[#1D3CFF] text-white font-semibold'
+             : 'bg-white border-[#CCC] text-[#444] hover:border-[#1D3CFF] hover:text-[#1D3CFF]'"
+              class="px-[18px] py-2 rounded-full text-sm border-[1.5px] transition-all no-underline cursor-pointer"
+            >
+            </a>
+          </div>
+
+          <!-- 결과 수 + 정렬 드롭다운 -->
+          <div class="flex items-center gap-3 shrink-0">
+            <span class="text-sm text-[#888]">
+              <strong
+                class="text-[#1A1A1A] font-semibold"
+                th:text="${totalCount}"
+                >0</strong
+              >개의 서비스
+            </span>
+            <select
+              class="sort-select text-sm text-[#444] border border-[#CCC] rounded-lg py-[7px] pl-3 pr-7 bg-white cursor-pointer outline-none"
+              onchange="changeSortOrder(this.value)"
+            >
+              <option
+                value="score"
+                th:selected="${itemSearchFormDto.orderBy == null or itemSearchFormDto.orderBy == 'score'}"
+              >
+                추천순
+              </option>
+              <option
+                value="review"
+                th:selected="${itemSearchFormDto.orderBy == 'review'}"
+              >
+                인기순
+              </option>
+              <option
+                value="createdAt"
+                th:selected="${itemSearchFormDto.orderBy == 'createdAt'}"
+              >
+                최신순
+              </option>
+              <option
+                value="price_asc"
+                th:selected="${itemSearchFormDto.orderBy == 'price' and itemSearchFormDto.isAsc}"
+              >
+                낮은 가격순
+              </option>
+              <option
+                value="price_desc"
+                th:selected="${itemSearchFormDto.orderBy == 'price' and !itemSearchFormDto.isAsc}"
+              >
+                높은 가격순
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- ─── 카드 그리드 ──────────────────────────── -->
+        <div
+          th:if="${items != null and !#lists.isEmpty(items)}"
+          class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5"
+        >
+          <a
+            th:each="item : ${items}"
+            th:href="@{/item/{id}(id=${item.id})}"
+            class="bg-white border border-[#CCC] rounded-2xl overflow-hidden hover:shadow-[0_4px_20px_rgba(0,0,0,0.10)] hover:border-[#B8C8E8] transition-all no-underline text-inherit flex flex-col cursor-pointer"
+          >
+            <!-- 썸네일 -->
+            <div
+              class="w-full aspect-[4/3] overflow-hidden bg-[#D3DEF2] flex items-center justify-center"
+            >
+              <img
+                th:if="${item.imgUrl != null and !#strings.isEmpty(item.imgUrl)}"
+                th:src="${item.imgUrl}"
+                th:alt="${item.name}"
+                class="w-full h-full object-cover block"
+                loading="lazy"
+              />
+              <div
+                th:unless="${item.imgUrl != null and !#strings.isEmpty(item.imgUrl)}"
+                class="flex items-center justify-center w-full h-full"
+              >
+                <svg
+                  class="text-[#AAA] opacity-50"
+                  width="36"
+                  height="36"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            <!-- 카드 바디 -->
+            <div class="p-3.5 flex flex-col gap-1.5 flex-1">
+              <!-- 카테고리 -->
+              <span
+                class="text-[11px] font-medium text-[#0097FF] tracking-wide"
+                th:text="${item.tagName != null ? item.tagName : (item.itemType != null ? item.itemType.name() : '')}"
+                >카테고리</span
+              >
+
+              <!-- 제목 -->
+              <p
+                class="text-[13px] font-semibold text-[#1A1A1A] leading-snug line-clamp-2"
+                th:text="${item.name}"
+              >
+                서비스 제목
+              </p>
+
+              <!-- 별점 + 리뷰 수 + 작가명 -->
+              <div class="flex items-center gap-1 mt-0.5 text-xs flex-wrap">
+                <span class="text-[#0097FF] text-[12px] leading-none">★</span>
+                <span
+                  class="font-semibold text-[#1A1A1A]"
+                  th:text="${item.avgScore != null ? #numbers.formatDecimal(item.avgScore / 10.0, 1, 1) : '0.0'}"
+                  >0.0</span
+                >
+                <span
+                  class="text-[#888]"
+                  th:text="'(' + (${item.reviewCount != null ? item.reviewCount : 0}) + ')'"
+                ></span>
+                <span
+                  class="text-[#888]"
+                  th:if="${item.photographerName != null and !#strings.isEmpty(item.photographerName)}"
+                  th:text="'· ' + ${item.photographerName}"
+                ></span>
+              </div>
+
+              <!-- 가격 -->
+              <div
+                class="flex items-baseline gap-1 mt-auto pt-2 border-t border-[#F0F0F0]"
+              >
+                <span class="text-[11px] text-[#AAA]">가격</span>
+                <span
+                  class="text-[15px] font-bold text-[#1D3CFF]"
+                  th:text="${item.defaultPrice != null ? #numbers.formatInteger(item.defaultPrice, 3, 'COMMA') : '-'}"
+                  >0</span
+                >
+                <span class="text-[11px] text-[#888]">원~</span>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <!-- ─── 빈 결과 상태 ─────────────────────────── -->
+        <div
+          th:unless="${items != null and !#lists.isEmpty(items)}"
+          class="flex flex-col items-center justify-center py-24 text-center"
+        >
+          <svg
+            class="text-[#CCC] mb-4"
+            width="48"
+            height="48"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="1"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.35-4.35" />
+          </svg>
+          <p class="text-base font-semibold text-[#444] mb-2">
+            검색 결과가 없습니다
+          </p>
+          <p class="text-sm text-[#888]">
+            조건을 변경하거나 다른 지역을 검색해 보세요.
+          </p>
+        </div>
+
+        <!-- ─── 페이지네이션 ──────────────────────────── -->
+        <div
+          th:if="${items != null and !#lists.isEmpty(items)}"
+          class="flex items-center justify-center gap-1.5 mt-12"
+        >
+          <button
+            class="w-9 h-9 flex items-center justify-center rounded-lg border border-[#CCC] bg-white text-sm text-[#888] hover:border-[#1D3CFF] hover:text-[#1D3CFF] transition-all cursor-pointer"
+          >
+            &#8592;
+          </button>
+          <button
+            class="w-9 h-9 flex items-center justify-center rounded-lg border border-[#1D3CFF] bg-[#1D3CFF] text-sm font-bold text-white cursor-pointer"
+          >
+            1
+          </button>
+          <button
+            class="w-9 h-9 flex items-center justify-center rounded-lg border border-[#CCC] bg-white text-sm text-[#888] hover:border-[#1D3CFF] hover:text-[#1D3CFF] transition-all cursor-pointer"
+          >
+            &#8594;
+          </button>
+        </div>
+      </div>
+
+      <script>
+        function changeSortOrder(value) {
+          const url = new URL(window.location.href);
+          if (value === "price_asc") {
+            url.searchParams.set("orderBy", "price");
+            url.searchParams.set("isAsc", "true");
+          } else if (value === "price_desc") {
+            url.searchParams.set("orderBy", "price");
+            url.searchParams.set("isAsc", "false");
+          } else {
+            url.searchParams.set("orderBy", value);
+            url.searchParams.delete("isAsc");
+          }
+          window.location.href = url.toString();
+        }
+      </script>
+    </main>
+  </body>
+</html>
