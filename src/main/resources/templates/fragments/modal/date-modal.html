@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+<th:block th:fragment="dateModal">
+
+  <div id="date-modal"
+       style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:12px; width:360px; padding:28px 28px 20px;">
+
+      <h2 style="font-size:18px; font-weight:500; margin:0 0 20px;">날짜 선택</h2>
+
+      <!-- 캘린더 헤더 -->
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+        <button type="button" onclick="dateModal.prevMonth()"
+                style="background:none; border:none; cursor:pointer; font-size:18px; color:#555;">&#8249;</button>
+        <span id="calendar-title" style="font-size:15px; font-weight:500;"></span>
+        <button type="button" onclick="dateModal.nextMonth()"
+                style="background:none; border:none; cursor:pointer; font-size:18px; color:#555;">&#8250;</button>
+      </div>
+
+      <!-- 요일 헤더 -->
+      <div style="display:grid; grid-template-columns:repeat(7,1fr); text-align:center; margin-bottom:6px;">
+        <span style="font-size:12px; color:#e55;">일</span>
+        <span style="font-size:12px; color:#888;">월</span>
+        <span style="font-size:12px; color:#888;">화</span>
+        <span style="font-size:12px; color:#888;">수</span>
+        <span style="font-size:12px; color:#888;">목</span>
+        <span style="font-size:12px; color:#888;">금</span>
+        <span style="font-size:12px; color:#555;">토</span>
+      </div>
+
+      <!-- 날짜 그리드 -->
+      <div id="calendar-grid" style="display:grid; grid-template-columns:repeat(7,1fr); gap:2px; text-align:center;"></div>
+
+      <div style="border-top:1px solid #eee; margin-top:20px; padding-top:16px; display:flex; justify-content:flex-end; gap:8px;">
+        <button type="button" onclick="dateModal.close()"
+                style="padding:8px 20px; border:1px solid #ddd; border-radius:8px; background:#fff; cursor:pointer;">취소</button>
+        <button type="button" id="btn-confirm-date" onclick="dateModal.confirm()"
+                style="padding:8px 20px; background:#1D3CFF; color:#fff; border:none; border-radius:8px; opacity:0.4; cursor:default;" disabled>선택 완료</button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+      .cal-day {
+          padding: 6px 2px; font-size: 13px; border-radius: 50%;
+          cursor: pointer; transition: background 0.1s;
+          aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+      }
+      .cal-day:hover { background: #EEF2FF; }
+      .cal-day.today { font-weight: 700; color: #1D3CFF; }
+      .cal-day.selected { background: #1D3CFF; color: #fff; }
+      .cal-day.disabled { color: #ddd; cursor: default; pointer-events: none; }
+      .cal-day.sunday { color: #e55; }
+  </style>
+  <script>
+      const dateModal = {
+          selectedDate: null,
+          currentYear: null,
+          currentMonth: null,
+
+          open() {
+              const today = new Date();
+              this.currentYear  = today.getFullYear();
+              this.currentMonth = today.getMonth();
+
+              // 현재 선택값 복원
+              const current = document.getElementById('h-date').value;
+              this.selectedDate = current || null;
+              this.setConfirmEnabled(!!current);
+
+              this.render();
+              document.getElementById('date-modal').style.display = 'flex';
+          },
+
+          close() {
+              document.getElementById('date-modal').style.display = 'none';
+          },
+
+          prevMonth() {
+              this.currentMonth--;
+              if (this.currentMonth < 0) { this.currentMonth = 11; this.currentYear--; }
+              this.render();
+          },
+
+          nextMonth() {
+              this.currentMonth++;
+              if (this.currentMonth > 11) { this.currentMonth = 0; this.currentYear++; }
+              this.render();
+          },
+
+          render() {
+              const year  = this.currentYear;
+              const month = this.currentMonth;
+              const today = new Date();
+
+              document.getElementById('calendar-title').textContent =
+                  `${year}년 ${month + 1}월`;
+
+              const grid = document.getElementById('calendar-grid');
+              grid.innerHTML = '';
+
+              const firstDay = new Date(year, month, 1).getDay();
+              const lastDate = new Date(year, month + 1, 0).getDate();
+
+              // 빈 칸
+              for (let i = 0; i < firstDay; i++) {
+                  grid.appendChild(document.createElement('div'));
+              }
+
+              for (let d = 1; d <= lastDate; d++) {
+                  const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                  const isPast  = new Date(year, month, d) < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                  const isToday = d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+                  const isSun   = new Date(year, month, d).getDay() === 0;
+
+                  const div = document.createElement('div');
+                  div.className = [
+                      'cal-day',
+                      isPast   ? 'disabled'  : '',
+                      isToday  ? 'today'     : '',
+                      isSun    ? 'sunday'    : '',
+                      this.selectedDate === dateStr ? 'selected' : '',
+                  ].join(' ').trim();
+
+                  div.textContent = d;
+                  if (!isPast) {
+                      div.addEventListener('click', () => this.selectDate(dateStr));
+                  }
+                  grid.appendChild(div);
+              }
+          },
+
+          selectDate(dateStr) {
+              this.selectedDate = dateStr;
+              this.setConfirmEnabled(true);
+              this.render();
+          },
+
+          setConfirmEnabled(enabled) {
+              const btn = document.getElementById('btn-confirm-date');
+              btn.disabled = !enabled;
+              btn.style.opacity = enabled ? '1' : '0.4';
+              btn.style.cursor  = enabled ? 'pointer' : 'default';
+          },
+
+          confirm() {
+              if (!this.selectedDate) return;
+              document.getElementById('h-date').value = this.selectedDate;
+
+              // 표시용: 2025-04-16 → 2025년 4월 16일
+              // const [y, m, d] = this.selectedDate.split('-');
+              // document.getElementById('display-date').textContent = `${y}년 ${parseInt(m)}월 ${parseInt(d)}일`;
+              document.getElementById('display-date').textContent = this.selectedDate;
+              this.close();
+          },
+      };
+  </script>
+</th:block>
+</body>
+</html>

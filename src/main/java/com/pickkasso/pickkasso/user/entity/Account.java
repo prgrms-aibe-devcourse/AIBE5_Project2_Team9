@@ -39,4 +39,8 @@ public class Account {
         Role role) {
         return new Account(username, password, role);
     }
+
+    public void changePassword(String encodedPw) {
+        this.password = encodedPw;
+    }
 }

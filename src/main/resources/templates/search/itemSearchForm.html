@@ -1,0 +1,515 @@
+<!doctype html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{layouts/default :: layout(~{::title}, ~{::pageStyles}, ~{::main})}"
+>
+  <head>
+    <title th:fragment="title">검색 결과 | PICKKASSO</title>
+    <th:block th:fragment="pageStyles">
+      <style>
+        .line-clamp-2 {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        .sort-select {
+          appearance: none;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+          background-repeat: no-repeat;
+          background-position: right 8px center;
+        }
+      </style>
+      <style>
+          /* 작가 카드 썸네일 그라디언트 플레이스홀더 */
+          .thumb-grad-1  { background: linear-gradient(135deg, #c9d6df, #e2ebf0); }
+          .thumb-grad-2  { background: linear-gradient(135deg, #a8c5a0, #c8dfc5); }
+          .thumb-grad-3  { background: linear-gradient(135deg, #b8c8d8, #d5e0ea); }
+          .thumb-grad-4  { background: linear-gradient(135deg, #d4c5b8, #e8ddd5); }
+          .thumb-grad-5  { background: linear-gradient(135deg, #c5b8cc, #ddd5e8); }
+          .thumb-grad-6  { background: linear-gradient(135deg, #b8c5c8, #d5e0e2); }
+          .thumb-grad-7  { background: linear-gradient(135deg, #c8c5a0, #e2dfbb); }
+          .thumb-grad-8  { background: linear-gradient(135deg, #c5c8b8, #dfe2d5); }
+          .thumb-grad-9  { background: linear-gradient(135deg, #b8c8c5, #d5e2e0); }
+          .thumb-grad-10 { background: linear-gradient(135deg, #c8b8c5, #e2d5df); }
+          /* CTA 작가 카드 썸네일 */
+          .cta-card-thumb { background: linear-gradient(135deg, #b8c8d8 0%, #c5d5e5 50%, #d5e5f5 100%); }
+          /* 날짜 스트립 스크롤바 숨김 */
+          .date-strip::-webkit-scrollbar { display: none; }
+          /* 날짜 아이템 공통 스타일 + 상태 */
+          .date-item {
+              flex-shrink: 0; width: 2.75rem; height: 2.75rem;
+              display: flex; align-items: center; justify-content: center;
+              border-radius: 9999px; font-size: 0.875rem; font-weight: 500;
+              color: #444; cursor: pointer; transition: background 0.15s, color 0.15s;
+          }
+          .date-item:hover { background: #D3DEF2; color: #1D3CFF; }
+          .date-item.today { background: #1D3CFF; color: #fff; font-weight: 700; }
+          /* 카테고리 태그 공통 스타일 + 활성 상태 */
+          .cat-tag {
+              font-size: 0.8125rem; font-weight: 500; color: #444;
+              background: #F9FAFC; border: 1.5px solid #CCC; border-radius: 20px;
+              padding: 6px 16px; cursor: pointer; transition: all 0.15s;
+          }
+          .cat-tag:hover, .cat-tag.active { background: #1D3CFF; border-color: #1D3CFF; color: #fff; }
+      </style>
+      <link rel="stylesheet" th:href="@{/css/score_items.css}">
+      <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+      <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=66fd58e49ef902c79dbaa2577ceb31d2&libraries=services&autoload=false"></script>
+      <script>
+          document.addEventListener('DOMContentLoaded', function() {
+              document.getElementById('search-form').addEventListener('submit', function(e) {
+                  e.preventDefault();
+
+                  document.getElementById("h-page").value = '';
+                  const inputs = this.querySelectorAll('input[type="hidden"]');
+                  inputs.forEach(input => {
+                      if (!input.value) {
+                          input.disabled = true; // disabled된 input은 전송 안됨
+                      }
+                  });
+
+                  this.submit();
+              });
+
+              document.querySelectorAll('.search-tag-option').forEach(link => {
+                  link.addEventListener('click', function(e) {
+                      e.preventDefault();
+                      const url = new URL(this.href);
+
+                      const keysToDelete = [];
+                      url.searchParams.forEach((value, key) => {
+                          if (value === '' || value === 'null') keysToDelete.push(key);
+                      });
+                      keysToDelete.forEach(key => url.searchParams.delete(key));
+
+                      window.location.href = url.toString();
+                  });
+              });
+          });
+
+          function resetUrl(url) {
+              const params = {
+                  address: document.getElementById("h-region").value,
+                  lat: document.getElementById("h-lat").value,
+                  lng: document.getElementById("h-lng").value,
+                  tag: document.getElementById("h-category").value,
+                  date: document.getElementById("h-date").value,
+              };
+
+              // 기존 파라미터 초기화
+              url.search = "";
+
+              Object.entries(params).forEach(([key, value]) => {
+                  if (value !== "" && value !== "null") url.searchParams.set(key, value);
+              });
+
+              return url;
+          }
+
+          function changeSortOrder(value) {
+              const url = resetUrl(new URL(window.location.href));
+
+              url.searchParams.set("page", '');
+              url.searchParams.set("orderBy", value);
+
+              window.location.href = url.toString();
+          }
+          function changePage(page) {
+              const url = resetUrl(new URL(window.location.href));
+
+              url.searchParams.set("page", page);
+              window.location.href = url.toString();
+          }
+      </script>
+    </th:block>
+  </head>
+  <body>
+    <main th:fragment="main">
+      <!-- ─── 검색바 섹션 ───────────────────────────────── -->
+      <section class="bg-[#F9FAFC] border-b border-[#E0E6F0] py-4">
+        <div class="max-w-[1216px] mx-auto px-6 flex items-center gap-2.5">
+          <form
+            th:action="@{/search}"
+            method="get"
+            class="flex-1 flex items-center bg-white border-[1.5px] border-[#CCC] rounded-xl h-[52px] overflow-hidden px-1.5 gap-0"
+            id="search-form"
+          >
+            <!-- 현재 파라미터 보존용 hidden inputs -->
+            <input
+              type="hidden"
+              id="h-region"
+              name="address"
+              th:value="${itemSearchFormDto.address}"
+            />
+            <input
+              type="hidden"
+              id="h-lat"
+              name="lat"
+              th:value="${itemSearchFormDto.lat}"
+            />
+            <input
+              type="hidden"
+              id="h-lng"
+              name="lng"
+              th:value="${itemSearchFormDto.lng}"
+            />
+            <input
+              type="hidden"
+              id="h-category"
+              name="tag"
+              th:value="${itemSearchFormDto.tag}"
+            />
+            <input
+              type="hidden"
+              id="h-date"
+              name="date"
+              th:value="${itemSearchFormDto.date}"
+            />
+            <input
+              type="hidden"
+              id="order-by"
+              name="orderBy"
+              th:value="${itemSearchFormDto.orderBy}"
+            />
+            <input type="hidden" name="page" id="h-page" th:value="${itemSearchFormDto.page}" />
+            <!-- address는 아래 text input으로 대신 제출 -->
+
+            <!-- 지역선택 버튼 (표시용) -->
+            <button
+              type="button"
+              onclick="locationModal.open()"
+              class="flex items-center gap-1.5 px-[18px] h-full bg-transparent border-0 border-r border-[#E8E8E8] text-sm font-medium text-[#444] hover:text-[#1D3CFF] transition-colors whitespace-nowrap cursor-pointer"
+            >
+              <svg
+                class="text-[#0097FF] shrink-0"
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"
+                />
+                <circle cx="12" cy="9" r="2.5" />
+              </svg>
+              <span
+                  id="display-region"
+                th:text="${itemSearchFormDto.address != null and !#strings.isEmpty(itemSearchFormDto.address) ? itemSearchFormDto.address : '지역선택'}"
+                >지역선택</span
+              >
+              <svg
+                class="text-[#AAA] shrink-0"
+                width="11"
+                height="11"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+
+            <!-- 촬영유형 버튼 (표시용) -->
+            <button
+              type="button"
+              onclick="categoryModal.open()"
+              class="flex items-center gap-1.5 px-[18px] h-full bg-transparent border-0 border-r border-[#E8E8E8] text-sm font-medium text-[#444] hover:text-[#1D3CFF] transition-colors whitespace-nowrap cursor-pointer"
+            >
+              <svg
+                class="text-[#0097FF] shrink-0"
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <rect x="2" y="7" width="20" height="14" rx="2" />
+                <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+                <circle cx="12" cy="14" r="3" />
+              </svg>
+              <span
+                id="display-category"
+                th:text="${itemSearchFormDto.tag != null and !#strings.isEmpty(itemSearchFormDto.tag) ? itemSearchFormDto.tag : '촬영유형'}"
+                >촬영유형</span
+              >
+              <svg
+                class="text-[#AAA] shrink-0"
+                width="11"
+                height="11"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+
+            <!-- 날짜 버튼 (표시용) -->
+            <button
+              type="button"
+              onclick="dateModal.open()"
+              class="flex items-center gap-1.5 px-[18px] h-full bg-transparent border-0 border-r border-[#E8E8E8] text-sm font-medium text-[#444] hover:text-[#1D3CFF] transition-colors whitespace-nowrap cursor-pointer"
+            >
+              <svg
+                class="text-[#0097FF] shrink-0"
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+              <span
+                id="display-date"
+                th:text="${itemSearchFormDto.date != null ? #temporals.format(itemSearchFormDto.date, 'MM/dd') : '날짜'}"
+                >날짜</span
+              >
+              <svg
+                class="text-[#AAA] shrink-0"
+                width="11"
+                height="11"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+
+<!--            &lt;!&ndash; address 실제 제출 input (화면에서 숨김, sr-only 사용 불가하므로 opacity-0 width-0) &ndash;&gt;-->
+<!--            <input-->
+<!--              type="text"-->
+<!--              name="address"-->
+<!--              th:value="${itemSearchFormDto.address}"-->
+<!--              class="w-0 h-0 p-0 border-0 opacity-0 absolute"-->
+<!--              aria-hidden="true"-->
+<!--            />-->
+
+            <!-- 검색 버튼 -->
+            <button
+                type="submit"
+                class="w-10 h-10 ml-auto flex items-center justify-center rounded-lg bg-transparent border-0 text-[#444] hover:bg-[#F0F4FF] hover:text-[#1D3CFF] transition-colors cursor-pointer shrink-0"
+            >
+              <svg
+                width="19"
+                height="19"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.2"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35" />
+              </svg>
+            </button>
+          </form>
+
+          <!-- AI PICK 버튼 -->
+          <a
+            th:href="@{/ai-pick}"
+            class="flex items-center gap-2 px-5 h-[52px] bg-white border-[1.5px] border-[#1D3CFF] rounded-xl text-[15px] font-bold text-[#1D3CFF] hover:bg-[#1D3CFF] hover:text-white transition-colors no-underline shrink-0"
+          >
+            <div class="w-2 h-2 bg-[#0097FF] rounded-full shrink-0"></div>
+            AI PICK
+          </a>
+        </div>
+
+        <th:block th:replace="~{fragments/modal/location-modal :: locationModal(${favoriteList})}" />
+        <th:block th:replace="~{fragments/modal/category-modal :: categoryModal(${tagList})}" />
+        <th:block th:replace="~{fragments/modal/date-modal :: dateModal}" />
+      </section>
+
+      <!-- ─── 메인 컨텐츠 ──────────────────────────────── -->
+      <div class="max-w-[1216px] mx-auto px-6 pt-8 pb-16">
+        <!-- 필터 탭 + 결과 수 + 정렬 -->
+        <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
+          <!-- 결과 수 + 정렬 드롭다운 -->
+          <div class="flex items-center gap-3 shrink-0">
+            <span class="text-sm text-[#888]">
+              <strong
+                class="text-[#1A1A1A] font-semibold"
+                th:text="${totalCount}"
+                >0</strong
+              >개의 서비스
+            </span>
+            <select
+              class="sort-select text-sm text-[#444] border border-[#CCC] rounded-lg py-[7px] pl-3 pr-7 bg-white cursor-pointer outline-none"
+              onchange="changeSortOrder(this.value)"
+            >
+              <option
+                value="score"
+                th:selected="${itemSearchFormDto.orderBy == null or itemSearchFormDto.orderBy == 'score'}"
+              >
+                추천순
+              </option>
+              <option
+                value="review"
+                th:selected="${itemSearchFormDto.orderBy == 'review'}"
+              >
+                인기순
+              </option>
+              <option
+                  value="created-at-cesc"
+                  th:selected="${itemSearchFormDto.orderBy == 'created-at-desc'}"
+              >
+                최신순
+              </option>
+              <option
+                  value="created-at-asc"
+                  th:selected="${itemSearchFormDto.orderBy == 'created-at-asc'}"
+              >
+                오래된 순
+              </option>
+              <option
+                value="price-asc"
+                th:selected="${itemSearchFormDto.orderBy == 'price-asc'}"
+              >
+                낮은 가격순
+              </option>
+              <option
+                  value="price-desc"
+                  th:selected="${itemSearchFormDto.orderBy == 'price-desc'}"
+              >
+                높은 가격순
+              </option>
+              <option
+                  value="distance"
+                  th:selected="${itemSearchFormDto.orderBy == 'distance'}"
+              >
+                가까운 순
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- ─── 카드 그리드 ──────────────────────────── -->
+        <div class="card-grid" >
+          <th:block th:unless="${#lists.isEmpty(items)}"
+                    th:each="item : ${items}">
+            <a th:href="@{/item/{id}(id=${item.id})}" class="card">
+              <div class="card-img-wrap">
+                <img class="card-img"
+                     th:src="${item.imgUrl != null ? item.imgUrl : 'https://picsum.photos/seed/' + item.id + '/400/533'}"
+                     th:alt="${item.name}"
+                     loading="lazy"
+                     th:onerror="'this.src=\'https://picsum.photos/seed/' + ${item.id} + '/400/533\''">
+                <!-- <span class="badge">NEW</span> 필요 시 조건 추가 -->
+              </div>
+              <div class="card-body">
+                <!-- 상품명 -->
+                <p class="card-item-name" th:text="${item.name}"></p>
+                <!-- 작가명 -->
+                <p class="card-name" th:text="${item.photographer.name}"></p>
+                <!-- 지역 · 태그 -->
+                <p class="card-meta" th:text="${item.region.address + ' · ' + item.tag.name}"></p>
+                <!-- 거리 -->
+                <p class="card-distance" th:if="${item.distance != null}"
+                   th:text="${#numbers.formatDecimal(item.distance / 1000.0, 1, 1) + 'km'}"></p>
+
+                <div class="card-footer">
+                  <div class="score">
+                    <span class="star">★</span>
+                    <span th:text="${#numbers.formatDecimal(item.avgScore / 100.0, 1, 2)}"></span>
+                    <span class="review-count" th:text="'(' + ${item.reviewCount} + ')'"></span>
+                  </div>
+                  <span class="price" th:text="${#numbers.formatInteger(item.defaultPrice, 3, 'COMMA') + '원~'}"></span>
+                </div>
+              </div>
+            </a>
+          </th:block>
+        </div>
+        <!-- ─── 빈 결과 상태 ─────────────────────────── -->
+        <div
+          th:if="${#lists.isEmpty(items)}"
+          class="flex flex-col items-center justify-center py-24 text-center"
+        >
+          <svg
+            class="text-[#CCC] mb-4"
+            width="48"
+            height="48"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="1"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.35-4.35" />
+          </svg>
+          <p class="text-base font-semibold text-[#444] mb-2">
+            검색 결과가 없습니다
+          </p>
+          <p class="text-sm text-[#888]">
+            조건을 변경하거나 다른 지역을 검색해 보세요.
+          </p>
+        </div>
+
+        <!-- ─── 페이지네이션 ──────────────────────────── -->
+        <div
+            th:if="${!#lists.isEmpty(items)}"
+            class="flex items-center justify-center gap-1.5 mt-12"
+        >
+          <!-- 처음 버튼 -->
+          <button
+            th:disabled="${currentPage == 1}"
+            th:onclick="|changePage(1)|"
+            class="w-9 h-9 flex items-center justify-center rounded-lg border border-[#CCC] bg-white text-sm text-[#888] hover:border-[#1D3CFF] hover:text-[#1D3CFF] transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            &#8676;
+          </button>
+
+          <!-- 이전 버튼 -->
+          <button
+            th:disabled="${currentPage == 1}"
+            th:onclick="|changePage(${currentPage - 1})|"
+            class="w-9 h-9 flex items-center justify-center rounded-lg border border-[#CCC] bg-white text-sm text-[#888] hover:border-[#1D3CFF] hover:text-[#1D3CFF] transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            &#8592;
+          </button>
+
+          <!-- 페이지 번호 -->
+          <th:block th:each="i : ${#numbers.sequence(startPage, endPage)}">
+            <button
+              th:onclick="|changePage(${i})|"
+              th:classappend="${i == currentPage} ? 'border-[#1D3CFF] bg-[#1D3CFF] text-white font-bold' : 'border-[#CCC] bg-white text-[#888] hover:border-[#1D3CFF] hover:text-[#1D3CFF]'"
+              class="w-9 h-9 flex items-center justify-center rounded-lg border text-sm transition-all cursor-pointer"
+              th:text="${i}"
+            ></button>
+          </th:block>
+
+          <!-- 다음 버튼 -->
+          <button
+            th:disabled="${currentPage == totalPages}"
+            th:onclick="|changePage(${currentPage + 1})|"
+            class="w-9 h-9 flex items-center justify-center rounded-lg border border-[#CCC] bg-white text-sm text-[#888] hover:border-[#1D3CFF] hover:text-[#1D3CFF] transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            &#8594;
+          </button>
+
+          <!-- 끝 버튼 -->
+          <button
+            th:disabled="${currentPage == totalPages}"
+            th:onclick="|changePage(${totalPages})|"
+            class="w-9 h-9 flex items-center justify-center rounded-lg border border-[#CCC] bg-white text-sm text-[#888] hover:border-[#1D3CFF] hover:text-[#1D3CFF] transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            &#8677;
+          </button>
+        </div>
+      </div>
+
+      <script>
+      </script>
+    </main>
+  </body>
+</html>
