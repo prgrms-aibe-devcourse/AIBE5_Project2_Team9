@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      th:replace="~{layouts/default :: layout(~{::title}, ~{::pageStyles}, ~{::main})}">
+<head>
+  <title th:fragment="title">내 프로필 | PICKKASSO</title>
+  <th:block th:fragment="pageStyles"></th:block>
+</head>
+<body>
+
+<main th:fragment="main" class="bg-[#F9FAFC] min-h-screen pb-16">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex flex-col gap-6 lg:flex-row lg:items-start">
+
+      <!-- 사이드바 -->
+      <th:block th:replace="~{fragments/mypage-sidebar :: sidebar}" />
+
+      <!-- 메인 콘텐츠 -->
+      <div class="flex-1 min-w-0 space-y-5">
+
+        <div class="mb-6">
+          <h1 class="text-2xl font-bold text-[#1A1A1A]">내 프로필</h1>
+          <p class="text-sm text-[#888] mt-1">회원 정보를 확인하고 수정할 수 있어요.</p>
+        </div>
+
+        <!-- 기본 정보 카드 -->
+        <div class="bg-white border border-[#CCC] rounded-2xl p-6">
+          <h2 class="text-base font-semibold text-[#1A1A1A] mb-5">기본 정보</h2>
+
+          <div class="space-y-4">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label class="block text-xs font-semibold text-[#888] uppercase tracking-wider mb-1.5">이름</label>
+                <div class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-2.5 text-sm text-[#1A1A1A]"
+                     th:text="${member.name != null ? member.name : '미등록'}">이름</div>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-[#888] uppercase tracking-wider mb-1.5">이메일</label>
+                <div class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-2.5 text-sm text-[#1A1A1A]"
+                     th:text="${member.email != null ? member.email : '미등록'}">이메일</div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label class="block text-xs font-semibold text-[#888] uppercase tracking-wider mb-1.5">연락처</label>
+                <div class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-2.5 text-sm text-[#1A1A1A]"
+                     th:text="${member.phone != null and !#strings.isEmpty(member.phone) ? member.phone : '미등록'}">연락처</div>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-[#888] uppercase tracking-wider mb-1.5">성별</label>
+                <div class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-2.5 text-sm text-[#1A1A1A]"
+                     th:text="${member.gender != null ? (member.gender.name() == 'MALE' ? '남성' : '여성') : '미등록'}">성별</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 캐시 카드 -->
+        <div class="bg-white border border-[#CCC] rounded-2xl p-6">
+          <h2 class="text-base font-semibold text-[#1A1A1A] mb-4">캐시</h2>
+          <div class="flex items-center justify-between gap-4 rounded-xl bg-[#F9FAFC] border border-[#CCC] px-5 py-4">
+            <div>
+              <p class="text-xs text-[#888] mb-1">보유 캐시</p>
+              <p class="text-2xl font-bold text-[#1D3CFF]"
+                 th:text="${member.cache != null ? #numbers.formatInteger(member.cache, 1, 'COMMA') + ' C' : '0 C'}">0 C</p>
+            </div>
+            <button class="bg-white border border-[#1D3CFF] text-[#1D3CFF] hover:bg-[#1D3CFF] hover:text-white font-semibold px-4 py-2 rounded-lg text-sm transition-colors">
+              충전하기
+            </button>
+          </div>
+        </div>
+
+        <!-- 비밀번호 변경 카드 -->
+        <div class="bg-white border border-[#CCC] rounded-2xl p-6">
+          <h2 class="text-base font-semibold text-[#1A1A1A] mb-5">비밀번호 변경</h2>
+          <div class="space-y-3 max-w-md">
+            <div>
+              <label class="block text-xs font-semibold text-[#888] uppercase tracking-wider mb-1.5">현재 비밀번호</label>
+              <input type="password" placeholder="현재 비밀번호"
+                     class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-[#888] uppercase tracking-wider mb-1.5">새 비밀번호</label>
+              <input type="password" placeholder="새 비밀번호 (8자 이상)"
+                     class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-[#888] uppercase tracking-wider mb-1.5">새 비밀번호 확인</label>
+              <input type="password" placeholder="새 비밀번호 재입력"
+                     class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+            </div>
+            <button class="bg-white border border-[#1D3CFF] text-[#1D3CFF] hover:bg-[#1D3CFF] hover:text-white font-semibold px-5 py-2.5 rounded-lg text-sm transition-colors mt-1">
+              변경하기
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</main>
+
+</body>
+</html>
