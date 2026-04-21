@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.thymeleaf.extras.springsecurity6.dialect.SpringSecurityDialect;
 
 @Configuration
 @EnableWebSecurity
@@ -37,8 +38,8 @@ public class SecurityConfig {
                 .oauth2Login(oauth -> oauth
                         .loginPage("/login")
                         .userInfoEndpoint(user -> user
-                                .userService(customOAuth2UserService)
-                        )
+                                .userService(customOAuth2UserService))
+                                .successHandler(customSuccessHandler)
                         .defaultSuccessUrl("/", true)
                 )
                .logout(logout -> logout
