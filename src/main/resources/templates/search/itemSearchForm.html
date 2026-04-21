@@ -58,11 +58,6 @@
               name="orderBy"
               th:value="${itemSearchFormDto.orderBy}"
             />
-            <input
-              type="hidden"
-              name="isAsc"
-              th:value="${itemSearchFormDto.isAsc}"
-            />
             <!-- address는 아래 text input으로 대신 제출 -->
 
             <!-- 지역선택 버튼 (표시용) -->
@@ -223,8 +218,7 @@
                                lat=${itemSearchFormDto.lat},
                                lng=${itemSearchFormDto.lng},
                                date=${itemSearchFormDto.date},
-                               orderBy=${itemSearchFormDto.orderBy},
-                               isAsc=${itemSearchFormDto.isAsc})}"
+                               orderBy=${itemSearchFormDto.orderBy})}"
               th:classappend="${itemSearchFormDto.tag == null or #strings.isEmpty(itemSearchFormDto.tag)}
              ? 'bg-[#1D3CFF] border-[#1D3CFF] text-white font-semibold'
              : 'bg-white border-[#CCC] text-[#444] hover:border-[#1D3CFF] hover:text-[#1D3CFF]'"
@@ -241,7 +235,6 @@
                                lng=${itemSearchFormDto.lng},
                                date=${itemSearchFormDto.date},
                                orderBy=${itemSearchFormDto.orderBy},
-                               isAsc=${itemSearchFormDto.isAsc},
                                tag=${t.name})}"
               th:text="${t.name}"
               th:classappend="${itemSearchFormDto.tag != null and itemSearchFormDto.tag == t.name}
@@ -285,13 +278,13 @@
               </option>
               <option
                 value="price_asc"
-                th:selected="${itemSearchFormDto.orderBy == 'price' and itemSearchFormDto.isAsc}"
+                th:selected="${itemSearchFormDto.orderBy == 'price-asc'}"
               >
                 낮은 가격순
               </option>
               <option
                 value="price_desc"
-                th:selected="${itemSearchFormDto.orderBy == 'price' and !itemSearchFormDto.isAsc}"
+                th:selected="${itemSearchFormDto.orderBy == 'price-desc'}"
               >
                 높은 가격순
               </option>
@@ -450,16 +443,6 @@
       <script>
         function changeSortOrder(value) {
           const url = new URL(window.location.href);
-          if (value === "price_asc") {
-            url.searchParams.set("orderBy", "price");
-            url.searchParams.set("isAsc", "true");
-          } else if (value === "price_desc") {
-            url.searchParams.set("orderBy", "price");
-            url.searchParams.set("isAsc", "false");
-          } else {
-            url.searchParams.set("orderBy", value);
-            url.searchParams.delete("isAsc");
-          }
           window.location.href = url.toString();
         }
       </script>
