@@ -8,10 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface ItemRepository extends JpaRepository<Item, Long> {
-    List<Item> findAllByOrderByAvgScoreDesc();
-
-
+public interface ItemRepository extends JpaRepository<Item, Long>, ItemRepositoryCustom {
     @Query("SELECT i FROM Item i " +
         "JOIN FETCH i.tag t " +
         "JOIN FETCH i.photographer p " +

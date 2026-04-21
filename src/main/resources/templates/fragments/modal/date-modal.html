@@ -150,8 +150,9 @@
               document.getElementById('h-date').value = this.selectedDate;
 
               // 표시용: 2025-04-16 → 2025년 4월 16일
-              const [y, m, d] = this.selectedDate.split('-');
-              document.getElementById('display-date').textContent = `${y}년 ${parseInt(m)}월 ${parseInt(d)}일`;
+              // const [y, m, d] = this.selectedDate.split('-');
+              // document.getElementById('display-date').textContent = `${y}년 ${parseInt(m)}월 ${parseInt(d)}일`;
+              document.getElementById('display-date').textContent = this.selectedDate;
               this.close();
           },
       };
