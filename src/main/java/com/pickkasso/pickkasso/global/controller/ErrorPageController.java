@@ -10,4 +10,24 @@ public class ErrorPageController {
     public String accessDeniedPage() {
         return "common/errors/403";
     }
+
+    @GetMapping("/404")
+    public String notFoundPage() {
+        return "common/errors/404";
+    }
+
+    @GetMapping("/500")
+    public String internalServerErrorPage() {
+        return "common/errors/500";
+    }
+
+    @GetMapping("/400")
+    public String badRequestPage() {
+        return "common/errors/400";
+    }
+
+    @GetMapping("/error-default")
+    public String defaultErrorPage() {
+        return "common/errors/error";
+    }
 }

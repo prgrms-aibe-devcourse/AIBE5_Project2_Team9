@@ -3,10 +3,10 @@
       xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layouts/default :: layout(~{::title}, ~{::pageStyles}, ~{::main})}">
 <head>
-  <title>접근 권한이 없습니다 - PICKASSO</title>
+  <title>서버 오류가 발생했습니다 - PICKASSO</title>
   <th:block th:fragment="pageStyles">
     <style>
-        .access-denied-shell {
+        .error-page-shell {
             min-height: calc(100vh - 8rem);
             background:
                 radial-gradient(circle at top left, rgba(29, 60, 255, 0.10), transparent 28rem),
@@ -16,7 +16,7 @@
   </th:block>
 </head>
 <body>
-<main class="access-denied-shell flex items-center justify-center px-6 py-16 -translate-y-4">
+<main class="error-page-shell flex items-center justify-center px-6 py-16 -translate-y-4">
   <section class="w-full max-w-[720px] rounded-[32px] border border-[#DCE5F3] bg-white/90 px-8 pb-12 pt-6 text-center shadow-[0_20px_80px_rgba(29,60,255,0.08)] backdrop-blur-sm sm:px-12">
     <div class="mx-auto mb-6 flex h-36 w-36 items-center justify-center">
       <img th:src="@{/images/error_logo.webp}"
@@ -24,13 +24,13 @@
            class="h-full w-full object-contain" />
     </div>
 
-    <p class="mb-3 text-sm font-semibold uppercase tracking-[0.35em] text-[#1D3CFF]">Error 403</p>
+    <p class="mb-3 text-sm font-semibold uppercase tracking-[0.35em] text-[#1D3CFF]">Error 500</p>
     <h1 class="mb-4 text-[32px] font-semibold leading-tight text-[#1A1A1A] sm:text-[40px]">
-      이 페이지에 접근할 권한이 없어요
+      서비스 이용에 불편을 드려 죄송합니다
     </h1>
     <p class="mx-auto max-w-[520px] text-[16px] leading-7 text-[#666]">
-      로그인한 계정의 권한으로는 요청하신 페이지를 열 수 없어요.<br>
-      필요한 권한이 있는 계정으로 다시 로그인하거나 홈으로 이동해 주세요.
+      현재 서버가 일시적인 오류를 겪고 있어 요청을 처리할 수 없어요.<br>
+      잠시 후 다시 시도해 주세요. 문제가 계속되면 운영팀에 문의해 주시기 바랍니다.
     </p>
 
     <div class="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -38,9 +38,9 @@
          class="inline-flex min-w-[180px] items-center justify-center rounded-full bg-[#1D3CFF] px-6 py-3 text-[15px] font-semibold text-white no-underline transition-colors hover:bg-[#1530E0]">
         홈으로 이동
       </a>
-      <a th:href="@{/login}"
+      <a href="javascript:location.reload();"
          class="inline-flex min-w-[180px] items-center justify-center rounded-full border border-[#1D3CFF] bg-white px-6 py-3 text-[15px] font-semibold text-[#1D3CFF] no-underline transition-colors hover:bg-[#EEF4FF]">
-        다시 로그인
+        새로고침
       </a>
     </div>
   </section>
