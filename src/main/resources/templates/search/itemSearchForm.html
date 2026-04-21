@@ -116,6 +116,7 @@
                   tag: document.getElementById("h-category").value,
                   date: document.getElementById("h-date").value,
                   itemType: document.getElementById("display-item-type").value,
+                  distance: document.getElementById("h-distance")?.value,  // ← 추가
               };
 
               url.search = "";
@@ -125,6 +126,11 @@
                       url.searchParams.set(key, value); // 값 있는 것만 추가
                   }
               });
+
+              // region 없으면 distance도 제거
+              if (!params.address) {
+                  url.searchParams.delete("distance");
+              }
 
               return url;
           }
@@ -150,12 +156,21 @@
               document.getElementById("h-lng").value = "";
               document.getElementById("display-region").textContent = "지역선택";
               document.getElementById('clear-region-btn').classList.add('hidden');
+
+              // distance도 초기화
+              const hDistance = document.getElementById("h-distance");
+              if (hDistance) hDistance.value = "";
+
+              // 거리필터 select도 초기화
+              const distanceFilter = document.getElementById('distance-filter-select');
+              if (distanceFilter) distanceFilter.value = "";
           }
 
           function syncDistanceOption() {
               const region = document.getElementById('h-region').value;
-              const select = document.querySelector('.sort-select');
+              const select = document.querySelector('#order-by-select');
               const existing = select.querySelector('option[value="distance"]');
+              const distanceFilter = document.getElementById('distance-filter-select');
 
               if (region && !existing) {
                   const opt = document.createElement('option');
@@ -165,6 +180,20 @@
               } else if (!region && existing) {
                   existing.remove();
               }
+
+              // 거리 필터 show/hide
+              if (distanceFilter) {
+                  distanceFilter.classList.toggle('hidden', !region);
+              }
+          }
+
+          function changeDistance(value) {
+              const url = resetUrl(new URL(window.location.href));
+              url.searchParams.set("page", '');
+              if (value) {
+                  url.searchParams.set("distance", value);
+              }
+              window.location.href = url.toString();
           }
       </script>
     </th:block>
@@ -222,6 +251,8 @@
               th:value="${itemSearchFormDto.orderBy}"
             />
             <input type="hidden" name="page" id="h-page" th:value="${itemSearchFormDto.page}" />
+            <input type="hidden" id="h-distance" name="distance" th:value="${itemSearchFormDto.distance}"/>
+
             <!-- address는 아래 text input으로 대신 제출 -->
 
             <!-- 지역선택 버튼 (표시용) -->
@@ -378,6 +409,7 @@
               >개의 서비스
             </span>
             <select
+              id="order-by-select"
               class="sort-select text-sm text-[#444] border border-[#CCC] rounded-lg py-[7px] pl-3 pr-7 bg-white cursor-pointer outline-none"
               onchange="changeSortOrder(this.value)"
             >
@@ -424,6 +456,24 @@
               >
                 가까운 순
               </option>
+            </select>
+          </div>
+          <div class="flex items-center gap-3 shrink-0">
+
+            <!-- 거리 필터 (address 있을 때만 표시) -->
+            <select
+              id="distance-filter-select"
+              th:classappend="${itemSearchFormDto.address == null or itemSearchFormDto.address.isEmpty()} ? 'hidden' : ''"
+              class="sort-select text-sm text-[#444] border border-[#CCC] rounded-lg py-[7px] pl-3 pr-7 bg-white cursor-pointer outline-none"
+              onchange="changeDistance(this.value)"
+            >
+              <option value="" th:selected="${itemSearchFormDto.distance != null}">거리 제한 없음</option>
+              <option value="1"  th:selected="${itemSearchFormDto.distance != null and itemSearchFormDto.distance == 1}">1km 이내</option>
+              <option value="3"  th:selected="${itemSearchFormDto.distance != null and itemSearchFormDto.distance == 3}">3km 이내</option>
+              <option value="5"  th:selected="${itemSearchFormDto.distance != null and itemSearchFormDto.distance == 5}">5km 이내</option>
+              <option value="10" th:selected="${itemSearchFormDto.distance != null and itemSearchFormDto.distance == 10}">10km 이내</option>
+              <option value="20" th:selected="${itemSearchFormDto.distance != null and itemSearchFormDto.distance == 20}">20km 이내</option>
+              <option value="50" th:selected="${itemSearchFormDto.distance != null and itemSearchFormDto.distance == 50}">50km 이내</option>
             </select>
           </div>
         </div>

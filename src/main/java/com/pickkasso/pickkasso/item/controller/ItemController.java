@@ -30,7 +30,7 @@ public class ItemController {
 
         condition.setLat(dto.getLat());
         condition.setLng(dto.getLng());
-        condition.setDistance(5);
+        condition.setDistance(dto.getDistance());
         condition.setTag((dto.getTag() == null) ? null : tagService.findByName(dto.getTag()).orElse(null));
         condition.setDate(dto.getDate());
         condition.setOrderBy(dto.getOrderBy());
