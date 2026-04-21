@@ -1,6 +1,7 @@
 package com.pickkasso.pickkasso.item.dto;
 
 import com.pickkasso.pickkasso.global.tag.Tag;
+import com.pickkasso.pickkasso.item.entity.ItemType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,4 +17,5 @@ public class ItemSearchCondition {
     private LocalDate date;
     private String orderBy;
     private Integer page;
+    private ItemType itemType;
 }

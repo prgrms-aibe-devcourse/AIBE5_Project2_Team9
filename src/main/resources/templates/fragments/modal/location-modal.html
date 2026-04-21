@@ -11,10 +11,10 @@
 
       <!-- 탭 -->
       <div style="display:flex; border-bottom:1.5px solid #eee; margin-bottom:20px;">
-        <button id="tab-fav"    data-active="true"  type="button" onclick="locationModal.switchTab('fav')"
-                class="modal-tab">즐겨찾기</button>
-        <button id="tab-direct" data-active="false" type="button" onclick="locationModal.switchTab('direct')"
+        <button id="tab-direct" data-active="true"  type="button" onclick="locationModal.switchTab('direct')"
                 class="modal-tab">직접 선택</button>
+        <button id="tab-fav"    data-active="false" type="button" onclick="locationModal.switchTab('fav')"
+                class="modal-tab">즐겨찾기</button>
       </div>
 
       <!-- 본문 -->
@@ -27,8 +27,8 @@
         <div style="flex:1; position:relative; display:flex; flex-direction:column;">
 
           <!-- 즐겨찾기 패널 -->
-          <div id="panel-fav" style="flex:1; display:flex; flex-direction:column; overflow-y:auto; gap:8px;">
-            <div th:if="${favoriteList == null or #lists.isEmpty(favoriteList)}"
+          <div id="panel-fav"    style="flex:1; display:none;  flex-direction:column; overflow-y:auto; gap:8px;">
+          <div th:if="${favoriteList == null or #lists.isEmpty(favoriteList)}"
                  style="display:flex; align-items:center; justify-content:center; height:100%; color:#aaa; font-size:14px; text-align:center;">
               아직 저장된 즐겨찾기가 없습니다
             </div>
@@ -48,7 +48,7 @@
           </div>
 
           <!-- 직접 선택 패널 -->
-          <div id="panel-direct" style="flex:1; display:none; flex-direction:column; gap:12px;">
+          <div id="panel-direct" style="flex:1; display:flex; flex-direction:column; gap:12px;">
 
             <!-- 위치 정보 카드 -->
             <div style="flex:1; border:1px solid #eee; border-radius:12px; padding:16px; display:flex; flex-direction:column; justify-content:center;">
@@ -170,15 +170,14 @@
                       this.map = new kakao.maps.Map(container, options);
                       this.marker = new kakao.maps.Marker();
 
-                      // 클릭 핸들러 바인딩 (removeListener에서 동일 참조 필요)
                       this.mapClickHandler = (mouseEvent) => {
                           const lat = mouseEvent.latLng.getLat();
                           const lng = mouseEvent.latLng.getLng();
                           this.selectByClick(lat, lng);
                       };
 
-                      // 초기에는 즐겨찾기 탭이므로 클릭 비활성화
-                      // direct 탭 전환 시 addListener
+                      // ↓ 이 줄 추가: 초기 탭이 직접선택이므로 클릭 이벤트 바로 등록
+                      kakao.maps.event.addListener(this.map, 'click', this.mapClickHandler);
                   },
 
                   selectByClick(lat, lng) {
