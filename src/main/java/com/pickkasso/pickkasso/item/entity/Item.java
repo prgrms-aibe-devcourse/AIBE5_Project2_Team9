@@ -37,6 +37,14 @@ public class Item extends Region {
     @Column(name = "description", nullable = false)
     private String description;
 
+    @Lob
+    @Column(name = "includes")
+    private String includes;
+
+    @Lob
+    @Column(name = "excludes")
+    private String excludes;
+
     @Column(name = "item_type", nullable = false)
     @Enumerated(EnumType.STRING)
     private ItemType itemType;
@@ -74,6 +82,8 @@ public class Item extends Region {
         Tag tag,
         String name,
         String description,
+        String includes,
+        String excludes,
         ItemType itemType,
         Integer minBookingLeadTime,
         String cancellationPolicy) {
@@ -82,9 +92,12 @@ public class Item extends Region {
         this.tag = tag;
         this.name = name;
         this.description = description;
+        this.includes = includes;
+        this.excludes = excludes;
         this.itemType = itemType;
         this.minBookingLeadTime = minBookingLeadTime;
         this.cancellationPolicy = cancellationPolicy;
+        this.createdAt = java.time.LocalDateTime.now();
         reviewCount = 0;
         avgScore = 0;
         defaultPrice = 0;
@@ -95,10 +108,19 @@ public class Item extends Region {
         Tag tag,
         String name,
         String description,
+        String includes,
+        String excludes,
         ItemType itemType,
         Integer minBookingLeadTime,
-        String cancellationPolicy) {
-        return new Item(photographer, tag, name, description, itemType, minBookingLeadTime, cancellationPolicy);
+        String cancellationPolicy,
+        String address,
+        Double lat,
+        Double lng) {
+
+        Item item = new Item(photographer, tag, name, description, includes, excludes,
+            itemType, minBookingLeadTime, cancellationPolicy);
+        item.initRegion(address, "", lat, lng);
+        return item;
     }
 
     public void addPlan(Plan plan) {
