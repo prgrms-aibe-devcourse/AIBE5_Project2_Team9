@@ -4,6 +4,7 @@ import com.pickkasso.pickkasso.global.tag.TagService;
 import com.pickkasso.pickkasso.item.dto.ItemBoxDto;
 import com.pickkasso.pickkasso.item.dto.ItemSearchCondition;
 import com.pickkasso.pickkasso.item.dto.ItemSearchFormDto;
+import com.pickkasso.pickkasso.item.entity.ItemType;
 import com.pickkasso.pickkasso.item.entity.Item;
 import com.pickkasso.pickkasso.item.service.ItemService;
 import com.pickkasso.pickkasso.user.service.PhotographerProfileService;
@@ -30,11 +31,21 @@ public class ItemController {
 
         condition.setLat(dto.getLat());
         condition.setLng(dto.getLng());
-        condition.setDistance(5);
+        condition.setDistance(dto.getDistance());
         condition.setTag((dto.getTag() == null) ? null : tagService.findByName(dto.getTag()).orElse(null));
         condition.setDate(dto.getDate());
         condition.setOrderBy(dto.getOrderBy());
         condition.setPage((dto.getPage() == null) ? 1 : dto.getPage());
+
+        ItemType itemType = null;
+        if (dto.getItemType() != null) {
+            try {
+                itemType = ItemType.valueOf(dto.getItemType());
+            } catch (IllegalArgumentException e) {
+                itemType = null;
+            }
+        }
+        condition.setItemType(itemType);
 
         return condition;
     }
