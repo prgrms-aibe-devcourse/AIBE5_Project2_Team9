@@ -4,7 +4,10 @@ import com.pickkasso.pickkasso.user.dto.AccountDto;
 import com.pickkasso.pickkasso.user.dto.SignupDto;
 import com.pickkasso.pickkasso.user.entity.Account;
 import com.pickkasso.pickkasso.user.entity.Member;
+import com.pickkasso.pickkasso.user.entity.Photographer;
+import com.pickkasso.pickkasso.user.entity.Role;
 import com.pickkasso.pickkasso.user.repository.MemberRepository;
+import com.pickkasso.pickkasso.user.repository.PhotographerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,11 +17,12 @@ public class SignupService {
 
     private final MemberRepository memberRepository;
     private final AccountService accountService;
+    private final PhotographerRepository photographerRepository;
 
 
     public void signup(SignupDto dto) {
 
-        if (!dto.getPassword().matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*]).{8,30}$")) {
+        if (!dto.getPassword().matches("^(?=.*[a-z])(?=.*\\d).{8,30}$")) {
             throw new IllegalStateException("비밀번호 규칙 위반");
         }
 
@@ -48,5 +52,18 @@ public class SignupService {
         );
 
         memberRepository.save(member);
+
+        if (dto.getRole() == Role.PHOTOGRAPHER) {
+            Photographer photographer = Photographer.createMember(
+                    account,
+                    dto.getEmail(),
+                    dto.getName(),
+                    dto.getGender(),
+                    dto.getPhone(),
+                    0
+            );
+            photographerRepository.save(photographer);
+        }
+
     }
 }
