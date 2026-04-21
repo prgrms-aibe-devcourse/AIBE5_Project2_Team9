@@ -44,7 +44,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     // TODO: "공간 인덱스로 대상 row를 줄이고, 줄어든 row에만 ST_Distance_Sphere를 적용"이 더 효율적이라고 함
     private BooleanExpression withinDistance(Double lat, Double lng, Integer distance) {
         if (lat == null || lng == null || distance == null) return null;
-        return distanceExpression(lat, lng).loe(distance);
+        return distanceExpression(lat, lng).loe(distance * 1000);
     }
     private BooleanExpression withinDistance(NumberTemplate<Double> distanceExpr, Integer maxDistance) {
         if (distanceExpr == null || maxDistance == null) return null;
@@ -68,7 +68,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
             case "created-at-asc"   -> QItem.item.createdAt.asc();
             case "price-desc"       -> QItem.item.defaultPrice.desc();
             case "price-asc"        -> QItem.item.defaultPrice.asc();
-            case "distance"         -> distance.asc();
+            case "distance"         -> (distance == null) ? QItem.item.avgScore.desc() : distance.asc();
             default                 -> QItem.item.avgScore.desc();
         };
     }
