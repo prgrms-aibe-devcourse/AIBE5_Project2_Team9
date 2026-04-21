@@ -101,6 +101,11 @@ public class ItemService {
         return resList;
     }
 
+    @Transactional(readOnly = true)
+    public List<Item> getItemsByPhotographerId(Long photographerId) {
+        return itemRepository.findByPhotographerId(photographerId);
+    }
+
     // 테스트용 랜덤 item 들고오는 코드
     // 추천 알고리즘 작성 시, 이 항목은 대체됩니다.
     @Transactional(readOnly = true)
