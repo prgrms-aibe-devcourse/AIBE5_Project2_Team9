@@ -1,11 +1,6 @@
 package com.pickkasso.pickkasso.item.repository;
 
 import com.pickkasso.pickkasso.item.entity.Item;
-<<<<<<< HEAD
-import org.springframework.data.jpa.repository.JpaRepository;
-
-public interface ItemRepository extends JpaRepository<Item, Long> {
-=======
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -32,5 +27,4 @@ public interface ItemRepository extends JpaRepository<Item, Long>, ItemRepositor
         "JOIN FETCH i.photographer p " +
         "ORDER BY RAND() ")
     List<Item> findRandomItemList(Pageable pageable);
->>>>>>> origin/main
 }
