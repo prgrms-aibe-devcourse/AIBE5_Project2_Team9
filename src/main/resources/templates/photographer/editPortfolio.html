@@ -43,9 +43,10 @@
     </div>
 
     <!-- Form -->
-    <form th:attr="action=${formAction}"
+    <form th:action="${formAction}"
           method="post" id="portfolio-form"
           th:object="${portfolioDto}">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 
       <!-- ─── 프로젝트 정보 ─────────────────────────── -->
       <div class="bg-white border border-[#CCC] rounded-2xl p-6 mb-5">
@@ -249,7 +250,9 @@
     <form th:if="${portfolioId != null}"
           th:action="@{/photographer/{id}/portfolio/{portfolioId}/delete(id=${photographerId}, portfolioId=${portfolioId})}"
           method="post"
-          id="delete-portfolio-form"></form>
+          id="delete-portfolio-form">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+    </form>
   </div>
 
   <div id="month-picker-modal"
