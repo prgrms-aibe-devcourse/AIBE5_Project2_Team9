@@ -2,6 +2,7 @@ package com.pickkasso.pickkasso.item.controller;
 
 import com.pickkasso.pickkasso.global.tag.TagService;
 import com.pickkasso.pickkasso.item.dto.ItemBoxDto;
+import com.pickkasso.pickkasso.item.dto.ItemDetailDto;
 import com.pickkasso.pickkasso.item.dto.ItemSearchCondition;
 import com.pickkasso.pickkasso.item.dto.ItemSearchFormDto;
 import com.pickkasso.pickkasso.item.service.ItemService;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Collections;
@@ -64,5 +66,12 @@ public class ItemController {
         Model model) {
         model.addAttribute("scoreItemList", itemService.getScoreItemList(tagName, count));
         return "fragments/score_items :: scoreGrid";
+    }
+
+    @GetMapping("/item/{id}")
+    public String itemDetail(@PathVariable Long id, Model model) {
+        ItemDetailDto itemDetail = itemService.getItemDetail(id);
+        model.addAttribute("itemDetail", itemDetail);
+        return "item/itemDetail";
     }
 }

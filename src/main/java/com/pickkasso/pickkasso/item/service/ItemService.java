@@ -1,6 +1,7 @@
 package com.pickkasso.pickkasso.item.service;
 
 import com.pickkasso.pickkasso.item.dto.ItemBoxDto;
+import com.pickkasso.pickkasso.item.dto.ItemDetailDto;
 import com.pickkasso.pickkasso.item.dto.ItemSearchCondition;
 import com.pickkasso.pickkasso.item.entity.Item;
 import com.pickkasso.pickkasso.item.repository.ItemRepository;
@@ -10,6 +11,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,6 +24,13 @@ import java.util.List;
 @Transactional
 public class ItemService {
     private final ItemRepository itemRepository;
+
+    @Transactional(readOnly = true)
+    public ItemDetailDto getItemDetail(Long itemId) {
+        Item item = itemRepository.findDetailById(itemId)
+            .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "존재하지 않는 상품입니다."));
+        return ItemDetailDto.from(item);
+    }
 
     @Transactional(readOnly = true)
     public List<ItemBoxDto> getScoreItemList(Integer count) {
