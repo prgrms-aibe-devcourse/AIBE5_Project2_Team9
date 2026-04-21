@@ -106,6 +106,12 @@ public class ItemService {
         return itemRepository.findByPhotographerId(photographerId);
     }
 
+    @Transactional(readOnly = true)
+    public Item getItemById(Long itemId) {
+        return itemRepository.findByIdWithDetails(itemId)
+            .orElseThrow(() -> new IllegalArgumentException("서비스를 찾을 수 없습니다."));
+    }
+
     // 테스트용 랜덤 item 들고오는 코드
     // 추천 알고리즘 작성 시, 이 항목은 대체됩니다.
     @Transactional(readOnly = true)

@@ -33,4 +33,11 @@ public interface ItemRepository extends JpaRepository<Item, Long>, ItemRepositor
         "WHERE i.photographer.id = :photographerId " +
         "ORDER BY i.createdAt DESC ")
     List<Item> findByPhotographerId(@Param("photographerId") Long photographerId);
+
+    @Query("SELECT DISTINCT i FROM Item i " +
+        "JOIN FETCH i.tag t " +
+        "JOIN FETCH i.photographer p " +
+        "LEFT JOIN FETCH i.planList " +
+        "WHERE i.id = :itemId")
+    java.util.Optional<Item> findByIdWithDetails(@Param("itemId") Long itemId);
 }

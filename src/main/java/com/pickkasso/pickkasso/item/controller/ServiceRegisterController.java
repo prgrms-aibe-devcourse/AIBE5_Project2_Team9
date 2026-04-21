@@ -2,7 +2,9 @@ package com.pickkasso.pickkasso.item.controller;
 
 import com.pickkasso.pickkasso.global.tag.TagService;
 import com.pickkasso.pickkasso.item.dto.ItemRegisterRequest;
+import com.pickkasso.pickkasso.item.entity.Item;
 import com.pickkasso.pickkasso.item.service.ItemService;
+import com.pickkasso.pickkasso.user.service.PhotographerProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,6 +24,7 @@ public class ServiceRegisterController {
 
     private final ItemService itemService;
     private final TagService tagService;
+    private final PhotographerProfileService photographerProfileService;
 
     private static final Map<String, String> CATEGORY_EMOJIS = Map.ofEntries(
         Map.entry("데이트스냅", "🌸"),
@@ -45,6 +48,18 @@ public class ServiceRegisterController {
         Map.entry("드론", "🚁"),
         Map.entry("공연", "🎭")
     );
+
+    @GetMapping("/{itemId}")
+    public String serviceDetail(
+        @PathVariable Long photographerId,
+        @PathVariable Long itemId,
+        Model model) {
+
+        Item item = itemService.getItemById(itemId);
+        model.addAttribute("item", item);
+        model.addAttribute("profile", photographerProfileService.getProfileForm(photographerId));
+        return "photographer/service-detail";
+    }
 
     @GetMapping("/new")
     public String serviceRegisterForm(@PathVariable Long photographerId, Model model) {
