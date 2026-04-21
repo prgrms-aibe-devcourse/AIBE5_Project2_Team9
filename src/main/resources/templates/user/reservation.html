@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="_csrf"        th:content="${_csrf.token}"/>
+  <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
   <title>예약하기 | PICKKASSO</title>
   <link rel="stylesheet" th:href="@{/css/global.css}">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -294,12 +296,13 @@
           <div>
             <p class="text-xs text-[#888] mb-0.5">보유 캐시</p>
             <p class="text-xl font-bold text-[#1A1A1A]">
-              <span th:text="${member != null and member.cache != null ? #numbers.formatInteger(member.cache, 0, 'COMMA') : '0'}">0</span>
+              <span id="cashBalance" th:text="${member != null and member.cache != null ? #numbers.formatInteger(member.cache, 0, 'COMMA') : '0'}">0</span>
               <span class="text-[#1D3CFF]">C</span>
             </p>
           </div>
           <button type="button"
-                  class="text-sm font-semibold border border-[#1D3CFF] text-[#1D3CFF] px-4 py-2 rounded-lg hover:bg-[#1D3CFF] hover:text-white active:bg-[#1530E0] transition-colors">
+                  class="text-sm font-semibold border border-[#1D3CFF] text-[#1D3CFF] px-4 py-2 rounded-lg hover:bg-[#1D3CFF] hover:text-white active:bg-[#1530E0] transition-colors"
+                  onclick="cashChargeModal.open(onCashChargeSuccess)">
             + 캐시 충전
           </button>
         </div>
@@ -576,6 +579,22 @@
 
   renderTimeSlots();
 
+</script>
+
+<th:block th:replace="~{fragments/modal/cash-charge-modal :: cashChargeModal}" />
+<script>
+  function onCashChargeSuccess(data) {
+    const balanceEl = document.getElementById('cashBalance');
+    if (balanceEl) balanceEl.textContent = data.newBalance.toLocaleString();
+    const remainingEl = document.getElementById('remainingCash');
+    const totalPriceEl = document.getElementById('totalPrice');
+    if (remainingEl && totalPriceEl) {
+      const totalText = totalPriceEl.textContent.replace(/[^0-9]/g, '');
+      const total = parseInt(totalText, 10) || 0;
+      const remaining = Math.max(0, data.newBalance - total);
+      remainingEl.textContent = remaining.toLocaleString() + ' C';
+    }
+  }
 </script>
 
 </body>

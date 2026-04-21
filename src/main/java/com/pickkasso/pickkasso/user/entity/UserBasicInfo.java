@@ -29,4 +29,9 @@ public class UserBasicInfo {
 
     @Column(name = "deleted_at")
     protected LocalDateTime deletedAt;
+
+    public int addCache(int amount) {
+        this.cache = (this.cache == null ? 0 : this.cache) + amount;
+        return this.cache;
+    }
 }
