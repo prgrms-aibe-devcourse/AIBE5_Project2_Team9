@@ -19,4 +19,11 @@ public class Region {
 
     @Column(name = "lng", nullable = false)
     private Double lng;
+
+    protected void initRegion(String address, String detailAddress, Double lat, Double lng) {
+        this.address = (address != null) ? address : "";
+        this.detailAddress = (detailAddress != null) ? detailAddress : "";
+        this.lat = (lat != null) ? lat : 0.0;
+        this.lng = (lng != null) ? lng : 0.0;
+    }
 }

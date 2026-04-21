@@ -19,6 +19,9 @@ public class Plan {
     @JoinColumn(name = "item_id", nullable = false)
     private Item item;
 
+    @Column(name = "name")
+    private String name;
+
     @Column(name = "price", nullable = false)
     private Integer price;
 
@@ -36,6 +39,7 @@ public class Plan {
 
     private Plan(
         Item item,
+        String name,
         Integer price,
         Integer shootingDuration,
         Integer originalPhotoCount,
@@ -43,6 +47,7 @@ public class Plan {
         Integer deliveryDays) {
 
         this.item = item;
+        this.name = name;
         this.price = price;
         this.shootingDuration = shootingDuration;
         this.originalPhotoCount = originalPhotoCount;
@@ -53,13 +58,14 @@ public class Plan {
     //== 생성 method ==//
     public static Plan createPlan(
         Item item,
+        String name,
         Integer price,
         Integer shootingDuration,
         Integer originalPhotoCount,
         Integer editedPhotoCount,
         Integer deliveryDays) {
 
-        Plan plan = new Plan(item, price, shootingDuration, originalPhotoCount, editedPhotoCount, deliveryDays);
+        Plan plan = new Plan(item, name, price, shootingDuration, originalPhotoCount, editedPhotoCount, deliveryDays);
         plan.item.addPlan(plan);
         plan.item.updateDefaultPrice();
 
