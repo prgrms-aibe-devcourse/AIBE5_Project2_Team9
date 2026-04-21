@@ -28,15 +28,15 @@
     <div class="flex items-center gap-3">
 
       <!-- 비로그인 -->
-      <sec:authorize access="isAnonymous()">
+      <th:block th:if="${#authorization.expression('isAnonymous()')}">
         <a th:href="@{/login}"
            class="text-sm font-semibold bg-white border border-[#1D3CFF] text-[#1D3CFF] hover:bg-[#1D3CFF] hover:text-white active:bg-[#1530E0] active:border-[#1530E0] px-5 py-2 rounded-lg transition-colors no-underline">
           로그인
         </a>
-      </sec:authorize>
+      </th:block>
 
       <!-- 로그인 상태 -->
-      <sec:authorize access="isAuthenticated()">
+      <th:block th:if="${#authorization.expression('isAuthenticated()')}">
         <a th:href="@{/member/mypage}"
            class="text-[15px] font-medium text-[#444] hover:text-[#1D3CFF] transition-colors no-underline">
           마이페이지
@@ -47,7 +47,7 @@
             로그아웃
           </button>
         </form>
-      </sec:authorize>
+      </th:block>
 
     </div>
   </div>
