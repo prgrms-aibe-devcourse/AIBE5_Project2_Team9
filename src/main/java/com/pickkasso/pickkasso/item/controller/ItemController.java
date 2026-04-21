@@ -4,17 +4,17 @@ import com.pickkasso.pickkasso.global.tag.TagService;
 import com.pickkasso.pickkasso.item.dto.ItemBoxDto;
 import com.pickkasso.pickkasso.item.dto.ItemSearchCondition;
 import com.pickkasso.pickkasso.item.dto.ItemSearchFormDto;
+import com.pickkasso.pickkasso.item.entity.Item;
 import com.pickkasso.pickkasso.item.service.ItemService;
+import com.pickkasso.pickkasso.user.service.PhotographerProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import java.util.Collections;
-import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -22,6 +22,7 @@ public class ItemController {
 
     private final TagService tagService;
     private final ItemService itemService;
+    private final PhotographerProfileService photographerProfileService;
     private static final int PAGE_VIEW_COUNT = 20;
 
     private ItemSearchCondition toCondition(ItemSearchFormDto dto) {
@@ -64,5 +65,14 @@ public class ItemController {
         Model model) {
         model.addAttribute("scoreItemList", itemService.getScoreItemList(tagName, count));
         return "fragments/score_items :: scoreGrid";
+    }
+
+    @GetMapping("/item/{id}")
+    public String itemDetail(@PathVariable Long id, Model model) {
+        Item item = itemService.getItemById(id);
+        Long photographerId = item.getPhotographer().getId();
+        model.addAttribute("item", item);
+        model.addAttribute("profile", photographerProfileService.getProfileForm(photographerId));
+        return "photographer/service-detail";
     }
 }

@@ -76,7 +76,12 @@ public class Item extends Region {
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Plan> planList = new ArrayList<>();
 
-    //== 생성 method ==//
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ItemNotice> itemNoticeList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ItemImg> itemImgList = new ArrayList<>();
+
     private Item(
         Photographer photographer,
         Tag tag,
@@ -103,6 +108,7 @@ public class Item extends Region {
         defaultPrice = 0;
     }
 
+    //== 생성 method ==//
     public static Item createItem(
         Photographer photographer,
         Tag tag,
@@ -123,6 +129,7 @@ public class Item extends Region {
         return item;
     }
 
+    // plan
     public void addPlan(Plan plan) {
         planList.add(plan);
     }
@@ -136,5 +143,33 @@ public class Item extends Region {
             .mapToInt(Plan::getPrice)
             .min()
             .orElse(0);
+    }
+
+    // item img
+    public void addItemImg(ItemImg itemImg) { itemImgList.add(itemImg); }
+
+    public void removeItemImg(ItemImg itemImg) { itemImgList.remove(itemImg); }
+
+    // TODO: img 변경하지 않더라도 삭제하는 로직이다.
+    //       나중에 변경되어야 한다.
+    public void updateItemImgList(List<ItemImg> newItemImgList) {
+        itemImgList.clear();
+        itemImgList.addAll(newItemImgList);
+    }
+
+    // item notice
+    public void addItemNotice(ItemNotice itemNotice) {
+        itemNoticeList.add(itemNotice);
+    }
+
+    public void removeItemNotice(ItemNotice itemNotice) {
+        itemNoticeList.remove(itemNotice);
+    }
+
+    // TODO: 위랑 비슷합니다. 변경하지 않더라도 삭제하는 로직이다.
+    //       나중에 변경되어야 한다.
+    public void updateItemNoticeList(List<ItemNotice> newItemNoticeList) {
+        itemNoticeList.clear();
+        itemNoticeList.addAll(newItemNoticeList);
     }
 }
