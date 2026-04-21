@@ -1,22 +1,24 @@
 package com.pickkasso.pickkasso.item.service;
 
+import com.pickkasso.pickkasso.global.tag.Tag;
+import com.pickkasso.pickkasso.global.tag.TagRepository;
 import com.pickkasso.pickkasso.item.dto.ItemBoxDto;
-import com.pickkasso.pickkasso.item.dto.ItemDetailDto;
+import com.pickkasso.pickkasso.item.dto.ItemRegisterRequest;
 import com.pickkasso.pickkasso.item.dto.ItemSearchCondition;
+import com.pickkasso.pickkasso.item.dto.PlanRegisterRequest;
 import com.pickkasso.pickkasso.item.entity.Item;
+import com.pickkasso.pickkasso.item.entity.Plan;
 import com.pickkasso.pickkasso.item.repository.ItemRepository;
+import com.pickkasso.pickkasso.user.entity.Photographer;
+import com.pickkasso.pickkasso.user.repository.PhotographerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -24,13 +26,8 @@ import java.util.List;
 @Transactional
 public class ItemService {
     private final ItemRepository itemRepository;
-
-    @Transactional(readOnly = true)
-    public ItemDetailDto getItemDetail(Long itemId) {
-        Item item = itemRepository.findDetailById(itemId)
-            .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "존재하지 않는 상품입니다."));
-        return ItemDetailDto.from(item);
-    }
+    private final PhotographerRepository photographerRepository;
+    private final TagRepository tagRepository;
 
     @Transactional(readOnly = true)
     public List<ItemBoxDto> getScoreItemList(Integer count) {
@@ -53,6 +50,46 @@ public class ItemService {
         return itemRepository.getSearchItemPage(condition, pageSize);
     }
 
+    public Long registerItem(Long photographerId, ItemRegisterRequest request) {
+        Photographer photographer = photographerRepository.findById(photographerId)
+            .orElseThrow(() -> new IllegalArgumentException("작가를 찾을 수 없습니다."));
+
+        Tag tag = tagRepository.findTagByName(request.getTagName())
+            .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다: " + request.getTagName()));
+
+        Item item = Item.createItem(
+            photographer,
+            tag,
+            request.getName(),
+            request.getDescription() != null ? request.getDescription() : "",
+            request.getIncludes(),
+            request.getExcludes(),
+            request.getItemType(),
+            request.getMinBookingLeadTime() != null ? request.getMinBookingLeadTime() : 1,
+            request.getCancellationPolicy(),
+            request.getAddress(),
+            request.getLat(),
+            request.getLng()
+        );
+
+        if (request.getPlans() != null) {
+            for (PlanRegisterRequest planReq : request.getPlans()) {
+                Plan.createPlan(
+                    item,
+                    planReq.getPlanName(),
+                    planReq.getPrice() != null ? planReq.getPrice() : 0,
+                    planReq.getShootingDuration() != null ? planReq.getShootingDuration() : 1,
+                    planReq.getOriginalPhotoCount() != null ? planReq.getOriginalPhotoCount() : 0,
+                    planReq.getEditedPhotoCount() != null ? planReq.getEditedPhotoCount() : 0,
+                    planReq.getDeliveryDays() != null ? planReq.getDeliveryDays() : 3
+                );
+            }
+        }
+
+        item.updateDefaultPrice();
+        return itemRepository.save(item).getId();
+    }
+
     private List<ItemBoxDto> getItemBoxDtoList(List<Item> itemList) {
         List<ItemBoxDto> resList = new ArrayList<>();
         for (Item item : itemList) {
@@ -61,6 +98,17 @@ public class ItemService {
         }
 
         return resList;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Item> getItemsByPhotographerId(Long photographerId) {
+        return itemRepository.findByPhotographerId(photographerId);
+    }
+
+    @Transactional(readOnly = true)
+    public Item getItemById(Long itemId) {
+        return itemRepository.findByIdWithDetails(itemId)
+            .orElseThrow(() -> new IllegalArgumentException("서비스를 찾을 수 없습니다."));
     }
 
     // 테스트용 랜덤 item 들고오는 코드

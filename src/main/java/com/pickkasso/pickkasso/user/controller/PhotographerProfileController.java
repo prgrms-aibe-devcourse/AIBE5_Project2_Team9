@@ -1,5 +1,6 @@
 package com.pickkasso.pickkasso.user.controller;
 
+import com.pickkasso.pickkasso.item.service.ItemService;
 import com.pickkasso.pickkasso.user.dto.photographer.PhotographerProfileEditRequest;
 import com.pickkasso.pickkasso.user.dto.photographer.PhotographerProfileResponse;
 import com.pickkasso.pickkasso.user.service.PhotographerProfileService;
@@ -14,11 +15,13 @@ import org.springframework.web.bind.annotation.*;
 public class PhotographerProfileController {
 
     private final PhotographerProfileService photographerProfileService;
+    private final ItemService itemService;
 
     @GetMapping
     public String profilePage(@PathVariable Long photographerId, Model model) {
         PhotographerProfileResponse response = photographerProfileService.getProfileForm(photographerId);
         model.addAttribute("profile", response);
+        model.addAttribute("items", itemService.getItemsByPhotographerId(photographerId));
         return "photographer/profile";
     }
 
