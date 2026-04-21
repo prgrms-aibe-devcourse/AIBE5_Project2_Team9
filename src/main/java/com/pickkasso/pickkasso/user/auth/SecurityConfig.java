@@ -13,13 +13,36 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+    private final CustomSuccessHandler customSuccessHandler;
+    private final CustomOAuth2UserService customOAuth2UserService;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .anyRequest().permitAll()
+                    .requestMatchers("/", "/login", "/signup/**", "/find-account","/css/**", "/js/**", "/images/**","/find-id/**", "/find-pw/**").permitAll()
+                    .requestMatchers("/photographer/**").hasRole("PHOTOGRAPHER")
+                    .requestMatchers("/member/**").hasRole("MEMBER")
+                    .anyRequest().authenticated()
             )
-            .csrf(csrf -> csrf.disable());
+                .formLogin(login -> login
+                .loginPage("/login")
+                .loginProcessingUrl("/login")
+                .successHandler(customSuccessHandler)
+                .failureUrl("/login?error=true")
+                )
+
+                .oauth2Login(oauth -> oauth
+                        .loginPage("/login")
+                        .userInfoEndpoint(user -> user
+                                .userService(customOAuth2UserService)
+                        )
+                        .defaultSuccessUrl("/", true)
+                )
+               .logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/")
+           );
 
         return http.build();
     }
