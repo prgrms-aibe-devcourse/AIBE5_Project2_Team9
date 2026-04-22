@@ -37,6 +37,14 @@ public class Item extends Region {
     @Column(name = "description", nullable = false)
     private String description;
 
+    @Lob
+    @Column(name = "includes")
+    private String includes;
+
+    @Lob
+    @Column(name = "excludes")
+    private String excludes;
+
     @Column(name = "item_type", nullable = false)
     @Enumerated(EnumType.STRING)
     private ItemType itemType;
@@ -68,12 +76,19 @@ public class Item extends Region {
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Plan> planList = new ArrayList<>();
 
-    //== 생성 method ==//
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ItemNotice> itemNoticeList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ItemImg> itemImgList = new ArrayList<>();
+
     private Item(
         Photographer photographer,
         Tag tag,
         String name,
         String description,
+        String includes,
+        String excludes,
         ItemType itemType,
         Integer minBookingLeadTime,
         String cancellationPolicy) {
@@ -82,25 +97,39 @@ public class Item extends Region {
         this.tag = tag;
         this.name = name;
         this.description = description;
+        this.includes = includes;
+        this.excludes = excludes;
         this.itemType = itemType;
         this.minBookingLeadTime = minBookingLeadTime;
         this.cancellationPolicy = cancellationPolicy;
+        this.createdAt = java.time.LocalDateTime.now();
         reviewCount = 0;
         avgScore = 0;
         defaultPrice = 0;
     }
 
+    //== 생성 method ==//
     public static Item createItem(
         Photographer photographer,
         Tag tag,
         String name,
         String description,
+        String includes,
+        String excludes,
         ItemType itemType,
         Integer minBookingLeadTime,
-        String cancellationPolicy) {
-        return new Item(photographer, tag, name, description, itemType, minBookingLeadTime, cancellationPolicy);
+        String cancellationPolicy,
+        String address,
+        Double lat,
+        Double lng) {
+
+        Item item = new Item(photographer, tag, name, description, includes, excludes,
+            itemType, minBookingLeadTime, cancellationPolicy);
+        item.initRegion(address, "", lat, lng);
+        return item;
     }
 
+    // plan
     public void addPlan(Plan plan) {
         planList.add(plan);
     }
@@ -114,5 +143,33 @@ public class Item extends Region {
             .mapToInt(Plan::getPrice)
             .min()
             .orElse(0);
+    }
+
+    // item img
+    public void addItemImg(ItemImg itemImg) { itemImgList.add(itemImg); }
+
+    public void removeItemImg(ItemImg itemImg) { itemImgList.remove(itemImg); }
+
+    // TODO: img 변경하지 않더라도 삭제하는 로직이다.
+    //       나중에 변경되어야 한다.
+    public void updateItemImgList(List<ItemImg> newItemImgList) {
+        itemImgList.clear();
+        itemImgList.addAll(newItemImgList);
+    }
+
+    // item notice
+    public void addItemNotice(ItemNotice itemNotice) {
+        itemNoticeList.add(itemNotice);
+    }
+
+    public void removeItemNotice(ItemNotice itemNotice) {
+        itemNoticeList.remove(itemNotice);
+    }
+
+    // TODO: 위랑 비슷합니다. 변경하지 않더라도 삭제하는 로직이다.
+    //       나중에 변경되어야 한다.
+    public void updateItemNoticeList(List<ItemNotice> newItemNoticeList) {
+        itemNoticeList.clear();
+        itemNoticeList.addAll(newItemNoticeList);
     }
 }
