@@ -25,24 +25,21 @@ public class ItemImg extends DefaultImg {
     private ItemImg(
         Item item,
         String imgName,
-        Integer imgOrder,
-        LocalDateTime regTime
+        Integer imgOrder
     ) {
 
         this.item = item;
         this.imgName = imgName;
         this.imgOrder = imgOrder;
-        this.regTime = regTime;
     }
 
     //== 생성 method ==//
     public static ItemImg createItemImg(
         Item item,
         String imgName,
-        Integer imgOrder,
-        LocalDateTime regTime
+        Integer imgOrder
     ) {
-        return new ItemImg(item, imgName, imgOrder, regTime);
+        return new ItemImg(item, imgName, imgOrder);
     }
 
     public void updateItemImg(String imgName, Integer imgOrder) {
