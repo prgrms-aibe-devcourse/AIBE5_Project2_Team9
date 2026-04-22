@@ -2,6 +2,7 @@ package com.pickkasso.pickkasso.global.advice;
 
 import com.pickkasso.pickkasso.user.entity.Account;
 import com.pickkasso.pickkasso.user.entity.Member;
+import com.pickkasso.pickkasso.user.entity.Role;
 import com.pickkasso.pickkasso.user.repository.AccountRepository;
 import com.pickkasso.pickkasso.user.repository.MemberRepository;
 import org.springframework.security.core.Authentication;
@@ -35,19 +36,23 @@ public class GlobalModelAttributes {
         if(auth != null && auth.isAuthenticated()) {
             // 로그인한 계정 정보 조회
             Account account = accountRepository.findByUsername(auth.getName());
-            // 계정과 연결된 멤버 정보 조회
-            Member member = memberRepository.findByAccount(account);
-
-            // 모델에 Role과 userId 추가
-            // - role: HEADER에서 회원/작가 분기용
-            // - userId: 작가 대시보드 링크 생성 시 사용
+            
+            if (account != null) {
+                model.addAttribute("role", account.getRole().name());
+                
+                if (account.getRole() == Role.PHOTOGRAPHER) {
+                    model.addAttribute("userId", account.getId());
+                } else if (account.getRole() == Role.MEMBER) {
+                    Member member = memberRepository.findByAccount(account);
+                    if (member != null) {
+                        model.addAttribute("userId", member.getId());
+                    }
+                }
+            }
 
             // Role 확인 로그
             System.out.println("Authentication Authorities:");
             auth.getAuthorities().forEach(a -> System.out.println(a.getAuthority()));
-
-            model.addAttribute("role", account.getRole().name());
-            model.addAttribute("userId", member.getId());
         }
     }
 }

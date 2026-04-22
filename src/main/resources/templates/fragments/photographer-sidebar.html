@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<aside th:fragment="sidebar" class="w-full lg:w-[220px] lg:flex-shrink-0 lg:sticky lg:top-24">
+  <!-- 작가 프로필 미니 카드 -->
+  <div class="bg-white border border-[#CCC] rounded-2xl px-4 py-[18px] mb-5 flex items-center gap-3">
+    <div class="w-11 h-11 rounded-full bg-gradient-to-br from-[#D3DEF2] to-[#a8c4e8] flex items-center justify-center text-lg text-[#888] border-2 border-[#CCC] shrink-0 overflow-hidden">
+      <span>📷</span>
+    </div>
+    <div class="flex-1 min-w-0">
+      <p class="text-sm font-bold text-[#1A1A1A] truncate" th:text="${photographer.name}">작가명</p>
+      <p class="text-[11px] text-[#888] mt-0.5">스냅 작가</p>
+    </div>
+    <div class="w-2 h-2 bg-[#22C55E] rounded-full shrink-0"></div>
+  </div>
+
+  <p class="text-[11px] font-semibold text-[#AAA] tracking-widest uppercase px-3 mb-1.5">Manage</p>
+  <nav class="flex flex-col gap-0.5 mb-6">
+    <!-- 대시보드 -->
+    <a th:href="@{'/photographer/' + ${userId} + '/dashboard'}"
+       th:classappend="${activeTab == 'dashboard'} ? 'bg-[#EEF2FB] text-[#1D3CFF] font-semibold' : 'text-[#444] hover:bg-[#EEF2FB] hover:text-[#1D3CFF]'"
+       class="flex items-center gap-2.5 text-sm px-3 py-2.5 rounded-lg transition-colors no-underline">
+      <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+      </svg>
+      대시보드
+    </a>
+    <!-- 예약 관리 (Mockup) -->
+    <a th:href="@{'/photographer/' + ${userId} + '/dashboard'}"
+       th:classappend="${activeTab == 'reservations'} ? 'bg-[#EEF2FB] text-[#1D3CFF] font-semibold' : 'text-[#444] hover:bg-[#EEF2FB] hover:text-[#1D3CFF]'"
+       class="flex items-center gap-2.5 text-sm px-3 py-2.5 rounded-lg transition-colors no-underline">
+      <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+      예약 관리
+      <span class="ml-auto bg-[#1D3CFF] text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center">2</span>
+    </a>
+    <!-- 후기 관리 (Mockup) -->
+    <a th:href="@{'/photographer/' + ${userId} + '/dashboard'}"
+       th:classappend="${activeTab == 'reviews'} ? 'bg-[#EEF2FB] text-[#1D3CFF] font-semibold' : 'text-[#444] hover:bg-[#EEF2FB] hover:text-[#1D3CFF]'"
+       class="flex items-center gap-2.5 text-sm px-3 py-2.5 rounded-lg transition-colors no-underline">
+      <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+      </svg>
+      후기 관리
+    </a>
+    <!-- 수익 정산 (Mockup) -->
+    <a th:href="@{'/photographer/' + ${userId} + '/dashboard'}"
+       th:classappend="${activeTab == 'settlement'} ? 'bg-[#EEF2FB] text-[#1D3CFF] font-semibold' : 'text-[#444] hover:bg-[#EEF2FB] hover:text-[#1D3CFF]'"
+       class="flex items-center gap-2.5 text-sm px-3 py-2.5 rounded-lg transition-colors no-underline">
+      <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      수익 정산
+    </a>
+  </nav>
+
+  <p class="text-[11px] font-semibold text-[#AAA] tracking-widest uppercase px-3 mb-1.5">Account</p>
+  <nav class="flex flex-col gap-0.5">
+    <!-- 프로필 보기 (작가 프로필로 연결) -->
+    <a th:href="@{'/photographer/' + ${userId} + '/profile'}"
+       class="flex items-center gap-2.5 text-sm text-[#444] hover:bg-[#EEF2FB] hover:text-[#1D3CFF] px-3 py-2.5 rounded-lg transition-colors no-underline">
+      <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+      </svg>
+      프로필 보기
+    </a>
+    <!-- 계정 설정 (일반 유저 마이페이지와 연결) -->
+    <a th:href="@{/member/mypage}"
+       class="flex items-center gap-2.5 text-sm text-[#444] hover:bg-[#EEF2FB] hover:text-[#1D3CFF] px-3 py-2.5 rounded-lg transition-colors no-underline">
+      <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+      계정 설정
+    </a>
+  </nav>
+</aside>
+
+</body>
+</html>
