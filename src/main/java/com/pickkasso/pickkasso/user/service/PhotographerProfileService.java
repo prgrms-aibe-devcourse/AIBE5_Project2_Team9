@@ -5,6 +5,7 @@ import com.pickkasso.pickkasso.user.dto.photographer.EducationDto;
 import com.pickkasso.pickkasso.user.dto.photographer.PhotographerProfileEditRequest;
 import com.pickkasso.pickkasso.user.dto.photographer.PhotographerPortfolioSummaryDto;
 import com.pickkasso.pickkasso.user.dto.photographer.PhotographerProfileResponse;
+import com.pickkasso.pickkasso.user.dto.photographer.ProfileCompletionDto;
 import com.pickkasso.pickkasso.user.entity.Career;
 import com.pickkasso.pickkasso.user.entity.Education;
 import com.pickkasso.pickkasso.user.entity.Photographer;
@@ -97,6 +98,30 @@ public class PhotographerProfileService {
                 educationDtos,
                 portfolios
         );
+    }
+
+    @Transactional(readOnly = true)
+    public ProfileCompletionDto getProfileCompletion(Long photographerId) {
+        Photographer photographer = getPhotographer(photographerId);
+        PhotographerProfile profile = photographer.getPhotographerProfile();
+
+        boolean hasProfileImage = profile != null
+                && profile.getImgUrl() != null
+                && !profile.getImgUrl().isBlank();
+        boolean hasIntro = profile != null
+                && profile.getIntro() != null
+                && !profile.getIntro().isBlank();
+        boolean hasServices = !photographer.getItemList().isEmpty();
+        boolean hasEquipment = profile != null
+                && profile.getTools() != null
+                && !profile.getTools().isEmpty();
+
+        int score = (hasProfileImage ? 25 : 0)
+                + (hasIntro ? 25 : 0)
+                + (hasServices ? 25 : 0)
+                + (hasEquipment ? 25 : 0);
+
+        return new ProfileCompletionDto(hasProfileImage, hasIntro, hasServices, hasEquipment, score);
     }
 
     public void createOrUpdateProfile(Long photographerId, PhotographerProfileEditRequest request) {

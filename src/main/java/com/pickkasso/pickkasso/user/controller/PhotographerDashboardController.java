@@ -1,7 +1,9 @@
 package com.pickkasso.pickkasso.user.controller;
 
+import com.pickkasso.pickkasso.user.dto.photographer.ProfileCompletionDto;
 import com.pickkasso.pickkasso.user.entity.Photographer;
 import com.pickkasso.pickkasso.user.repository.PhotographerRepository;
+import com.pickkasso.pickkasso.user.service.PhotographerProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -16,19 +18,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class PhotographerDashboardController {
 
     private final PhotographerRepository photographerRepository;
+    private final PhotographerProfileService photographerProfileService;
 
     @GetMapping("/{photographerId}/dashboard")
     public String dashboard(@PathVariable Long photographerId, Authentication auth, Model model) {
         if (auth != null && auth.isAuthenticated()) {
             Photographer photographer = photographerRepository.findByAccountUsername(auth.getName());
-            
-            // 본인의 대시보드인지 확인
+
             if (photographer == null || !photographer.getId().equals(photographerId)) {
-                // 권한이 없거나 잘못된 접근인 경우 처리 (예: 홈으로 리다이렉트 또는 에러 페이지)
                 return "redirect:/";
             }
-            
+
+            ProfileCompletionDto completion = photographerProfileService.getProfileCompletion(photographerId);
+
             model.addAttribute("photographer", photographer);
+            model.addAttribute("completion", completion);
             model.addAttribute("activeTab", "dashboard");
             return "photographer/dashboard";
         }
