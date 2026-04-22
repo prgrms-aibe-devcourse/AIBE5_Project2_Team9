@@ -35,8 +35,6 @@ public class GlobalModelAttributes {
         if(auth != null && auth.isAuthenticated()) {
             // 로그인한 계정 정보 조회
             Account account = accountRepository.findByUsername(auth.getName());
-            // 계정과 연결된 멤버 정보 조회
-            Member member = memberRepository.findByAccount(account);
 
             // 모델에 Role과 userId 추가
             // - role: HEADER에서 회원/작가 분기용
@@ -47,7 +45,7 @@ public class GlobalModelAttributes {
             auth.getAuthorities().forEach(a -> System.out.println(a.getAuthority()));
 
             model.addAttribute("role", account.getRole().name());
-            model.addAttribute("userId", member.getId());
+            model.addAttribute("userId", account.getId());
         }
     }
 }
