@@ -1,5 +1,6 @@
 package com.pickkasso.pickkasso.user.service;
 
+import com.pickkasso.pickkasso.global.img.DefaultImgDto;
 import com.pickkasso.pickkasso.global.tag.Tag;
 import com.pickkasso.pickkasso.global.tag.TagReference;
 import com.pickkasso.pickkasso.global.tag.TagRepository;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,7 +57,9 @@ public class PortfolioService {
                 photographer,
                 dto.name(),
                 dto.description(),
-                resolveProjectType(dto)
+                resolveProjectType(dto),
+                dto.startTime(),
+                dto.endTime()
         );
         portfolio.updateTags(tagService.toTagList(dto.tagIdList()));
 
@@ -98,13 +102,17 @@ public class PortfolioService {
     }
 
     private PortfolioDto toDto(Portfolio portfolio) {
+        List<Long> tagIdList = portfolio.getPortfolioTagList().stream()
+            .map(pt -> pt.getTag().getId())
+            .toList();
+
         return new PortfolioDto(
                 portfolio.getName(),
                 portfolio.getDescription(),
-                null,
-                null,
+                portfolio.getStartDate(),
+                portfolio.getEndDate(),
                 new ArrayList<>(),
-                new ArrayList<>(),
+                tagIdList,
                 portfolio.getProjectType()
         );
     }
@@ -133,7 +141,9 @@ public class PortfolioService {
         if (dto.name() == null || dto.name().isBlank()) {
             throw new IllegalArgumentException("포트폴리오 이름은 필수입니다.");
         }
-
+        if (dto.tagIdList() == null || dto.tagIdList().isEmpty()) {
+            throw new IllegalArgumentException("태그를 반드시 1개 이상 설정하셔야 합니다.");
+        }
         if (dto.description() == null || dto.description().isBlank()) {
             throw new IllegalArgumentException("포트폴리오 설명은 필수입니다.");
         }

@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +36,12 @@ public class Portfolio {
     @Column(name = "project_type")
     private PortfolioProjectType projectType;
 
+    @Column(name = "start_date")
+    private LocalDate startDate;
+    @Column(name = "end_date")
+    private LocalDate endDate;
+
+
     @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PortfolioTag> portfolioTagList = new ArrayList<>();
 
@@ -43,11 +50,15 @@ public class Portfolio {
         Photographer photographer,
         String name,
         String description,
-        PortfolioProjectType projectType) {
+        PortfolioProjectType projectType,
+        LocalDate startDate,
+        LocalDate endDate) {
         this.photographer = photographer;
         this.name = name;
         this.description = description;
         this.projectType = projectType;
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
 
     //== 생성 method ==//
@@ -55,8 +66,10 @@ public class Portfolio {
         Photographer photographer,
         String name,
         String description,
-        PortfolioProjectType projectType) {
-        return new Portfolio(photographer, name, description, projectType);
+        PortfolioProjectType projectType,
+        LocalDate startDate,
+        LocalDate endDate) {
+        return new Portfolio(photographer, name, description, projectType, startDate, endDate);
     }
 
     public void updatePortfolio(String name, String description, PortfolioProjectType projectType) {
