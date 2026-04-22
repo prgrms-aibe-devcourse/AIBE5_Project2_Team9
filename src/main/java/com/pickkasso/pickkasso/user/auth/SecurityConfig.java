@@ -27,8 +27,7 @@ public class SecurityConfig {
                         "/search/**", "/items/fragment","/api/check-username"
                     ).permitAll()
                     .requestMatchers("/photographer/**").hasRole("PHOTOGRAPHER")
-                    .requestMatchers("/member/**").hasRole("MEMBER")
-                    .anyRequest().authenticated()
+                            .anyRequest().authenticated()
             )
                 .exceptionHandling(exception -> exception
                     .accessDeniedPage("/403")
