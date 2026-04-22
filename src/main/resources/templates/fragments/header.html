@@ -37,9 +37,9 @@
 
       <!-- 로그인 상태 -->
       <th:block th:if="${#authorization.expression('isAuthenticated()')}">
-        <a th:href="@{/member/mypage}"
+        <a th:href="${role == 'PHOTOGRAPHER' ? '/photographer/' + userId + '/profile' : '/member/mypage'}"
+           th:text="${role == 'PHOTOGRAPHER' ? '작가 대시보드' : '마이페이지'}"
            class="text-[15px] font-medium text-[#444] hover:text-[#1D3CFF] transition-colors no-underline">
-          마이페이지
         </a>
         <form th:action="@{/logout}" method="post" class="inline m-0">
           <button type="submit"

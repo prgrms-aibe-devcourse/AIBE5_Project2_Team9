@@ -75,8 +75,16 @@ public class MyPageController {
     }
 
     @GetMapping("/member/mypage/profile")
-    public String getProfile() {
+    public String getProfile(Authentication auth, Model model) {
         return "user/mypage/profile"; // flash attribute가 model에 자동으로 담김
+    }
+
+    @GetMapping("/photographer/{photographerId}/profile")
+    public String photographerProfile(@PathVariable Long photographerId, Model model) {
+        // photographerId로 작가 정보 조회
+        Member photographer = memberRepository.findById(photographerId).orElseThrow();
+        model.addAttribute("photographer", photographer);
+        return "photographer/profile"; // 작가 대시보드 뷰
     }
 
 }
