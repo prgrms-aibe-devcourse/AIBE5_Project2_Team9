@@ -23,9 +23,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/", "/login", "/signup/**", "/find-account",
                         "/css/**", "/fonts/**", "/js/**", "/images/**",
-                        "/find-id/**", "/find-pw/**", "/item/**").permitAll()
-                    .requestMatchers("/photographer/**").hasRole("PHOTOGRAPHER")
-                    .requestMatchers("/member/**").hasRole("MEMBER")
+                        "/find-id/**", "/find-pw/**", "/item/**","/api/check-username").permitAll()
                     .anyRequest().authenticated()
             )
                 .formLogin(login -> login
