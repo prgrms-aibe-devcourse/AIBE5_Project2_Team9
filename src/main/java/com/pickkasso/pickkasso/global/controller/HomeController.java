@@ -5,6 +5,7 @@ import com.pickkasso.pickkasso.global.tag.TagService;
 import com.pickkasso.pickkasso.item.dto.ItemSearchFormDto;
 import com.pickkasso.pickkasso.item.service.ItemService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;

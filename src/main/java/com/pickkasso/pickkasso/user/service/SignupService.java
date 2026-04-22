@@ -40,30 +40,30 @@ public class SignupService {
                 )
         );
 
-
-        //  Member 생성
-        Member member = Member.createMember(
+        if (dto.getRole() == Role.MEMBER) {
+            //  Member 생성
+            Member member = Member.createMember(
                 account,
                 dto.getEmail(),
                 dto.getName(),
                 dto.getGender(),
                 dto.getPhone(),
                 0
-        );
+            );
 
-        memberRepository.save(member);
-
-        if (dto.getRole() == Role.PHOTOGRAPHER) {
+            memberRepository.save(member);
+        } else if (dto.getRole() == Role.PHOTOGRAPHER) {
             Photographer photographer = Photographer.createMember(
-                    account,
-                    dto.getEmail(),
-                    dto.getName(),
-                    dto.getGender(),
-                    dto.getPhone(),
-                    0
+                account,
+                dto.getEmail(),
+                dto.getName(),
+                dto.getGender(),
+                dto.getPhone(),
+                0
             );
             photographerRepository.save(photographer);
+        } else if (dto.getRole() == Role.ADMIN) {
+            // pass
         }
-
     }
 }
