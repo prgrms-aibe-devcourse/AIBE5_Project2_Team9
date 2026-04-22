@@ -1,5 +1,6 @@
 package com.pickkasso.pickkasso.user.controller;
 
+import com.pickkasso.pickkasso.global.tag.TagService;
 import com.pickkasso.pickkasso.user.dto.portfolio.PortfolioDto;
 import com.pickkasso.pickkasso.user.service.PortfolioService;
 import lombok.RequiredArgsConstructor;
@@ -7,17 +8,21 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/photographer/{photographerId}/portfolio")
 public class PortfolioController {
 
     private final PortfolioService portfolioService;
+    private final TagService tagService;
 
     @GetMapping("/new")
     public String createPortfolioForm(@PathVariable Long photographerId, Model model) {
         model.addAttribute("portfolioDto", portfolioService.getEmptyPortfolioDto(photographerId));
         model.addAttribute("photographerId", photographerId);
+        model.addAttribute("tagList", tagService.findAllTagReference());
         model.addAttribute("formAction", "/photographer/" + photographerId + "/portfolio/new");
         return "photographer/editPortfolio";
     }
@@ -49,7 +54,8 @@ public class PortfolioController {
         PortfolioDto portfolioDto = portfolioService.getPortfolioDto(photographerId, portfolioId);
         model.addAttribute("portfolioName", portfolioDto.name());
         model.addAttribute("portfolioDescription", portfolioDto.description());
-        model.addAttribute("portfolioTagNames", portfolioService.getPortfolioTagNames(photographerId, portfolioId));
+        model.addAttribute("tagReferenceList", tagService.findAllTagReference());
+        model.addAttribute("portfolioTagList", portfolioService.getPortfolioTagReference(photographerId, portfolioId));
         model.addAttribute("portfolioProjectType", portfolioDto.projectType());
         model.addAttribute("photographerId", photographerId);
         model.addAttribute("portfolioId", portfolioId);
@@ -69,6 +75,7 @@ public class PortfolioController {
         PortfolioDto portfolioDto = portfolioService.getPortfolioDto(photographerId, portfolioId);
         model.addAttribute("portfolioDto", portfolioDto);
         model.addAttribute("photographerId", photographerId);
+        model.addAttribute("tagList", tagService.findAllTagReference());
         model.addAttribute("portfolioId", portfolioId);
         model.addAttribute("formAction", "/photographer/" + photographerId + "/portfolio/" + portfolioId + "/edit");
         return "photographer/editPortfolio";

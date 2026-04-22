@@ -4,7 +4,130 @@
       th:replace="~{layouts/default :: layout(~{::title}, ~{::pageStyles}, ~{::main})}">
 <head>
   <title th:fragment="title">포트폴리오 등록 | PICKKASSO</title>
-  <th:block th:fragment="pageStyles"></th:block>
+  <th:block th:fragment="pageStyles">
+    <script>
+        const MAX_COUNT = 20;
+        const MAX_SIZE = 30 * 1024 * 1024; // 30MB
+        let files = []; // { file, previewUrl } 배열
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('imageInput').addEventListener('change', function(e) {
+                addFiles(Array.from(e.target.files));
+                this.value = '';
+            });
+        });
+
+        function handleDrop(e) {
+            e.preventDefault();
+            // 파일 드롭인 경우만 처리
+            if (e.dataTransfer.files.length === 0) return;
+            document.getElementById('dropZone').classList.remove('border-[#6B8DD6]', 'bg-[#EEF3FC]');
+            addFiles(Array.from(e.dataTransfer.files).filter(f => f.type.match(/image\/(jpeg|png|webp)/)));
+        }
+
+        function addFiles(newFiles) {
+            for (const file of newFiles) {
+                if (files.length >= MAX_COUNT) {
+                    alert('최대 20장까지 업로드할 수 있어요.');
+                    break;
+                }
+                if (file.size > MAX_SIZE) {
+                    alert(`${file.name}은 30MB를 초과해요.`);
+                    continue;
+                }
+                const previewUrl = URL.createObjectURL(file);
+                files.push({ file, previewUrl });
+            }
+            renderPreview();
+        }
+
+        function removeFile(index) {
+            URL.revokeObjectURL(files[index].previewUrl);
+            files.splice(index, 1);
+            renderPreview();
+        }
+
+        function renderPreview() {
+            const grid = document.getElementById('previewGrid');
+            grid.innerHTML = '';
+
+            files.forEach((item, index) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'relative aspect-square rounded-lg overflow-hidden group cursor-grab';
+                wrapper.draggable = true;
+                wrapper.dataset.index = index;
+
+                wrapper.innerHTML = `
+            <img src="${item.previewUrl}" class="w-full h-full object-cover pointer-events-none">
+            ${index === 0 ? '<span class="absolute bottom-1 left-1 text-[10px] font-bold bg-[#6B8DD6] text-white px-1.5 py-0.5 rounded">대표</span>' : ''}
+            <button type="button" onclick="removeFile(${index})"
+                class="absolute top-1 right-1 w-5 h-5 bg-black/60 text-white rounded-full text-xs hidden group-hover:flex items-center justify-center leading-none">
+                ×
+            </button>
+        `;
+
+                // 드래그 시작
+                wrapper.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', index);
+                    wrapper.classList.add('opacity-40');
+                });
+
+                // 드래그 끝
+                wrapper.addEventListener('dragend', () => {
+                    wrapper.classList.remove('opacity-40');
+                    document.querySelectorAll('#previewGrid [data-index]').forEach(el => {
+                        el.classList.remove('border-2', 'border-[#6B8DD6]');
+                    });
+                });
+
+                // 드래그 대상 위에 올라왔을 때
+                wrapper.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    wrapper.classList.add('border-2', 'border-[#6B8DD6]');
+                });
+
+                wrapper.addEventListener('dragleave', () => {
+                    wrapper.classList.remove('border-2', 'border-[#6B8DD6]');
+                });
+
+                // 드롭
+                wrapper.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+                    const toIndex = parseInt(wrapper.dataset.index);
+
+                    if (fromIndex !== toIndex) {
+                        const moved = files.splice(fromIndex, 1)[0];
+                        files.splice(toIndex, 0, moved);
+                        renderPreview();
+                    }
+                });
+
+                grid.appendChild(wrapper);
+            });
+
+            // + 버튼
+            if (files.length < MAX_COUNT) {
+                const addBtn = document.createElement('div');
+                addBtn.className = 'aspect-square rounded-lg border-2 border-dashed border-[#CCC] bg-[#F9FAFC] flex items-center justify-center text-[#CCC] text-xl cursor-pointer hover:border-[#6B8DD6] hover:text-[#6B8DD6] transition-colors';
+                addBtn.textContent = '+';
+                addBtn.onclick = () => document.getElementById('imageInput').click();
+                grid.appendChild(addBtn);
+            }
+        }
+
+        // S3 연동 시 이 함수만 교체하면 돼요
+        async function uploadToS3(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            const res = await fetch('/upload/s3', { method: 'POST', body: formData });
+            const data = await res.json();
+            return data.imgUrl;
+        }
+    </script>
+  </th:block>
 </head>
 <body>
 
@@ -13,7 +136,7 @@
 
     <!-- Page Title -->
     <div class="flex items-center gap-3 mb-8">
-      <a th:href="@{/photographer/{id}/profile/edit(id=${photographerId})}"
+      <a th:href="@{/photographer/{id}/profile(id=${photographerId})}"
          class="flex items-center justify-center w-8 h-8 rounded-lg border border-[#CCC] text-[#444] hover:border-[#1D3CFF] hover:text-[#1D3CFF] transition-colors text-sm leading-none">←</a>
       <h1 class="text-2xl font-semibold text-[#1A1A1A]">포트폴리오 등록</h1>
     </div>
@@ -133,31 +256,21 @@
               태그 <span class="text-xs text-[#888] font-normal">(중복 선택 가능)</span>
             </label>
             <div id="tag-grid" class="flex flex-wrap gap-2 mb-2">
-              <!-- 태그 ID는 태그 테이블 연동 전 임시 placeholder값. 연동 후 th:each로 교체 -->
-              <label class="tag-label cursor-pointer"><input type="checkbox" name="tagIdList" value="1" class="hidden" th:checked="${portfolioDto.tagIdList != null and #lists.contains(portfolioDto.tagIdList, 1)}"><span class="inline-block text-sm px-3 py-1.5 rounded-full transition-colors"
-                    th:classappend="${portfolioDto.tagIdList != null and #lists.contains(portfolioDto.tagIdList, 1)} ? ' bg-[#1D3CFF] text-white border border-[#1D3CFF]' : ' bg-[#F9FAFC] border border-[#CCC] text-[#444]'">웨딩</span></label>
-              <label class="tag-label cursor-pointer"><input type="checkbox" name="tagIdList" value="2" class="hidden" th:checked="${portfolioDto.tagIdList != null and #lists.contains(portfolioDto.tagIdList, 2)}"><span class="inline-block text-sm px-3 py-1.5 rounded-full transition-colors"
-                    th:classappend="${portfolioDto.tagIdList != null and #lists.contains(portfolioDto.tagIdList, 2)} ? ' bg-[#1D3CFF] text-white border border-[#1D3CFF]' : ' bg-[#F9FAFC] border border-[#CCC] text-[#444]'">프로필</span></label>
-              <label class="tag-label cursor-pointer"><input type="checkbox" name="tagIdList" value="3" class="hidden" th:checked="${portfolioDto.tagIdList != null and #lists.contains(portfolioDto.tagIdList, 3)}"><span class="inline-block text-sm px-3 py-1.5 rounded-full transition-colors"
-                    th:classappend="${portfolioDto.tagIdList != null and #lists.contains(portfolioDto.tagIdList, 3)} ? ' bg-[#1D3CFF] text-white border border-[#1D3CFF]' : ' bg-[#F9FAFC] border border-[#CCC] text-[#444]'">졸업</span></label>
-              <label class="tag-label cursor-pointer"><input type="checkbox" name="tagIdList" value="4" class="hidden" th:checked="${portfolioDto.tagIdList != null and #lists.contains(portfolioDto.tagIdList, 4)}"><span class="inline-block text-sm px-3 py-1.5 rounded-full transition-colors"
-                    th:classappend="${portfolioDto.tagIdList != null and #lists.contains(portfolioDto.tagIdList, 4)} ? ' bg-[#1D3CFF] text-white border border-[#1D3CFF]' : ' bg-[#F9FAFC] border border-[#CCC] text-[#444]'">가족/아이</span></label>
-              <label class="tag-label cursor-pointer"><input type="checkbox" name="tagIdList" value="5" class="hidden" th:checked="${portfolioDto.tagIdList != null and #lists.contains(portfolioDto.tagIdList, 5)}"><span class="inline-block text-sm px-3 py-1.5 rounded-full transition-colors"
-                    th:classappend="${portfolioDto.tagIdList != null and #lists.contains(portfolioDto.tagIdList, 5)} ? ' bg-[#1D3CFF] text-white border border-[#1D3CFF]' : ' bg-[#F9FAFC] border border-[#CCC] text-[#444]'">제품/커머셜</span></label>
-              <label class="tag-label cursor-pointer"><input type="checkbox" name="tagIdList" value="6" class="hidden" th:checked="${portfolioDto.tagIdList != null and #lists.contains(portfolioDto.tagIdList, 6)}"><span class="inline-block text-sm px-3 py-1.5 rounded-full transition-colors"
-                    th:classappend="${portfolioDto.tagIdList != null and #lists.contains(portfolioDto.tagIdList, 6)} ? ' bg-[#1D3CFF] text-white border border-[#1D3CFF]' : ' bg-[#F9FAFC] border border-[#CCC] text-[#444]'">음식</span></label>
-              <label class="tag-label cursor-pointer"><input type="checkbox" name="tagIdList" value="7" class="hidden" th:checked="${portfolioDto.tagIdList != null and #lists.contains(portfolioDto.tagIdList, 7)}"><span class="inline-block text-sm px-3 py-1.5 rounded-full transition-colors"
-                    th:classappend="${portfolioDto.tagIdList != null and #lists.contains(portfolioDto.tagIdList, 7)} ? ' bg-[#1D3CFF] text-white border border-[#1D3CFF]' : ' bg-[#F9FAFC] border border-[#CCC] text-[#444]'">건축</span></label>
-              <label class="tag-label cursor-pointer"><input type="checkbox" name="tagIdList" value="8" class="hidden" th:checked="${portfolioDto.tagIdList != null and #lists.contains(portfolioDto.tagIdList, 8)}"><span class="inline-block text-sm px-3 py-1.5 rounded-full transition-colors"
-                    th:classappend="${portfolioDto.tagIdList != null and #lists.contains(portfolioDto.tagIdList, 8)} ? ' bg-[#1D3CFF] text-white border border-[#1D3CFF]' : ' bg-[#F9FAFC] border border-[#CCC] text-[#444]'">공연</span></label>
-              <label class="tag-label cursor-pointer"><input type="checkbox" name="tagIdList" value="9" class="hidden" th:checked="${portfolioDto.tagIdList != null and #lists.contains(portfolioDto.tagIdList, 9)}"><span class="inline-block text-sm px-3 py-1.5 rounded-full transition-colors"
-                    th:classappend="${portfolioDto.tagIdList != null and #lists.contains(portfolioDto.tagIdList, 9)} ? ' bg-[#1D3CFF] text-white border border-[#1D3CFF]' : ' bg-[#F9FAFC] border border-[#CCC] text-[#444]'">드론</span></label>
-              <label class="tag-label cursor-pointer"><input type="checkbox" name="tagIdList" value="10" class="hidden" th:checked="${portfolioDto.tagIdList != null and #lists.contains(portfolioDto.tagIdList, 10)}"><span class="inline-block text-sm px-3 py-1.5 rounded-full transition-colors"
-                    th:classappend="${portfolioDto.tagIdList != null and #lists.contains(portfolioDto.tagIdList, 10)} ? ' bg-[#1D3CFF] text-white border border-[#1D3CFF]' : ' bg-[#F9FAFC] border border-[#CCC] text-[#444]'">데이트스냅</span></label>
-              <label class="tag-label cursor-pointer"><input type="checkbox" name="tagIdList" value="11" class="hidden" th:checked="${portfolioDto.tagIdList != null and #lists.contains(portfolioDto.tagIdList, 11)}"><span class="inline-block text-sm px-3 py-1.5 rounded-full transition-colors"
-                    th:classappend="${portfolioDto.tagIdList != null and #lists.contains(portfolioDto.tagIdList, 11)} ? ' bg-[#1D3CFF] text-white border border-[#1D3CFF]' : ' bg-[#F9FAFC] border border-[#CCC] text-[#444]'">야외</span></label>
-              <label class="tag-label cursor-pointer"><input type="checkbox" name="tagIdList" value="12" class="hidden" th:checked="${portfolioDto.tagIdList != null and #lists.contains(portfolioDto.tagIdList, 12)}"><span class="inline-block text-sm px-3 py-1.5 rounded-full transition-colors"
-                    th:classappend="${portfolioDto.tagIdList != null and #lists.contains(portfolioDto.tagIdList, 12)} ? ' bg-[#1D3CFF] text-white border border-[#1D3CFF]' : ' bg-[#F9FAFC] border border-[#CCC] text-[#444]'">스튜디오</span></label>
+              <th:block th:each="tag : ${tagList}">
+                <label class="tag-label cursor-pointer">
+                  <input type="checkbox"
+                         name="tagIdList"
+                         th:value="${tag.id}"
+                         class="hidden"
+                         th:checked="${portfolioDto.tagIdList != null and #lists.contains(portfolioDto.tagIdList, tag.id)}">
+                  <span class="inline-block text-sm px-3 py-1.5 rounded-full border transition-colors"
+                        th:classappend="${portfolioDto.tagIdList != null and #lists.contains(portfolioDto.tagIdList, tag.id)}
+                        ? ' bg-[#1D3CFF] text-white border-[#1D3CFF]'
+                        : ' bg-[#F9FAFC] border-[#CCC] text-[#444]'"
+                        th:text="${tag.name}">
+                  </span>
+                </label>
+              </th:block>
             </div>
             <p class="text-xs text-[#888]">선택한 태그는 검색 노출에 활용됩니다</p>
           </div>
@@ -173,30 +286,35 @@
         </div>
 
         <!-- 업로드 영역 — S3 연동 전 visual only -->
-        <div class="border-2 border-dashed border-[#CCC] rounded-xl bg-[#F9FAFC] px-6 py-12 flex flex-col items-center gap-3 cursor-not-allowed select-none mb-4">
-          <div class="w-14 h-14 rounded-full bg-[#D3DEF2] flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-[#888]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/>
-            </svg>
+        <div>
+          <input type="file" id="imageInput" accept="image/jpeg,image/png,image/webp" multiple style="display:none">
+          <div id="dropZone"
+               class="border-2 border-dashed border-[#CCC] rounded-xl bg-[#F9FAFC] px-6 py-12 flex flex-col items-center gap-3 cursor-pointer select-none mb-4 transition-colors hover:border-[#6B8DD6] hover:bg-[#EEF3FC]"
+               onclick="document.getElementById('imageInput').click()"
+               ondragover="event.preventDefault(); this.classList.add('border-[#6B8DD6]','bg-[#EEF3FC]')"
+               ondragleave="this.classList.remove('border-[#6B8DD6]','bg-[#EEF3FC]')"
+               ondrop="handleDrop(event)">
+            <div class="w-14 h-14 rounded-full bg-[#D3DEF2] flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-[#888]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/>
+              </svg>
+            </div>
+            <div class="text-center">
+              <p class="text-sm font-semibold text-[#444]">클릭하거나 드래그해서 이미지를 업로드하세요</p>
+              <p class="text-xs text-[#888] mt-1">JPG, PNG, WEBP 형식 지원 · 최대 20장 · 파일당 최대 30MB</p>
+            </div>
+            <button type="button"
+                    class="mt-1 text-sm font-semibold border border-[#6B8DD6] text-[#6B8DD6] bg-white rounded-lg px-5 py-2 hover:bg-[#EEF3FC] transition-colors">
+              파일 선택
+            </button>
           </div>
-          <div class="text-center">
-            <p class="text-sm font-semibold text-[#444]">클릭하거나 드래그해서 이미지를 업로드하세요</p>
-            <p class="text-xs text-[#888] mt-1">JPG, PNG, WEBP 형식 지원 · 최대 20장 · 파일당 최대 30MB</p>
-          </div>
-          <button type="button" disabled
-                  class="mt-1 text-sm font-semibold border border-[#CCC] text-[#AAA] bg-white rounded-lg px-5 py-2 cursor-not-allowed">
-            파일 선택 (준비 중)
-          </button>
-        </div>
+          <!-- 미리보기 그리드 -->
+          <div id="previewGrid" class="grid grid-cols-4 sm:grid-cols-6 gap-2 mb-2"></div>
+          <p class="text-xs text-[#888]">대표 이미지는 첫 번째 사진으로 자동 설정됩니다. 드래그로 순서를 변경할 수 있어요.</p>
 
-        <!-- 미리보기 그리드 placeholder -->
-        <div class="grid grid-cols-4 sm:grid-cols-6 gap-2 mb-2">
-          <div class="aspect-square rounded-lg bg-[#D3DEF2] flex items-center justify-center">
-            <span class="text-xs text-[#888] font-semibold">대표</span>
-          </div>
-          <div class="aspect-square rounded-lg border-2 border-dashed border-[#CCC] bg-[#F9FAFC] flex items-center justify-center text-[#CCC] text-xl cursor-not-allowed">+</div>
+          <!-- 실제 폼 전송용 hidden input (S3 URL 저장) -->
+          <div id="hiddenInputs"></div>
         </div>
-        <p class="text-xs text-[#888]">대표 이미지는 첫 번째 사진으로 자동 설정됩니다. 드래그로 순서를 변경할 수 있어요.</p>
       </div>
 
       <!-- ─── 설명 작성 ─────────────────────────────────── -->
@@ -234,7 +352,7 @@
         </button>
 
         <div class="ml-auto flex items-center gap-3">
-          <a th:href="@{/photographer/{id}/profile/edit(id=${photographerId})}"
+          <a th:href="@{/photographer/{id}/portfolio/{portfolioId}(id=${photographerId}, portfolioId=${portfolioId})}"
              class="text-sm font-semibold text-[#888] border border-[#CCC] rounded-lg px-5 py-2.5 hover:border-[#888] transition-colors">
             취소
           </a>

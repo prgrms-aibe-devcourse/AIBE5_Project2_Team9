@@ -1,5 +1,7 @@
 package com.pickkasso.pickkasso.user.dto.portfolio;
 
+import com.pickkasso.pickkasso.global.img.DefaultImgDto;
+import com.pickkasso.pickkasso.global.tag.TagReference;
 import com.pickkasso.pickkasso.user.entity.PortfolioProjectType;
 
 import java.time.LocalDate;
@@ -10,7 +12,7 @@ public record PortfolioDto(
         String description,
         LocalDate startTime,
         LocalDate endTime,
-        List<PortfolioImgDto> portfolioImgDtoList,
+        List<DefaultImgDto> imgDtoList,
         List<Long> tagIdList,
         PortfolioProjectType projectType
 ) {

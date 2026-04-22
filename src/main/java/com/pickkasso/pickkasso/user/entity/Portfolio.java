@@ -35,13 +35,8 @@ public class Portfolio {
     @Column(name = "project_type")
     private PortfolioProjectType projectType;
 
-    @ManyToMany
-    @JoinTable(
-            name = "t_portfolio_tag",
-            joinColumns = @JoinColumn(name = "portfolio_id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id")
-    )
-    private List<Tag> tags = new ArrayList<>();
+    @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PortfolioTag> portfolioTagList = new ArrayList<>();
 
 
     private Portfolio(
@@ -70,11 +65,10 @@ public class Portfolio {
         this.projectType = projectType;
     }
 
-    public void updateTags(List<Tag> tags) {
-        this.tags.clear();
-        if (tags == null || tags.isEmpty()) {
-            return;
-        }
-        this.tags.addAll(tags);
+    public void updateTags(List<Tag> tagList) {
+        this.portfolioTagList.clear();
+        tagList.forEach(tag ->
+            this.portfolioTagList.add(PortfolioTag.createPortfolioTag(this, tag))
+        );
     }
 }

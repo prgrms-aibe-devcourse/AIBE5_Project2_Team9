@@ -1,17 +1,22 @@
 package com.pickkasso.pickkasso.user.service;
 
 import com.pickkasso.pickkasso.global.tag.Tag;
+import com.pickkasso.pickkasso.global.tag.TagReference;
 import com.pickkasso.pickkasso.global.tag.TagRepository;
+import com.pickkasso.pickkasso.global.tag.TagService;
 import com.pickkasso.pickkasso.user.dto.portfolio.PortfolioDto;
+import com.pickkasso.pickkasso.user.dto.portfolio.PortfolioImgDto;
 import com.pickkasso.pickkasso.user.entity.Photographer;
 import com.pickkasso.pickkasso.user.entity.Portfolio;
 import com.pickkasso.pickkasso.user.entity.PortfolioProjectType;
+import com.pickkasso.pickkasso.user.entity.PortfolioTag;
 import com.pickkasso.pickkasso.user.repository.PhotographerRepository;
 import com.pickkasso.pickkasso.user.repository.PortfolioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -22,6 +27,7 @@ public class PortfolioService {
     private final PhotographerRepository photographerRepository;
     private final PortfolioRepository portfolioRepository;
     private final TagRepository tagRepository;
+    private final TagService tagService;
 
     @Transactional(readOnly = true)
     public PortfolioDto getEmptyPortfolioDto(Long photographerId) {
@@ -32,8 +38,8 @@ public class PortfolioService {
                 "",
                 null,
                 null,
-                null,
-                null,
+                new ArrayList<>(),
+                new ArrayList<>(),
                 PortfolioProjectType.PERSONAL
         );
     }
@@ -51,7 +57,7 @@ public class PortfolioService {
                 dto.description(),
                 resolveProjectType(dto)
         );
-        portfolio.updateTags(getTags(dto.tagIdList()));
+        portfolio.updateTags(tagService.toTagList(dto.tagIdList()));
 
         Portfolio savedPortfolio = portfolioRepository.save(portfolio);
         return savedPortfolio.getId();
@@ -64,10 +70,11 @@ public class PortfolioService {
     }
 
     @Transactional(readOnly = true)
-    public List<String> getPortfolioTagNames(Long photographerId, Long portfolioId) {
+    public List<TagReference> getPortfolioTagReference(Long photographerId, Long portfolioId) {
         Portfolio portfolio = getOwnedPortfolio(photographerId, portfolioId);
-        return portfolio.getTags().stream()
-                .map(Tag::getName)
+        return portfolio.getPortfolioTagList().stream()
+                .map(PortfolioTag::getTag)
+                .map(TagReference::from)
                 .toList();
     }
 
@@ -76,7 +83,7 @@ public class PortfolioService {
 
         Portfolio portfolio = getOwnedPortfolio(photographerId, portfolioId);
         portfolio.updatePortfolio(dto.name(), dto.description(), resolveProjectType(dto));
-        portfolio.updateTags(getTags(dto.tagIdList()));
+        portfolio.updateTags(tagService.toTagList(dto.tagIdList()));
     }
 
     public void deletePortfolio(Long photographerId, Long portfolioId) {
@@ -96,8 +103,8 @@ public class PortfolioService {
                 portfolio.getDescription(),
                 null,
                 null,
-                null,
-                portfolio.getTags().stream().map(Tag::getId).toList(),
+                new ArrayList<>(),
+                new ArrayList<>(),
                 portfolio.getProjectType()
         );
     }
