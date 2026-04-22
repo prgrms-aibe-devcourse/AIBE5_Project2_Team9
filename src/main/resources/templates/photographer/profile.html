@@ -85,33 +85,38 @@
         <div class="bg-white border border-[#CCC] rounded-2xl p-5">
           <h2 class="text-base font-semibold text-[#1A1A1A] mb-4">활동 정보</h2>
 
-          <div class="grid grid-cols-2 gap-3 mb-4">
+          <!-- 총 작업 수 & 평균 별점 -->
+          <div class="grid grid-cols-2 gap-3 mb-6">
             <div class="rounded-xl border border-[#CCC] bg-[#F9FAFC] px-3 py-4 text-center">
-              <p class="text-[11px] text-[#888] mb-1">프로필 완성도</p>
-              <p class="text-2xl font-bold text-[#0097FF]" th:text="${completionRate + '%'}">0%</p>
+              <p class="text-[11px] text-[#888] mb-1">총 작업 수</p>
+              <p class="text-2xl font-bold text-[#1A1A1A]">0건</p>
             </div>
             <div class="rounded-xl border border-[#CCC] bg-[#F9FAFC] px-3 py-4 text-center">
-              <p class="text-[11px] text-[#888] mb-1">보유 장비</p>
-              <p class="text-2xl font-bold text-[#1A1A1A]" th:text="${toolCount}">0</p>
+              <p class="text-[11px] text-[#888] mb-1">평균 별점</p>
+              <div class="flex items-center justify-center gap-1">
+                <span class="text-xl text-[#FFB800]">★</span>
+                <span class="text-2xl font-bold text-[#1A1A1A]">0.0</span>
+              </div>
             </div>
           </div>
 
-          <div class="space-y-3 text-sm text-[#444]">
-            <div class="flex items-center gap-2">
-              <span class="text-[#0097FF]">✦</span>
-              <span th:text="${profile.intro != null and !#strings.isEmpty(profile.intro) ? '자기소개 등록 완료' : '자기소개 준비 중'}">자기소개 준비 중</span>
+          <!-- 지역, 연락 시간, 촬영 타입 -->
+          <div class="space-y-4 text-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-[#888]">주 활동 지역</span>
+              <span class="font-medium text-[#1A1A1A]">등록 전</span>
             </div>
-            <div class="flex items-center gap-2">
-              <span class="text-[#0097FF]">✦</span>
-              <span th:text="${careerCount > 0 ? '경력 정보 등록 완료' : '경력 정보 준비 중'}">경력 정보 준비 중</span>
+            <div class="flex items-center justify-between">
+              <span class="text-[#888]">연락 가능 시간</span>
+              <span class="font-medium text-[#1A1A1A]">등록 전</span>
             </div>
-            <div class="flex items-center gap-2">
-              <span class="text-[#0097FF]">✦</span>
-              <span th:text="${educationCount > 0 ? '학력 정보 등록 완료' : '학력 정보 준비 중'}">학력 정보 준비 중</span>
+            <div class="flex items-center justify-between">
+              <span class="text-[#888]">방문 촬영</span>
+              <span class="font-medium text-[#888]">등록 전</span>
             </div>
-            <div class="flex items-center gap-2">
-              <span class="text-[#0097FF]">✦</span>
-              <span th:text="${profile.link != null and !#strings.isEmpty(profile.link) ? '외부 링크 연결 완료' : '외부 링크 준비 중'}">외부 링크 준비 중</span>
+            <div class="flex items-center justify-between">
+              <span class="text-[#888]">스튜디오 촬영</span>
+              <span class="font-medium text-[#888]">등록 전</span>
             </div>
           </div>
         </div>
