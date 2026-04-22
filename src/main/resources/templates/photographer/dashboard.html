@@ -9,7 +9,7 @@
             .cal-grid {
                 display: grid;
                 grid-template-columns: 60px repeat(7, 1fr);
-                border: 1px solid #EEE;
+                width: 100%;
                 background: white;
             }
             .cal-cell {
@@ -19,7 +19,9 @@
                 position: relative;
             }
             .cal-time-col {
+                height: 64px;
                 background: #F9FAFC;
+                border-bottom: 1px solid #EEE;
                 border-right: 1px solid #EEE;
                 display: flex;
                 align-items: flex-start;
@@ -35,6 +37,17 @@
                 border-bottom: 1px solid #EEE;
                 border-right: 1px solid #EEE;
                 background: #F9FAFC;
+                position: sticky;
+                top: 0;
+                z-index: 20;
+            }
+            .cal-corner {
+                background: #F9FAFC;
+                border-bottom: 1px solid #EEE;
+                border-right: 1px solid #EEE;
+                position: sticky;
+                top: 0;
+                z-index: 20;
             }
             .cal-event {
                 position: absolute;
@@ -154,8 +167,9 @@
                         </div>
                     </div>
 
+                    <div class="w-full flex-1 min-h-0 overflow-y-auto">
                     <div class="cal-grid">
-                        <div class="bg-[#F9FAFC] border-b border-r border-[#EEE]"></div>
+                        <div class="cal-corner"></div>
                         <div class="cal-day-header">
                             <div class="text-[10px] font-semibold text-[#888] mb-1 tracking-wide">일</div>
                             <div class="text-[18px] font-extrabold text-[#E03535] w-[34px] h-[34px] flex items-center justify-center mx-auto">6</div>
@@ -196,7 +210,7 @@
                             </div>
                         </div>
                         <div class="cal-cell"></div>
-                        <div class="cal-cell bg-[#F9FAFC]/50"></div>
+                        <div class="cal-cell bg-[#FAFBFF]"></div>
                         <div class="cal-cell">
                             <div class="cal-event orange top-1 h-14">
                                 <div class="font-bold truncate">증명사진</div>
@@ -216,7 +230,7 @@
                         </div>
                         <div class="cal-cell"></div>
                         <div class="cal-cell"></div>
-                        <div class="cal-cell bg-[#F9FAFC]/50">
+                        <div class="cal-cell bg-[#FAFBFF]">
                             <div class="cal-event blue top-1 h-14">
                                 <div class="font-bold truncate">프로필 촬영</div>
                                 <div class="opacity-80 truncate">박준서 · 10:00</div>
@@ -231,7 +245,7 @@
                         <div class="cal-cell"></div>
                         <div class="cal-cell"></div>
                         <div class="cal-cell"></div>
-                        <div class="cal-cell bg-[#F9FAFC]/50"></div>
+                        <div class="cal-cell bg-[#FAFBFF]"></div>
                         <div class="cal-cell"></div>
                         <div class="cal-cell">
                             <div class="cal-event sky top-1 h-14">
@@ -242,8 +256,13 @@
 
                         <!-- 12:00 -->
                         <div class="cal-time-col">12:00</div>
-                        <div class="cal-cell"></div><div class="cal-cell"></div><div class="cal-cell"></div><div class="cal-cell"></div>
-                        <div class="cal-cell bg-[#F9FAFC]/50"></div><div class="cal-cell"></div><div class="cal-cell"></div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell bg-[#FAFBFF]"></div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell"></div>
 
                         <!-- 13:00 -->
                         <div class="cal-time-col">13:00</div>
@@ -253,14 +272,68 @@
                                 <div class="opacity-80 truncate">강지우 · 13:00</div>
                             </div>
                         </div>
-                        <div class="cal-cell"></div><div class="cal-cell"></div><div class="cal-cell"></div>
-                        <div class="cal-cell bg-[#F9FAFC]/50">
-                            <div class="cal-event green top-1 h-28">
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell bg-[#FAFBFF]">
+                            <div class="cal-event green top-1 h-[122px]">
                                 <div class="font-bold truncate">데이트 스냅</div>
                                 <div class="opacity-80 truncate">이수빈 · 13:00–15:00</div>
                             </div>
                         </div>
-                        <div class="cal-cell"></div><div class="cal-cell"></div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell"></div>
+
+                        <!-- 14:00 -->
+                        <div class="cal-time-col">14:00</div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell bg-[#FAFBFF]"></div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell"></div>
+
+                        <!-- 15:00 -->
+                        <div class="cal-time-col">15:00</div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell bg-[#FAFBFF]"></div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell"></div>
+
+                        <!-- 16:00 -->
+                        <div class="cal-time-col">16:00</div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell bg-[#FAFBFF]"></div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell"></div>
+
+                        <!-- 17:00 -->
+                        <div class="cal-time-col">17:00</div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell bg-[#FAFBFF]"></div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell"></div>
+
+                        <!-- 18:00 -->
+                        <div class="cal-time-col">18:00</div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell bg-[#FAFBFF]"></div>
+                        <div class="cal-cell"></div>
+                        <div class="cal-cell"></div>
+                    </div>
                     </div>
                 </div>
 
