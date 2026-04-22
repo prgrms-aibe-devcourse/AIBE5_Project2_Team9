@@ -257,36 +257,7 @@
             </a>
           </div>
         </section>
-
-        <section class="bg-white border border-[#CCC] rounded-2xl p-6 sm:p-7">
-          <div class="flex items-center justify-between gap-3 mb-5">
-            <h2 class="text-2xl font-semibold text-[#1A1A1A]">프로필 요약</h2>
-          </div>
-
-          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div class="rounded-xl border border-[#CCC] bg-[#F9FAFC] p-5">
-              <p class="text-sm font-semibold text-[#1A1A1A] mb-2">기본 정보</p>
-              <div class="space-y-2 text-sm text-[#444]">
-                <p><span class="text-[#888]">활동명</span> <span class="ml-2" th:text="${profile.nickname != null and !#strings.isEmpty(profile.nickname) ? profile.nickname : '미등록'}">미등록</span></p>
-                <p><span class="text-[#888]">외부 링크</span> <span class="ml-2" th:text="${profile.link != null and !#strings.isEmpty(profile.link) ? '연결됨' : '미연결'}">미연결</span></p>
-              </div>
-            </div>
-
-            <div class="rounded-xl border border-[#CCC] bg-[#F9FAFC] p-5">
-              <p class="text-sm font-semibold text-[#1A1A1A] mb-2">프로필 상태</p>
-              <div class="space-y-3">
-                <div class="flex justify-between text-sm text-[#444]">
-                  <span>작성 진행도</span>
-                  <span class="font-semibold text-[#1D3CFF]" th:text="${completionRate + '%'}">0%</span>
-                </div>
-                <div class="h-2 rounded-full bg-[#D3DEF2] overflow-hidden">
-                  <div class="h-full rounded-full bg-[#1D3CFF]" th:classappend="${completionRate == 0 ? ' w-0' : (completionRate == 25 ? ' w-1/4' : (completionRate == 50 ? ' w-1/2' : (completionRate == 75 ? ' w-3/4' : ' w-full')))}"></div>
-                </div>
-                <p class="text-xs text-[#888]">포트폴리오까지 채우면 고객에게 더 풍부한 첫인상을 전달할 수 있어요.</p>
-              </div>
-            </div>
-          </div>
-        </section>
+<!--TODO: 후기 섹션 추가해야 함-->
       </div>
     </div>
   </section>
