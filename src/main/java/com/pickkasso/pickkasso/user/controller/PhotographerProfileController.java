@@ -3,8 +3,11 @@ package com.pickkasso.pickkasso.user.controller;
 import com.pickkasso.pickkasso.item.service.ItemService;
 import com.pickkasso.pickkasso.user.dto.photographer.PhotographerProfileEditRequest;
 import com.pickkasso.pickkasso.user.dto.photographer.PhotographerProfileResponse;
+import com.pickkasso.pickkasso.user.entity.Account;
+import com.pickkasso.pickkasso.user.repository.AccountRepository;
 import com.pickkasso.pickkasso.user.service.PhotographerProfileService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -16,12 +19,21 @@ public class PhotographerProfileController {
 
     private final PhotographerProfileService photographerProfileService;
     private final ItemService itemService;
+    private final AccountRepository accountRepository;
 
     @GetMapping
-    public String profilePage(@PathVariable Long photographerId, Model model) {
+    public String profilePage(@PathVariable Long photographerId, Model model, Authentication authentication) {
         PhotographerProfileResponse response = photographerProfileService.getProfileForm(photographerId);
         model.addAttribute("profile", response);
         model.addAttribute("items", itemService.getItemsByPhotographerId(photographerId));
+
+        boolean isOwner = false;
+        if (authentication != null && authentication.isAuthenticated()) {
+            Account account = accountRepository.findByUsername(authentication.getName());
+            isOwner = account != null && account.getId().equals(photographerId);
+        }
+        model.addAttribute("isOwner", isOwner);
+
         return "photographer/profile";
     }
 
