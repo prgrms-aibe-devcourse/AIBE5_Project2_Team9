@@ -5,5 +5,6 @@ public record ProfileCompletionDto(
         boolean hasIntro,
         boolean hasServices,
         boolean hasEquipment,
+        boolean hasPortfolio,
         int score
 ) {}

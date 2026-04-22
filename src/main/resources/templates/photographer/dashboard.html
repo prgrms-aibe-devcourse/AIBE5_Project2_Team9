@@ -454,16 +454,6 @@
                                 </div>
                                 소개글 작성
                             </div>
-                            <!-- 서비스 1개 이상 등록 -->
-                            <div class="flex items-center gap-2.5 text-[12px]"
-                                 th:classappend="${completion.hasServices} ? 'text-[#444]' : 'text-[#AAA]'">
-                                <div class="w-4 h-4 rounded-full flex items-center justify-center shrink-0"
-                                     th:classappend="${completion.hasServices} ? 'bg-[#22C55E] text-white' : 'bg-[#F0F0F0] text-[#CCC]'">
-                                    <svg th:if="${completion.hasServices}" class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
-                                    <svg th:unless="${completion.hasServices}" class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
-                                </div>
-                                서비스 1개 이상 등록
-                            </div>
                             <!-- 장비 정보 입력 -->
                             <div class="flex items-center gap-2.5 text-[12px]"
                                  th:classappend="${completion.hasEquipment} ? 'text-[#444]' : 'text-[#AAA]'">
@@ -474,6 +464,27 @@
                                 </div>
                                 장비 정보 입력
                             </div>
+                            <!-- 포트폴리오 1개 이상 등록 -->
+                            <div class="flex items-center gap-2.5 text-[12px]"
+                                 th:classappend="${completion.hasPortfolio} ? 'text-[#444]' : 'text-[#AAA]'">
+                                <div class="w-4 h-4 rounded-full flex items-center justify-center shrink-0"
+                                     th:classappend="${completion.hasPortfolio} ? 'bg-[#22C55E] text-white' : 'bg-[#F0F0F0] text-[#CCC]'">
+                                    <svg th:if="${completion.hasPortfolio}" class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                                    <svg th:unless="${completion.hasPortfolio}" class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </div>
+                                포트폴리오 1개 이상 등록
+                            </div>
+                            <!-- 서비스 1개 이상 등록 -->
+                            <div class="flex items-center gap-2.5 text-[12px]"
+                                 th:classappend="${completion.hasServices} ? 'text-[#444]' : 'text-[#AAA]'">
+                                <div class="w-4 h-4 rounded-full flex items-center justify-center shrink-0"
+                                     th:classappend="${completion.hasServices} ? 'bg-[#22C55E] text-white' : 'bg-[#F0F0F0] text-[#CCC]'">
+                                    <svg th:if="${completion.hasServices}" class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                                    <svg th:unless="${completion.hasServices}" class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </div>
+                                서비스 1개 이상 등록
+                            </div>
+
                         </div>
                     </div>
 

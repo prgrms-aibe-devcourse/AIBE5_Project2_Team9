@@ -115,13 +115,15 @@ public class PhotographerProfileService {
         boolean hasEquipment = profile != null
                 && profile.getTools() != null
                 && !profile.getTools().isEmpty();
+        boolean hasPortfolio = portfolioRepository.existsByPhotographerId(photographerId);
 
-        int score = (hasProfileImage ? 25 : 0)
-                + (hasIntro ? 25 : 0)
-                + (hasServices ? 25 : 0)
-                + (hasEquipment ? 25 : 0);
+        int score = (hasProfileImage ? 20 : 0)
+                + (hasIntro ? 20 : 0)
+                + (hasServices ? 20 : 0)
+                + (hasEquipment ? 20 : 0)
+                + (hasPortfolio ? 20 : 0);
 
-        return new ProfileCompletionDto(hasProfileImage, hasIntro, hasServices, hasEquipment, score);
+        return new ProfileCompletionDto(hasProfileImage, hasIntro, hasServices, hasEquipment, hasPortfolio, score);
     }
 
     public void createOrUpdateProfile(Long photographerId, PhotographerProfileEditRequest request) {
