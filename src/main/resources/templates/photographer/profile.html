@@ -3,7 +3,7 @@
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
       th:replace="~{layouts/default :: layout(~{::title}, ~{::pageStyles}, ~{::main})}">
 <head>
-  <title th:fragment="title">작가 프로필 | PICKKASSO</title>
+  <title th:fragment="title">작가 프로필 | PICKASSO</title>
   <th:block th:fragment="pageStyles"></th:block>
 </head>
 <body>
@@ -36,7 +36,7 @@
             <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#0097FF] mb-2">Photographer Profile</p>
             <h1 class="text-3xl font-bold text-[#1A1A1A] break-words"
                 th:text="${profile.nickname != null and !#strings.isEmpty(profile.nickname) ? profile.nickname : '아직 활동명을 등록하지 않은 작가'}">김민준 작가</h1>
-            <p class="mt-2 text-sm text-[#888]">PICKKASSO에서 활동 중인 스냅 작가 프로필입니다.</p>
+            <p class="mt-2 text-sm text-[#888]">PICKASSO에서 활동 중인 스냅 작가 프로필입니다.</p>
 
             <div class="mt-4 flex flex-wrap gap-2">
               <span class="inline-flex items-center gap-1 rounded-full border border-[#CCC] bg-[#F9FAFC] px-3 py-1 text-xs text-[#444]">
