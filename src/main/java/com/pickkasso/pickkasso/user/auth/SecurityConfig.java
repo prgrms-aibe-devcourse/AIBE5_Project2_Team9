@@ -23,7 +23,9 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/", "/login", "/signup/**", "/find-account", "/403", "/404", "/500", "/400", "/error-default",
                         "/css/**", "/fonts/**", "/js/**", "/images/**",
-                        "/find-id/**", "/find-pw/**", "/item/**").permitAll()
+                        "/find-id/**", "/find-pw/**", "/item/**",
+                        "/search/**", "/items/fragment"
+                    ).permitAll()
                     .requestMatchers("/photographer/**").hasRole("PHOTOGRAPHER")
                     .requestMatchers("/member/**").hasRole("MEMBER")
                     .anyRequest().authenticated()
