@@ -18,7 +18,4 @@ public class DefaultImg {
 
     @Column(name = "img_order", nullable = false)
     protected Integer imgOrder;
-
-    @Column(name = "reg_time", nullable = false)
-    protected LocalDateTime regTime;
 }
