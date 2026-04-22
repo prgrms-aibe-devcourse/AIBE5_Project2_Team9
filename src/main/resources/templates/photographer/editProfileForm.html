@@ -36,13 +36,11 @@
                basicStarted=${(profile.imgUrl != null and !#strings.isEmpty(profile.imgUrl)) or (profile.nickname != null and !#strings.isEmpty(profile.nickname))},
                basicComplete=${profile.nickname != null and !#strings.isEmpty(profile.nickname)},
                introStarted=${(profile.intro != null and !#strings.isEmpty(profile.intro)) or (profile.link != null and !#strings.isEmpty(profile.link)) or (profile.careers != null and !profile.careers.isEmpty()) or (profile.educations != null and !profile.educations.isEmpty())},
-               introComplete=${profile.intro != null and !#strings.isEmpty(profile.intro)},
-               portfolioStarted=${false},
-               portfolioComplete=${false},
+               introComplete=${profile.intro != null and !#strings.isEmpty(profile.intro) and (profile.careers != null and !profile.careers.isEmpty()) and (profile.educations != null and !profile.educations.isEmpty())},
                activityStarted=${profile.tools != null and !profile.tools.isEmpty()},
                activityComplete=${profile.tools != null and !profile.tools.isEmpty()},
-               reviewReady=${basicComplete and introComplete and portfolioComplete and activityComplete},
-               completedSections=${(basicComplete ? 1 : 0) + (introComplete ? 1 : 0) + (portfolioComplete ? 1 : 0) + (activityComplete ? 1 : 0)}
+               reviewReady=${basicComplete and introComplete and activityComplete},
+               completedSections=${(basicComplete ? 1 : 0) + (introComplete ? 1 : 0) + (activityComplete ? 1 : 0)}
              ">
           <p class="text-sm font-semibold text-[#1A1A1A] mb-4">작성 진행률</p>
           <div class="space-y-3 mb-5">
@@ -67,22 +65,10 @@
                    th:text="${introComplete} ? '완료' : (${introStarted} ? '작성 중' : '준비 중')">준비 중</p>
               </div>
             </div>
-            <div class="flex items-center gap-3">
-              <div class="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0"
-                   th:classappend="${portfolioComplete} ? ' bg-[#0097FF] text-white' : (${portfolioStarted} ? ' bg-[#1D3CFF] text-white' : ' border border-[#CCC] text-[#AAA]')"
-                   th:text="${portfolioComplete} ? '✓' : '3'">3</div>
-              <div>
-                <p class="text-sm"
-                   th:classappend="${portfolioComplete} ? ' font-semibold text-[#1A1A1A]' : (${portfolioStarted} ? ' font-semibold text-[#1D3CFF]' : ' font-medium text-[#888]')">포트폴리오</p>
-                <p class="text-xs"
-                   th:classappend="${portfolioComplete} ? ' text-[#0097FF]' : (${portfolioStarted} ? ' text-[#1D3CFF]' : ' text-[#AAA]')"
-                   th:text="${portfolioComplete} ? '완료' : (${portfolioStarted} ? '작성 중' : '준비 중')">준비 중</p>
-              </div>
-            </div>
             <div class="flex items-center gap-3" data-progress-step="activity">
               <div data-progress-badge="activity" class="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0"
                    th:classappend="${activityComplete} ? ' bg-[#0097FF] text-white' : (${activityStarted} ? ' bg-[#1D3CFF] text-white' : ' border border-[#CCC] text-[#AAA]')"
-                   th:text="${activityComplete} ? '✓' : '4'">4</div>
+                   th:text="${activityComplete} ? '✓' : '3'">3</div>
               <div>
                 <p data-progress-title="activity" class="text-sm" th:classappend="${activityComplete} ? ' font-semibold text-[#1A1A1A]' : (${activityStarted} ? ' font-semibold text-[#1D3CFF]' : ' font-medium text-[#888]')">활동 설정</p>
                 <p data-progress-status="activity" class="text-xs" th:classappend="${activityComplete} ? ' text-[#0097FF]' : (${activityStarted} ? ' text-[#1D3CFF]' : ' text-[#AAA]')" th:text="${activityComplete} ? '완료' : (${activityStarted} ? '작성 중' : '준비 중')">준비 중</p>
@@ -91,7 +77,7 @@
             <div class="flex items-center gap-3" data-progress-step="review">
               <div data-progress-badge="review" class="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0"
                    th:classappend="${reviewReady} ? ' bg-[#0097FF] text-white' : ' border border-[#CCC] text-[#AAA]'"
-                   th:text="${reviewReady} ? '✓' : '5'">5</div>
+                   th:text="${reviewReady} ? '✓' : '4'">4</div>
               <div>
                 <p data-progress-title="review" class="text-sm" th:classappend="${reviewReady} ? ' font-semibold text-[#1A1A1A]' : ' font-medium text-[#888]'">검토 & 제출</p>
                 <p data-progress-status="review" class="text-xs" th:classappend="${reviewReady} ? ' text-[#0097FF]' : ' text-[#AAA]'" th:text="${reviewReady} ? '준비 완료' : '준비 중'">준비 중</p>
@@ -101,11 +87,11 @@
           <div class="flex justify-between text-xs text-[#888] mb-1.5">
             <span>전체 완성도</span>
             <span data-progress-percent class="font-semibold text-[#1D3CFF]"
-                  th:text="${completedSections == 0 ? '0%' : (completedSections == 1 ? '25%' : (completedSections == 2 ? '50%' : (completedSections == 3 ? '75%' : '100%')))}">0%</span>
+                  th:text="${completedSections == 0 ? '0%' : (completedSections == 1 ? '33%' : (completedSections == 2 ? '67%' : '100%'))}">0%</span>
           </div>
           <div class="h-2 bg-[#D3DEF2] rounded-full overflow-hidden">
             <div data-progress-bar class="h-full bg-[#1D3CFF] rounded-full"
-                 th:classappend="${completedSections == 0 ? ' w-0' : (completedSections == 1 ? ' w-1/4' : (completedSections == 2 ? ' w-1/2' : (completedSections == 3 ? ' w-3/4' : ' w-full')))}"></div>
+                 th:classappend="${completedSections == 0 ? ' w-0' : (completedSections == 1 ? ' w-1/3' : (completedSections == 2 ? ' w-2/3' : ' w-full'))}"></div>
           </div>
         </div>
       </aside>
@@ -222,8 +208,8 @@
 
               <!-- 경력 사항 -->
               <div>
-                <label class="block text-sm font-medium text-[#444] mb-1">경력 사항</label>
-                <p class="text-xs text-[#888] mb-2">직책/소속, 시작일, 종료일을 입력하세요 (종료일 없으면 공란 = 재직 중)</p>
+                <label class="block text-sm font-medium text-[#444] mb-1">경력 사항 <span class="text-[#1D3CFF]">*</span></label>
+                <p class="text-xs text-[#888] mb-2">직책/소속, 시작 월, 종료 월을 입력하세요 (종료 월 없으면 공란 = 재직 중) · 최소 1개 이상 필수</p>
                 <div id="careers-list" class="space-y-2">
                   <th:block th:if="${profile.careers != null and !profile.careers.isEmpty()}"
                             th:each="career, stat : ${profile.careers}">
@@ -232,6 +218,7 @@
                         <input type="text"
                                th:name="'careers[' + ${stat.index} + '].name'"
                                th:value="${career.name}"
+                               required maxlength="50"
                                placeholder="직책 / 소속"
                                class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
                         <div class="period-range-field" data-range-kind="career">
@@ -266,7 +253,7 @@
                   <th:block th:if="${profile.careers == null or profile.careers.isEmpty()}">
                     <div class="career-row flex items-start gap-2">
                       <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-1">
-                        <input type="text" name="careers[0].name" placeholder="직책 / 소속"
+                        <input type="text" name="careers[0].name" required maxlength="50" placeholder="직책 / 소속"
                                class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
                         <div class="period-range-field" data-range-kind="career">
                           <input type="hidden" name="careers[0].startDate" data-range-start>
@@ -298,8 +285,8 @@
 
               <!-- 학력 -->
               <div>
-                <label class="block text-sm font-medium text-[#444] mb-1">학력</label>
-                <p class="text-xs text-[#888] mb-2">학교명, 입학일, 졸업일을 입력하세요 (재학 중이면 졸업일 공란)</p>
+                <label class="block text-sm font-medium text-[#444] mb-1">학력 <span class="text-[#1D3CFF]">*</span></label>
+                <p class="text-xs text-[#888] mb-2">학교명, 입학 월, 졸업 월을 입력하세요 (재학 중이면 졸업 월 공란) · 최소 1개 이상 필수</p>
                 <div id="educations-list" class="space-y-2">
                   <th:block th:if="${profile.educations != null and !profile.educations.isEmpty()}"
                             th:each="edu, stat : ${profile.educations}">
@@ -308,6 +295,7 @@
                         <input type="text"
                                th:name="'educations[' + ${stat.index} + '].name'"
                                th:value="${edu.name}"
+                               required maxlength="50"
                                placeholder="학교명"
                                class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
                         <div class="period-range-field" data-range-kind="education">
@@ -341,7 +329,7 @@
                   <th:block th:if="${profile.educations == null or profile.educations.isEmpty()}">
                     <div class="education-row flex items-start gap-2">
                       <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-1">
-                        <input type="text" name="educations[0].name" placeholder="학교명"
+                        <input type="text" name="educations[0].name" required maxlength="50" placeholder="학교명"
                                class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
                         <div class="period-range-field" data-range-kind="education">
                           <input type="hidden" name="educations[0].startDate" data-range-start>
@@ -374,31 +362,7 @@
             </div>
           </div>
 
-          <!-- ③ 포트폴리오 이미지 (visual only) -->
-          <div class="bg-white border border-[#CCC] rounded-2xl p-6">
-            <div class="flex items-start gap-3 mb-5">
-              <div class="w-9 h-9 rounded-xl bg-[#D3DEF2] flex items-center justify-center text-lg flex-shrink-0">🖼️</div>
-              <div class="flex-1">
-                <h2 class="text-base font-semibold text-[#1A1A1A]">포트폴리오 이미지</h2>
-                <p class="text-xs text-[#888]">대표 작업물을 최대 10장 등록할 수 있습니다</p>
-              </div>
-            </div>
-            <div class="flex items-center gap-2 bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-3 text-sm text-[#888] mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#0097FF] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              첫 번째 이미지가 대표 포트폴리오로 노출됩니다. JPG, PNG, WebP · 이미지당 최대 10MB
-            </div>
-            <!-- Upload grid: S3 연동 전 visual only -->
-            <div class="grid grid-cols-3 sm:grid-cols-5 gap-3">
-              <div class="aspect-square rounded-xl border-2 border-dashed border-[#CCC] bg-[#F9FAFC] flex flex-col items-center justify-center gap-1.5 text-[#AAA] cursor-not-allowed select-none">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z"/>
-                </svg>
-                <span class="text-xs text-center leading-tight">이미지 추가<br><span class="text-[10px]">(준비 중)</span></span>
-              </div>
-            </div>
-          </div>
-
-          <!-- ④ 활동 설정 -->
+          <!-- ③ 활동 설정 -->
           <div class="bg-white border border-[#CCC] rounded-2xl p-6">
             <div class="flex items-start gap-3 mb-6">
               <div class="w-9 h-9 rounded-xl bg-[#D3DEF2] flex items-center justify-center text-lg flex-shrink-0">⚙️</div>
@@ -441,18 +405,10 @@
                 </div>
               </div>
 
-              <!-- 세금계산서 — DTO 미대응, UI only -->
-              <div>
-                <label class="flex items-center gap-2 cursor-not-allowed select-none w-fit">
-                  <input type="checkbox" disabled class="w-4 h-4 accent-[#1D3CFF]">
-                  <span class="text-sm font-medium text-[#888]">세금계산서 발행 가능 <span class="text-xs font-normal">(준비 중)</span></span>
-                </label>
-              </div>
-
               <!-- 보유 장비 — DTO 바인딩 O (tools[]) -->
               <div>
-                <label class="block text-sm font-medium text-[#444] mb-1">보유 장비</label>
-                <p class="text-xs text-[#888] mb-2">장비명 입력 후 추가 버튼을 눌러 주세요</p>
+                <label class="block text-sm font-medium text-[#444] mb-1">보유 장비 <span class="text-[#1D3CFF]">*</span></label>
+                <p class="text-xs text-[#888] mb-2">장비명 입력 후 추가 버튼을 눌러 주세요 · 최소 1개 이상 필수</p>
                 <div class="flex gap-2 mb-3">
                   <input type="text" id="tool-input"
                          placeholder="예: Sony A7IV, 85mm f/1.4"
@@ -552,6 +508,36 @@
   </div>
 
   <script>
+  function hasValidRow(listId, rowClass) {
+    var rows = document.querySelectorAll('#' + listId + ' .' + rowClass);
+    for (var i = 0; i < rows.length; i++) {
+      var nameInput = rows[i].querySelector('input[type="text"]');
+      var startInput = rows[i].querySelector('[data-range-start]');
+      if (nameInput && nameInput.value.trim() && startInput && startInput.value.trim()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function refreshRemoveButtonsState(listId, rowClass) {
+    var rows = document.querySelectorAll('#' + listId + ' .' + rowClass);
+    var isOnly = rows.length <= 1;
+    rows.forEach(function (row) {
+      var btn = row.querySelector('button[onclick="removeRow(this)"]');
+      if (!btn) return;
+      if (isOnly) {
+        btn.disabled = true;
+        btn.classList.add('opacity-40', 'cursor-not-allowed');
+        btn.classList.remove('hover:border-red-300', 'hover:text-red-400');
+      } else {
+        btn.disabled = false;
+        btn.classList.remove('opacity-40', 'cursor-not-allowed');
+        btn.classList.add('hover:border-red-300', 'hover:text-red-400');
+      }
+    });
+  }
+
   function updateProfileProgress() {
     var imgUrlInput = document.querySelector('input[name="imgUrl"]');
     var nicknameInput = document.querySelector('input[name="nickname"]');
@@ -576,13 +562,14 @@
 
     var basicStarted = hasValue(imgUrlInput) || hasValue(nicknameInput);
     var basicComplete = hasValue(nicknameInput);
-    var introComplete = hasValue(introInput);
-    var introStarted = introComplete || hasValue(linkInput) || hasAnyValue(careerNameInputs) || hasAnyValue(educationNameInputs);
-    var portfolioComplete = false;
+    var hasValidCareer = hasValidRow('careers-list', 'career-row');
+    var hasValidEducation = hasValidRow('educations-list', 'education-row');
+    var introComplete = hasValue(introInput) && hasValidCareer && hasValidEducation;
+    var introStarted = hasValue(introInput) || hasAnyValue(careerNameInputs) || hasAnyValue(educationNameInputs) || hasValue(linkInput);
     var activityComplete = toolInputs.length > 0;
     var activityStarted = activityComplete || hasValue(toolInput);
-    var reviewReady = basicComplete && introComplete && portfolioComplete && activityComplete;
-    var completedSections = [basicComplete, introComplete, portfolioComplete, activityComplete].filter(Boolean).length;
+    var reviewReady = basicComplete && introComplete && activityComplete;
+    var completedSections = [basicComplete, introComplete, activityComplete].filter(Boolean).length;
 
     function setStepState(key, state) {
       var badge = document.querySelector('[data-progress-badge="' + key + '"]');
@@ -605,7 +592,7 @@
 
       if (state === 'in-progress') {
         badge.classList.add('bg-[#1D3CFF]', 'text-white');
-        badge.textContent = key === 'basic' ? '1' : key === 'intro' ? '2' : key === 'activity' ? '4' : key === 'portfolio' ? '3' : '5';
+        badge.textContent = key === 'basic' ? '1' : key === 'intro' ? '2' : key === 'activity' ? '3' : '4';
         title.classList.add('font-semibold', 'text-[#1D3CFF]');
         status.classList.add('text-[#1D3CFF]');
         status.textContent = '작성 중';
@@ -613,7 +600,7 @@
       }
 
       badge.classList.add('border', 'border-[#CCC]', 'text-[#AAA]');
-      badge.textContent = key === 'basic' ? '1' : key === 'intro' ? '2' : key === 'portfolio' ? '3' : key === 'activity' ? '4' : '5';
+      badge.textContent = key === 'basic' ? '1' : key === 'intro' ? '2' : key === 'activity' ? '3' : '4';
       title.classList.add('font-medium', 'text-[#888]');
       status.classList.add('text-[#AAA]');
       status.textContent = '준비 중';
@@ -625,12 +612,12 @@
     setStepState('review', reviewReady ? 'complete' : 'empty');
 
     if (percentEl) {
-      percentEl.textContent = completedSections === 0 ? '0%' : completedSections === 1 ? '25%' : completedSections === 2 ? '50%' : completedSections === 3 ? '75%' : '100%';
+      percentEl.textContent = completedSections === 0 ? '0%' : completedSections === 1 ? '33%' : completedSections === 2 ? '67%' : '100%';
     }
 
     if (barEl) {
-      barEl.classList.remove('w-0', 'w-1/4', 'w-1/2', 'w-3/4', 'w-full');
-      barEl.classList.add(completedSections === 0 ? 'w-0' : completedSections === 1 ? 'w-1/4' : completedSections === 2 ? 'w-1/2' : completedSections === 3 ? 'w-3/4' : 'w-full');
+      barEl.classList.remove('w-0', 'w-1/3', 'w-2/3', 'w-full');
+      barEl.classList.add(completedSections === 0 ? 'w-0' : completedSections === 1 ? 'w-1/3' : completedSections === 2 ? 'w-2/3' : 'w-full');
     }
   }
 
@@ -657,12 +644,18 @@
 
   function removeRow(btn) {
     const row = btn.closest('.career-row, .education-row');
-    if (row) {
-      row.remove();
-      reindexRows('careers-list', 'career-row', 'careers');
-      reindexRows('educations-list', 'education-row', 'educations');
-      updateProfileProgress();
-    }
+    if (!row) return;
+    const isCareer = row.classList.contains('career-row');
+    const listId = isCareer ? 'careers-list' : 'educations-list';
+    const rowClass = isCareer ? 'career-row' : 'education-row';
+    const currentCount = document.querySelectorAll('#' + listId + ' .' + rowClass).length;
+    if (currentCount <= 1) return;
+    row.remove();
+    reindexRows('careers-list', 'career-row', 'careers');
+    reindexRows('educations-list', 'education-row', 'educations');
+    refreshRemoveButtonsState('careers-list', 'career-row');
+    refreshRemoveButtonsState('educations-list', 'education-row');
+    updateProfileProgress();
   }
 
   // ── 경력 행 추가 ────────────────────────────────────────────
@@ -673,7 +666,7 @@
     row.className = 'career-row flex items-start gap-2';
     row.innerHTML =
       '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-1">' +
-        '<input type="text" name="careers[' + idx + '].name" placeholder="직책 / 소속" class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">' +
+        '<input type="text" name="careers[' + idx + '].name" required maxlength="50" placeholder="직책 / 소속" class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">' +
         '<div class="period-range-field" data-range-kind="career">' +
           '<input type="hidden" name="careers[' + idx + '].startDate" data-range-start>' +
           '<input type="hidden" name="careers[' + idx + '].endDate" data-range-end>' +
@@ -686,6 +679,7 @@
         '<svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
       '</button>';
     list.appendChild(row);
+    refreshRemoveButtonsState('careers-list', 'career-row');
     updateProfileProgress();
   }
 
@@ -697,7 +691,7 @@
     row.className = 'education-row flex items-start gap-2';
     row.innerHTML =
       '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-1">' +
-        '<input type="text" name="educations[' + idx + '].name" placeholder="학교명" class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">' +
+        '<input type="text" name="educations[' + idx + '].name" required maxlength="50" placeholder="학교명" class="bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">' +
         '<div class="period-range-field" data-range-kind="education">' +
           '<input type="hidden" name="educations[' + idx + '].startDate" data-range-start>' +
           '<input type="hidden" name="educations[' + idx + '].endDate" data-range-end>' +
@@ -710,6 +704,7 @@
         '<svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
       '</button>';
     list.appendChild(row);
+    refreshRemoveButtonsState('educations-list', 'education-row');
     updateProfileProgress();
   }
 
@@ -962,6 +957,79 @@
 
     syncAllRangeDisplays();
   })();
+
+  // ── 페이지 로드 시 삭제 버튼 상태 초기화 ────────────────────
+  refreshRemoveButtonsState('careers-list', 'career-row');
+  refreshRemoveButtonsState('educations-list', 'education-row');
+
+  // ── 제출 전 클라이언트 검증 ──────────────────────────────────
+  document.getElementById('profile-form').addEventListener('submit', function (e) {
+    function showBannerError(msg) {
+      var existing = document.getElementById('client-validation-banner');
+      if (existing) existing.remove();
+      var banner = document.createElement('div');
+      banner.id = 'client-validation-banner';
+      banner.className = 'flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-6 text-sm';
+      banner.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>' + msg + '</span>';
+      var form = document.getElementById('profile-form');
+      form.insertBefore(banner, form.firstChild);
+      banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function validateSection(listId, rowClass, sectionName) {
+      var rows = document.querySelectorAll('#' + listId + ' .' + rowClass);
+      var hasComplete = false;
+      var hasMissingPeriod = false;
+      rows.forEach(function (row) {
+        var nameInput = row.querySelector('input[type="text"]');
+        var startInput = row.querySelector('[data-range-start]');
+        var btn = row.querySelector('.range-pick-btn');
+        var hasName = nameInput && nameInput.value.trim();
+        var hasStart = startInput && startInput.value.trim();
+        if (hasName && hasStart) {
+          hasComplete = true;
+          if (btn) { btn.classList.remove('border-red-300'); }
+        } else if (hasName && !hasStart) {
+          hasMissingPeriod = true;
+          if (btn) { btn.classList.add('border-red-300'); }
+        } else {
+          if (btn) { btn.classList.remove('border-red-300'); }
+        }
+      });
+      if (!hasComplete) {
+        return hasMissingPeriod
+          ? sectionName + ' 항목의 시작 월을 선택해 주세요.'
+          : sectionName + '을(를) 최소 1개 입력하고 기간(시작 월)을 선택해 주세요.';
+      }
+      return null;
+    }
+
+    var careerError = validateSection('careers-list', 'career-row', '경력');
+    var eduError = validateSection('educations-list', 'education-row', '학력');
+    var toolInputEl = document.getElementById('tool-input');
+    var toolHiddenInputs = document.querySelectorAll('#tools-hidden .tool-hidden-input');
+    var toolError = toolHiddenInputs.length === 0 ? '보유 장비를 최소 1개 입력해 주세요.' : null;
+
+    if (careerError) {
+      e.preventDefault();
+      showBannerError(careerError);
+      return;
+    }
+    if (eduError) {
+      e.preventDefault();
+      showBannerError(eduError);
+      return;
+    }
+    if (toolError) {
+      e.preventDefault();
+      showBannerError(toolError);
+      if (toolInputEl) {
+        toolInputEl.classList.add('border-red-300');
+        toolInputEl.addEventListener('input', function () { toolInputEl.classList.remove('border-red-300'); }, { once: true });
+        toolInputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  });
 
   updateProfileProgress();
   </script>
