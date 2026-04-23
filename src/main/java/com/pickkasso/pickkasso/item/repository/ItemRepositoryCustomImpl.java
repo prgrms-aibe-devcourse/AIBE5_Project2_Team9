@@ -49,7 +49,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         );
     }
 
-    // TODO: "?? ???? ?? row? ???, ??? row?? ST_Distance_Sphere? ??"? ? ?????? ?
+    // TODO: "공간 인덱스로 대상 row를 줄이고, 줄어든 row에만 ST_Distance_Sphere를 적용"이 더 효율적이라고 함
     private BooleanExpression withinDistance(Double lat, Double lng, Integer distance) {
         if (lat == null || lng == null || distance == null) return null;
         return distanceExpression(lat, lng).loe(distance);
@@ -81,7 +81,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         };
     }
 
-    // ?? ?? ?? ?? ?? ??
+    // 아직 날짜 관련 코드 구현 못함
     @Override
     public Page<ItemBoxDto> getSearchItemPage(ItemSearchCondition condition, int pageSize) {
         QItem item = QItem.item;
