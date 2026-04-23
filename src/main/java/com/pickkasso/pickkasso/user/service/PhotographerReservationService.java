@@ -75,7 +75,7 @@ public class PhotographerReservationService {
                 photographerId,
                 normalizedWeekStart.atStartOfDay(),
                 weekEnd.atStartOfDay(),
-                List.of(ReservationStatus.CONFIRMED));
+                List.of(ReservationStatus.CONFIRMED, ReservationStatus.COMPLETED));
 
         return WeeklyCalendarDto.of(normalizedWeekStart, reservations);
     }

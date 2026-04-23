@@ -59,4 +59,14 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     long countByPhotographerId(Long photographerId);
 
     Optional<Reservation> findByIdAndPhotographerId(Long id, Long photographerId);
+
+    @Query("""
+            select r from Reservation r
+              join fetch r.member m
+              join fetch r.item i
+              join fetch i.tag t
+              join fetch i.photographer p
+            where r.id = :id
+            """)
+    Optional<Reservation> findByIdWithDetails(@Param("id") Long id);
 }

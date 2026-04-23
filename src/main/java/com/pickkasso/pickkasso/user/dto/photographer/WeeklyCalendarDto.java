@@ -1,6 +1,7 @@
 package com.pickkasso.pickkasso.user.dto.photographer;
 
 import com.pickkasso.pickkasso.user.entity.Reservation;
+import com.pickkasso.pickkasso.user.entity.ReservationStatus;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -50,9 +51,13 @@ public record WeeklyCalendarDto(
             if (hour < 9 || hour > 18) continue;
 
             int rowSpan = Math.max(1, (int) Math.ceil(r.getDurationMinutes() / 60.0));
-            String colorClass = COLOR_CLASSES[(int) (r.getItem().getId() % 5)];
+            String colorClass = r.getStatus() == ReservationStatus.COMPLETED
+                    ? "gray"
+                    : COLOR_CLASSES[(int) (r.getItem().getId() % 5)];
             String startTime = r.getScheduledAt().format(TIME_FMT);
-            String subtitle = r.getMember().getName() + " · " + startTime;
+            String subtitle = r.getStatus() == ReservationStatus.COMPLETED
+                    ? r.getMember().getName() + " · 완료"
+                    : r.getMember().getName() + " · " + startTime;
 
             String key = dayIdx + "-" + hour;
             eventMap.putIfAbsent(key, new CalendarEventDto(

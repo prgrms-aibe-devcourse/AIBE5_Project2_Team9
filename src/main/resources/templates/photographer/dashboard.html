@@ -65,6 +65,13 @@
             .cal-event.green { background: #EEFBF3; color: #22C55E; border-left-color: #22C55E; }
             .cal-event.sky { background: #E6F7FF; color: #0097FF; border-left-color: #0097FF; }
             .cal-event.purple { background: #F3EEFB; color: #7C3AED; border-left-color: #7C3AED; }
+            .cal-event.gray {
+                background: #F3F4F6;
+                color: #4B5563;
+                border-left-color: #6B7280;
+                border: 1px solid #9CA3AF;
+                box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+            }
         </style>
         <script>
             (() => {
@@ -226,7 +233,8 @@
                         </div>
                     </div>
                     <div class="text-2xl font-extrabold text-[#1A1A1A]"><span th:text="${summary.pendingCount}">0</span><span class="text-sm font-medium ml-0.5">건</span></div>
-                    <div class="mt-2 text-[11px] text-[#FF6B2B] font-bold">즉시 처리 필요</div>
+                    <div th:if="${summary.pendingCount > 0}" class="mt-2 text-[11px] text-[#FF6B2B] font-bold">즉시 처리 필요</div>
+                    <div th:unless="${summary.pendingCount > 0}" class="mt-2 text-[11px] text-[#888]">대기 중인 요청 없음</div>
                 </div>
                 <div class="bg-white border border-[#CCC] rounded-2xl p-5">
                     <div class="flex items-center justify-between mb-2.5">
@@ -267,7 +275,8 @@
                             <svg class="w-4 h-4 text-[#1D3CFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                             주간 예약 현황
                         </div>
-                        <a href="#" class="text-[11px] font-bold text-[#0097FF] hover:opacity-70 transition-opacity no-underline flex items-center gap-0.5">
+                        <a th:href="@{/photographer/{pid}/reservations(pid=${photographer.id})}"
+                           class="text-[11px] font-bold text-[#0097FF] hover:opacity-70 transition-opacity no-underline flex items-center gap-0.5">
                             전체 보기
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                         </a>
