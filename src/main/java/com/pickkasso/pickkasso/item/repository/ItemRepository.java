@@ -45,5 +45,10 @@ public interface ItemRepository extends JpaRepository<Item, Long>, ItemRepositor
         "JOIN FETCH i.photographer p " +
         "LEFT JOIN FETCH i.planList " +
         "WHERE i.id = :itemId")
-    java.util.Optional<Item> findByIdWithDetails(@Param("itemId") Long itemId);
+    Optional<Item> findByIdWithDetails(@Param("itemId") Long itemId);
+
+    @Query("SELECT i.address FROM Item i " +
+           "WHERE i.photographer.id = :photographerId")
+    List<String> findAddressByPhotographerId(@Param("photographerId") Long photographerId);
+
 }

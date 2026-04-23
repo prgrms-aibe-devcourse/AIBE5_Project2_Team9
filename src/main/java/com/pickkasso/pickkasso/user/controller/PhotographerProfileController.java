@@ -4,6 +4,7 @@ import com.pickkasso.pickkasso.item.service.ItemService;
 import com.pickkasso.pickkasso.user.dto.photographer.PhotographerProfileEditRequest;
 import com.pickkasso.pickkasso.user.dto.photographer.PhotographerProfileResponse;
 import com.pickkasso.pickkasso.user.entity.Account;
+import com.pickkasso.pickkasso.user.entity.ResponseTime;
 import com.pickkasso.pickkasso.user.repository.AccountRepository;
 import com.pickkasso.pickkasso.user.service.PhotographerProfileService;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class PhotographerProfileController {
             isOwner = account != null && account.getId().equals(photographerId);
         }
         model.addAttribute("isOwner", isOwner);
+        model.addAttribute("topCityList", itemService.getTop3CityByPhotographerId(photographerId));
 
         return "photographer/profile";
     }
@@ -43,6 +45,7 @@ public class PhotographerProfileController {
         PhotographerProfileResponse response = photographerProfileService.getProfileForm(photographerId);
 
         model.addAttribute("profile", response);
+        model.addAttribute("responseTimes", ResponseTime.values());
         return "photographer/editProfileForm";
     }
 

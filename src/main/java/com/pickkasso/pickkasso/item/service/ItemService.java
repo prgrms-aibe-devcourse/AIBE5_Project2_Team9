@@ -1,5 +1,6 @@
 package com.pickkasso.pickkasso.item.service;
 
+import com.pickkasso.pickkasso.global.city.City;
 import com.pickkasso.pickkasso.global.tag.Tag;
 import com.pickkasso.pickkasso.global.tag.TagRepository;
 import com.pickkasso.pickkasso.item.dto.ItemBoxDto;
@@ -18,8 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -118,5 +118,23 @@ public class ItemService {
         Pageable pageable = PageRequest.of(0, count);
         List<Item> itemList = itemRepository.findRandomItemList(pageable);
         return getItemBoxDtoList(itemList);
+    }
+
+    // TODO: Item에 purchaseCount가 추가되면, 해당 값도 조회해서 그 값을 더하는 방식 사용
+    @Transactional(readOnly = true)
+    public List<City> getTop3CityByPhotographerId(Long photographerId) {
+        Map<City, Integer> resMap = new HashMap<>();
+        List<City> resList = new ArrayList<>();
+        List<String> addressList = itemRepository.findAddressByPhotographerId(photographerId);
+
+        for (String address : addressList) {
+            resMap.merge(City.fromString(address), 1, Integer::sum);
+        }
+        resMap.entrySet().stream()
+            .sorted(Map.Entry.<City, Integer>comparingByValue().reversed())
+            .limit(3)
+            .map(Map.Entry::getKey)
+            .forEach(resList::add);
+        return resList;
     }
 }

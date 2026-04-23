@@ -88,6 +88,12 @@ public class PhotographerProfileService {
                     null,
                     null,
                     null,
+                    0,
+                    0L,
+                    0,
+                    null,
+                    null,
+                    null,
                     new ArrayList<>(),
                     careerDtos,
                     educationDtos,
@@ -102,6 +108,12 @@ public class PhotographerProfileService {
                 profile.getNickname(),
                 profile.getIntro(),
                 profile.getLink(),
+                profile.getPurchaseCount(),
+                profile.getReviewScore(),
+                profile.getReviewCount(),
+                profile.getContactableStartTime(),
+                profile.getContactableEndTime(),
+                profile.getResponseTime(),
                 convertToolsToList(profile.getTools()),
                 careerDtos,
                 educationDtos,
@@ -128,7 +140,10 @@ public class PhotographerProfileService {
                     request.nickname(),
                     request.intro(),
                     convertToolsToMap(request.tools()),
-                    request.link()
+                    request.link(),
+                    request.contactableStartTime(),
+                    request.contactableEndTime(),
+                    request.responseTime()
             );
 
             photographerProfileRepository.save(newProfile);
@@ -144,7 +159,10 @@ public class PhotographerProfileService {
                     request.intro(),
                     convertToolsToMap(request.tools()),
                     request.link(),
-                    profile.getVerified()
+                    profile.getVerified(),
+                    request.contactableStartTime(),
+                    request.contactableEndTime(),
+                    request.responseTime()
             );
         }
 
