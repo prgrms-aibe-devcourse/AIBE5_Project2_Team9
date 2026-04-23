@@ -30,7 +30,7 @@ public class PhotographerProfile {
     private String nickname;
 
     @Lob
-    @Column(name = "intro", nullable = false)
+    @Column(name = "intro", nullable = false, columnDefinition = "TEXT")
     private String intro;
 
     @JdbcTypeCode(SqlTypes.JSON)
