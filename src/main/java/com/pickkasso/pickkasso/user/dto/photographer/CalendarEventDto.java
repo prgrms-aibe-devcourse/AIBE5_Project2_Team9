@@ -7,5 +7,6 @@ public record CalendarEventDto(
         int rowSpanHours,
         String title,
         String subtitle,
+        String timeLabel,
         String colorClass
 ) {}

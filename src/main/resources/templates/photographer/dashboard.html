@@ -325,8 +325,9 @@
                                         <div th:if="${event != null}"
                                              th:class="'cal-event ' + ${event.colorClass} + ' top-1'"
                                              th:style="'height:' + (${event.rowSpanHours} * 64 - 6) + 'px'">
-                                            <div class="font-bold truncate" th:text="${event.title}">제목</div>
-                                            <div class="opacity-80 truncate" th:text="${event.subtitle}">고객 · 시간</div>
+                                            <div class="font-bold leading-tight break-all" th:text="${event.title}">제목</div>
+                                            <div class="opacity-80 leading-tight break-all" th:text="${event.subtitle}">고객</div>
+                                            <div class="opacity-60 leading-tight" th:text="${event.timeLabel}">시간</div>
                                         </div>
                                     </div>
                                 </th:block>

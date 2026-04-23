@@ -55,14 +55,13 @@ public record WeeklyCalendarDto(
                     ? "gray"
                     : COLOR_CLASSES[(int) (r.getItem().getId() % 5)];
             String startTime = r.getScheduledAt().format(TIME_FMT);
-            String subtitle = r.getStatus() == ReservationStatus.COMPLETED
-                    ? r.getMember().getName() + " · 완료"
-                    : r.getMember().getName() + " · " + startTime;
+            String memberName = r.getMember().getName();
+            String timeLabel = r.getStatus() == ReservationStatus.COMPLETED ? "완료" : startTime;
 
             String key = dayIdx + "-" + hour;
             eventMap.putIfAbsent(key, new CalendarEventDto(
                     r.getId(), dayIdx, hour, rowSpan,
-                    r.getItem().getName(), subtitle, colorClass
+                    r.getItem().getName(), memberName, timeLabel, colorClass
             ));
         }
 
