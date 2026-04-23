@@ -6,6 +6,7 @@ import com.pickkasso.pickkasso.global.tag.Tag;
 import com.pickkasso.pickkasso.item.dto.ItemBoxDto;
 import com.pickkasso.pickkasso.item.dto.ItemSearchCondition;
 import com.pickkasso.pickkasso.item.entity.Item;
+import com.pickkasso.pickkasso.item.entity.ItemType;
 import com.pickkasso.pickkasso.item.entity.QItem;
 import com.pickkasso.pickkasso.user.dto.photographer.QPhotographerSimpleCardDto;
 import com.querydsl.core.BooleanBuilder;
@@ -35,6 +36,10 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
 
     private BooleanExpression tagEq(Tag tag) {
         return (tag != null) ? QItem.item.tag.eq(tag) : null;
+    }
+
+    private BooleanExpression itemTypeEq(ItemType itemType) {
+        return (itemType != null) ? QItem.item.itemType.eq(itemType) : null;
     }
 
     private NumberExpression<Double> distanceExpression(Double lat, Double lng) {
@@ -71,11 +76,12 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
             case "created-at-asc"   -> QItem.item.createdAt.asc();
             case "price-desc"       -> QItem.item.defaultPrice.desc();
             case "price-asc"        -> QItem.item.defaultPrice.asc();
-            case "distance"         -> distance.asc();
+            case "distance"         -> (distance == null) ? QItem.item.avgScore.desc() : distance.asc();
             default                 -> QItem.item.avgScore.desc();
         };
     }
 
+    // ?? ?? ?? ?? ?? ??
     @Override
     public Page<ItemBoxDto> getSearchItemPage(ItemSearchCondition condition, int pageSize) {
         QItem item = QItem.item;
@@ -110,6 +116,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
             .join(item.photographer)
             .where(
                 tagEq(condition.getTag()),
+                itemTypeEq(condition.getItemType()),
                 // withinDistance(condition.getLat(), condition.getLng(), condition.getDistance())
                 withinDistance(distanceExpr, condition.getDistance())
             )
@@ -123,6 +130,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
             .join(item.tag)
             .where(
                 tagEq(condition.getTag()),
+                itemTypeEq(condition.getItemType()),
                 withinDistance(condition.getLat(), condition.getLng(), condition.getDistance())
             )
             .fetchOne();

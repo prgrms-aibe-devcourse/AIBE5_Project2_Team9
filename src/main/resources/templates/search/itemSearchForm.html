@@ -64,10 +64,14 @@
                   document.getElementById("h-page").value = '';
                   const inputs = this.querySelectorAll('input[type="hidden"]');
                   inputs.forEach(input => {
+                      input.disabled = false; // 먼저 전부 활성화
                       if (!input.value) {
-                          input.disabled = true; // disabled된 input은 전송 안됨
+                          input.disabled = true;
                       }
                   });
+
+                  const itemType = document.getElementById('display-item-type');
+                  itemType.disabled = !itemType.value;
 
                   this.submit();
               });
@@ -86,6 +90,22 @@
                       window.location.href = url.toString();
                   });
               });
+
+              const hRegion = document.getElementById('h-region');
+              let _value = hRegion.value;
+
+              Object.defineProperty(hRegion, 'value', {
+                  get() { return _value; },
+                  set(v) {
+                      _value = v;
+                      hRegion.setAttribute('value', v); // ← 이거 추가
+                      syncDistanceOption();
+                  },
+                  configurable: true,
+              });
+
+              // 페이지 로딩 시 1회 실행
+              syncDistanceOption();
           });
 
           function resetUrl(url) {
@@ -95,14 +115,22 @@
                   lng: document.getElementById("h-lng").value,
                   tag: document.getElementById("h-category").value,
                   date: document.getElementById("h-date").value,
+                  itemType: document.getElementById("display-item-type").value,
+                  distance: document.getElementById("h-distance")?.value,  // ← 추가
               };
 
-              // 기존 파라미터 초기화
               url.search = "";
 
               Object.entries(params).forEach(([key, value]) => {
-                  if (value !== "" && value !== "null") url.searchParams.set(key, value);
+                  if (value !== "" && value !== "null") {
+                      url.searchParams.set(key, value); // 값 있는 것만 추가
+                  }
               });
+
+              // region 없으면 distance도 제거
+              if (!params.address) {
+                  url.searchParams.delete("distance");
+              }
 
               return url;
           }
@@ -121,8 +149,58 @@
               url.searchParams.set("page", page);
               window.location.href = url.toString();
           }
+          function clearRegion() {
+              event.stopPropagation(); // ← 부모로 이벤트 전파 차단
+              document.getElementById("h-region").value = "";
+              document.getElementById("h-lat").value = "";
+              document.getElementById("h-lng").value = "";
+              document.getElementById("display-region").textContent = "지역선택";
+              document.getElementById('clear-region-btn').classList.add('hidden');
+
+              // distance도 초기화
+              const hDistance = document.getElementById("h-distance");
+              if (hDistance) hDistance.value = "";
+
+              // 거리필터 select도 초기화
+              const distanceFilter = document.getElementById('distance-filter-select');
+              if (distanceFilter) distanceFilter.value = "";
+          }
+
+          function syncDistanceOption() {
+              const region = document.getElementById('h-region').value;
+              const select = document.querySelector('#order-by-select');
+              const existing = select.querySelector('option[value="distance"]');
+              const distanceFilter = document.getElementById('distance-filter-select');
+
+              if (region && !existing) {
+                  const opt = document.createElement('option');
+                  opt.value = 'distance';
+                  opt.textContent = '가까운 순';
+                  select.appendChild(opt);
+              } else if (!region && existing) {
+                  existing.remove();
+              }
+
+              // 거리 필터 show/hide
+              if (distanceFilter) {
+                  distanceFilter.classList.toggle('hidden', !region);
+              }
+          }
+
+          function changeDistance(value) {
+              const url = resetUrl(new URL(window.location.href));
+              url.searchParams.set("page", '');
+              if (value) {
+                  url.searchParams.set("distance", value);
+              }
+              window.location.href = url.toString();
+          }
       </script>
     </th:block>
+    <style>
+        #h-region {
+        }
+    </style>
   </head>
   <body>
     <main th:fragment="main">
@@ -173,13 +251,15 @@
               th:value="${itemSearchFormDto.orderBy}"
             />
             <input type="hidden" name="page" id="h-page" th:value="${itemSearchFormDto.page}" />
+            <input type="hidden" id="h-distance" name="distance" th:value="${itemSearchFormDto.distance}"/>
+
             <!-- address는 아래 text input으로 대신 제출 -->
 
             <!-- 지역선택 버튼 (표시용) -->
-            <button
+            <div
               type="button"
               onclick="locationModal.open()"
-              class="flex items-center gap-1.5 px-[18px] h-full bg-transparent border-0 border-r border-[#E8E8E8] text-sm font-medium text-[#444] hover:text-[#1D3CFF] transition-colors whitespace-nowrap cursor-pointer"
+              class="flex items-center gap-1.5 px-[18px] h-full flex-1 bg-transparent border-0 border-r border-[#E8E8E8] text-sm font-medium text-[#444] hover:text-[#1D3CFF] transition-colors whitespace-nowrap cursor-pointer"
             >
               <svg
                 class="text-[#0097FF] shrink-0"
@@ -196,28 +276,28 @@
                 <circle cx="12" cy="9" r="2.5" />
               </svg>
               <span
-                  id="display-region"
+                id="display-region"
+                class="flex-1 text-center"
                 th:text="${itemSearchFormDto.address != null and !#strings.isEmpty(itemSearchFormDto.address) ? itemSearchFormDto.address : '지역선택'}"
                 >지역선택</span
               >
-              <svg
-                class="text-[#AAA] shrink-0"
-                width="11"
-                height="11"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-              >
-                <path d="M6 9l6 6 6-6" />
-              </svg>
-            </button>
+              <button type="button"
+                      id="clear-region-btn"
+                      onclick="clearRegion(event)"
+                      th:classappend="${itemSearchFormDto.address != null and !itemSearchFormDto.address.isEmpty()} ? '' : 'hidden'"
+                      class="text-[#AAA] hover:text-[#FF3B3B] transition-colors bg-transparent border-0 cursor-pointer shrink-0 p-0">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
 
-            <!-- 촬영유형 버튼 (표시용) -->
-            <button
+            <!-- 촬영유형 버튼 -->
+            <div
               type="button"
               onclick="categoryModal.open()"
-              class="flex items-center gap-1.5 px-[18px] h-full bg-transparent border-0 border-r border-[#E8E8E8] text-sm font-medium text-[#444] hover:text-[#1D3CFF] transition-colors whitespace-nowrap cursor-pointer"
+              class="flex items-center gap-1.5 px-[18px] h-full flex-1 bg-transparent border-0 border-r border-[#E8E8E8] text-sm font-medium text-[#444] hover:text-[#1D3CFF] transition-colors whitespace-nowrap cursor-pointer"
             >
               <svg
                 class="text-[#0097FF] shrink-0"
@@ -234,27 +314,17 @@
               </svg>
               <span
                 id="display-category"
+                class="flex-1 text-center"
                 th:text="${itemSearchFormDto.tag != null and !#strings.isEmpty(itemSearchFormDto.tag) ? itemSearchFormDto.tag : '촬영유형'}"
                 >촬영유형</span
               >
-              <svg
-                class="text-[#AAA] shrink-0"
-                width="11"
-                height="11"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-              >
-                <path d="M6 9l6 6 6-6" />
-              </svg>
-            </button>
+            </div>
 
-            <!-- 날짜 버튼 (표시용) -->
-            <button
+            <!-- 날짜 버튼 -->
+            <div
               type="button"
               onclick="dateModal.open()"
-              class="flex items-center gap-1.5 px-[18px] h-full bg-transparent border-0 border-r border-[#E8E8E8] text-sm font-medium text-[#444] hover:text-[#1D3CFF] transition-colors whitespace-nowrap cursor-pointer"
+              class="flex items-center gap-1.5 px-[18px] h-full flex-1 bg-transparent border-0 border-r border-[#E8E8E8] text-sm font-medium text-[#444] hover:text-[#1D3CFF] transition-colors whitespace-nowrap cursor-pointer"
             >
               <svg
                 class="text-[#0097FF] shrink-0"
@@ -272,31 +342,25 @@
               </svg>
               <span
                 id="display-date"
+                class="flex-1 text-center"
                 th:text="${itemSearchFormDto.date != null ? #temporals.format(itemSearchFormDto.date, 'MM/dd') : '날짜'}"
                 >날짜</span
               >
-              <svg
-                class="text-[#AAA] shrink-0"
-                width="11"
-                height="11"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-              >
-                <path d="M6 9l6 6 6-6" />
+            </div>
+            <!-- 촬영 방식 -->
+            <div class="flex items-center gap-2 px-[18px] h-full flex-1 border-r border-[#E8E8E8]">
+              <svg class="text-[#0097FF] shrink-0" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
               </svg>
-            </button>
-
-<!--            &lt;!&ndash; address 실제 제출 input (화면에서 숨김, sr-only 사용 불가하므로 opacity-0 width-0) &ndash;&gt;-->
-<!--            <input-->
-<!--              type="text"-->
-<!--              name="address"-->
-<!--              th:value="${itemSearchFormDto.address}"-->
-<!--              class="w-0 h-0 p-0 border-0 opacity-0 absolute"-->
-<!--              aria-hidden="true"-->
-<!--            />-->
-
+              <div class="flex flex-1">
+                <select id="display-item-type" name="itemType"
+                        class="appearance-none text-sm flex-1 text-center bg-transparent border-0 outline-none cursor-pointer">
+                  <option value="" th:selected="${itemSearchFormDto.itemType == null}">촬영방식</option>
+                  <option value="IN" th:selected="${itemSearchFormDto.itemType == 'IN'}">스튜디오</option>
+                  <option value="OUT" th:selected="${itemSearchFormDto.itemType == 'OUT'}">출장촬영</option>
+                </select>
+              </div>
+            </div>
             <!-- 검색 버튼 -->
             <button
                 type="submit"
@@ -345,6 +409,7 @@
               >개의 서비스
             </span>
             <select
+              id="order-by-select"
               class="sort-select text-sm text-[#444] border border-[#CCC] rounded-lg py-[7px] pl-3 pr-7 bg-white cursor-pointer outline-none"
               onchange="changeSortOrder(this.value)"
             >
@@ -361,14 +426,14 @@
                 인기순
               </option>
               <option
-                  value="created-at-cesc"
-                  th:selected="${itemSearchFormDto.orderBy == 'created-at-desc'}"
+                value="created-at-desc"
+                th:selected="${itemSearchFormDto.orderBy == 'created-at-desc'}"
               >
                 최신순
               </option>
               <option
-                  value="created-at-asc"
-                  th:selected="${itemSearchFormDto.orderBy == 'created-at-asc'}"
+                value="created-at-asc"
+                th:selected="${itemSearchFormDto.orderBy == 'created-at-asc'}"
               >
                 오래된 순
               </option>
@@ -379,17 +444,36 @@
                 낮은 가격순
               </option>
               <option
-                  value="price-desc"
-                  th:selected="${itemSearchFormDto.orderBy == 'price-desc'}"
+                value="price-desc"
+                th:selected="${itemSearchFormDto.orderBy == 'price-desc'}"
               >
                 높은 가격순
               </option>
               <option
-                  value="distance"
-                  th:selected="${itemSearchFormDto.orderBy == 'distance'}"
+                th:if="${itemSearchFormDto.address != null and !itemSearchFormDto.address.isEmpty()}"
+                value="distance"
+                th:selected="${itemSearchFormDto.orderBy == 'distance'}"
               >
                 가까운 순
               </option>
+            </select>
+          </div>
+          <div class="flex items-center gap-3 shrink-0">
+
+            <!-- 거리 필터 (address 있을 때만 표시) -->
+            <select
+              id="distance-filter-select"
+              th:classappend="${itemSearchFormDto.address == null or itemSearchFormDto.address.isEmpty()} ? 'hidden' : ''"
+              class="sort-select text-sm text-[#444] border border-[#CCC] rounded-lg py-[7px] pl-3 pr-7 bg-white cursor-pointer outline-none"
+              onchange="changeDistance(this.value)"
+            >
+              <option value="" th:selected="${itemSearchFormDto.distance != null}">거리 제한 없음</option>
+              <option value="1"  th:selected="${itemSearchFormDto.distance != null and itemSearchFormDto.distance == 1}">1km 이내</option>
+              <option value="3"  th:selected="${itemSearchFormDto.distance != null and itemSearchFormDto.distance == 3}">3km 이내</option>
+              <option value="5"  th:selected="${itemSearchFormDto.distance != null and itemSearchFormDto.distance == 5}">5km 이내</option>
+              <option value="10" th:selected="${itemSearchFormDto.distance != null and itemSearchFormDto.distance == 10}">10km 이내</option>
+              <option value="20" th:selected="${itemSearchFormDto.distance != null and itemSearchFormDto.distance == 20}">20km 이내</option>
+              <option value="50" th:selected="${itemSearchFormDto.distance != null and itemSearchFormDto.distance == 50}">50km 이내</option>
             </select>
           </div>
         </div>

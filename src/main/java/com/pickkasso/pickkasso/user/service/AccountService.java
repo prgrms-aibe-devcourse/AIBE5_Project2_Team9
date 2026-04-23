@@ -1,11 +1,13 @@
 package com.pickkasso.pickkasso.user.service;
 
 import com.pickkasso.pickkasso.user.dto.AccountDto;
+import com.pickkasso.pickkasso.user.dto.PasswordChangeDto;
 import com.pickkasso.pickkasso.user.entity.Account;
 import com.pickkasso.pickkasso.user.entity.Member;
 import com.pickkasso.pickkasso.user.repository.AccountRepository;
 import com.pickkasso.pickkasso.user.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +37,11 @@ public class AccountService {
         if (findAccount != null) {
             throw new IllegalStateException("이미 사용 중인 아이디입니다.");
         }
+    }
+
+    public boolean isUsernameAvailable(String username) {
+        Account findAccount = accountRepository.findByUsername(username);
+        return findAccount == null; // true면 사용 가능
     }
 
     public String findUsername(String name, String email){
@@ -68,8 +75,9 @@ public class AccountService {
         // 4. 암호화
         String encodedPw = passwordEncoder.encode(tempPw);
 
-        // 5. 비밀번호 변경
+        // 5. 비밀번호 변경 저장
         account.changePassword(encodedPw);
+        accountRepository.save(account);
 
         return tempPw;
     }

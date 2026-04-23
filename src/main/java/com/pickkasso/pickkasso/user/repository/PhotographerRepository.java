@@ -4,4 +4,5 @@ import com.pickkasso.pickkasso.user.entity.Photographer;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PhotographerRepository extends JpaRepository<Photographer, Long> {
+    Photographer findByAccountUsername(String username);
 }

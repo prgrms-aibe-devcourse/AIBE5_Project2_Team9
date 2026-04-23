@@ -5,6 +5,8 @@ import com.pickkasso.pickkasso.user.entity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
 
 @NoArgsConstructor
 @AllArgsConstructor
