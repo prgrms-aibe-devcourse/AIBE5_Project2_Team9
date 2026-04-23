@@ -1,4 +1,4 @@
-package com.pickkasso.pickkasso.global.dto.aipick;
+package com.pickkasso.pickkasso.global.dto;
 
 public record AiRecommendationDto(
     Long itemId,

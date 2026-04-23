@@ -1,4 +1,4 @@
-package com.pickkasso.pickkasso.global.dto.aipick;
+package com.pickkasso.pickkasso.global.dto;
 
 import java.util.List;
 
