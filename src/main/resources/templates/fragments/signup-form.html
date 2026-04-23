@@ -72,18 +72,27 @@
         <h3 class="text-sm font-semibold text-[#888] mb-4">회원정보</h3>
 
         <!-- 아이디 -->
-        <div class="mb-4">
+        <div class="mb-4 ">
           <label class="block text-sm font-medium text-[#444] mb-1.5">아이디</label>
+          <div class="flex gap-2">
           <input type="text" name="username" id="username"
                  required minlength="4" maxlength="20"
                  placeholder="4~20자"
-                 class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-3 text-[#1A1A1A] placeholder-[#AAA] text-[15px] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]"/>
-        </div>
+                 class="w-[85%] bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-3 text-[#1A1A1A] placeholder-[#AAA] text-[15px] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]"/>
 
-        <!-- 비밀번호 + 비밀번호 확인 -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div>
-            <label class="block text-sm font-medium text-[#444] mb-1.5">비밀번호</label>
+          <!-- 중복 확인 버튼 -->
+            <button type="button"
+                    id="check-username"
+                    class="px-4 py-3 bg-[#1D3CFF] text-white text-[15px] rounded-lg hover:bg-[#1530E0] active:bg-[#1020C0]transition-colors">
+              중복 확인
+            </button>
+          </div>
+            </div>
+
+              <!-- 비밀번호 + 비밀번호 확인 -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label class="block text-sm font-medium text-[#444] mb-1.5">비밀번호</label>
             <input type="password" name="password" id="password"
                    required minlength="8" maxlength="30"
                    pattern="^(?=.*[a-z])(?=.*\d).{8,30}$"
@@ -192,8 +201,28 @@
   </script>
 
   <!--아이디 중복확인-->
-  <script th:inline="javascript" th:if="${errorMessage}">
-    alert([[${errorMessage}]]);
+  <script th:inline="javascript">
+    document.getElementById('check-username').addEventListener('click', function() {
+      const username = document.getElementById('username').value.trim();
+      if (!username) {
+        alert("아이디를 입력해주세요.");
+        return;
+      }
+
+      fetch(`/api/check-username?username=${encodeURIComponent(username)}`)
+              .then(res => res.json())
+              .then(data => {
+                if (data.available) {
+                  alert("사용 가능한 아이디입니다.");
+                } else {
+                  alert("이미 사용중인 아이디입니다.");
+                }
+              })
+              .catch(err => {
+                console.error(err);
+                alert("아이디 확인 중 오류가 발생했습니다.");
+              });
+    });
   </script>
 
 </th:block>
