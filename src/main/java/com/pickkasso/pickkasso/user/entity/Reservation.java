@@ -9,14 +9,14 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "t_reservation")
+@Table(name = "t_order")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Reservation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "reservation_id")
+    @Column(name = "order_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
