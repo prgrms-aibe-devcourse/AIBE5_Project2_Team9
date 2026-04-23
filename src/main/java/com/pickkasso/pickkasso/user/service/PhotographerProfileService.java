@@ -1,5 +1,8 @@
 package com.pickkasso.pickkasso.user.service;
 
+import com.pickkasso.pickkasso.global.img.DefaultImgDto;
+import com.pickkasso.pickkasso.global.service.DefaultImgService;
+import com.pickkasso.pickkasso.global.service.S3Service;
 import com.pickkasso.pickkasso.user.dto.photographer.CareerDto;
 import com.pickkasso.pickkasso.user.dto.photographer.EducationDto;
 import com.pickkasso.pickkasso.user.dto.photographer.PhotographerProfileEditRequest;
@@ -10,6 +13,7 @@ import com.pickkasso.pickkasso.user.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -28,6 +32,8 @@ public class PhotographerProfileService {
     private final CareerRepository careerRepository;
     private final EducationRepository educationRepository;
     private final PortfolioRepository portfolioRepository;
+    private final DefaultImgService defaultImgService;
+    private final S3Service s3Service;
 
     @Transactional(readOnly = true)
     public PhotographerProfileResponse getProfileForm(Long photographerId) {
@@ -103,31 +109,37 @@ public class PhotographerProfileService {
         );
     }
 
-    public void createOrUpdateProfile(Long photographerId, PhotographerProfileEditRequest request) {
+    public void createOrUpdateProfile(Long photographerId, PhotographerProfileEditRequest request, MultipartFile profileImg) {
         Photographer photographer = getPhotographer(photographerId);
 
         validateRequest(request);
 
         PhotographerProfile profile = photographer.getPhotographerProfile();
 
+        String dirName = "photographer/user_" + photographerId;
+        String imgUrl = (profileImg != null && !profileImg.isEmpty())
+            ? defaultImgService.uploadImage(profileImg, 0, dirName).getImgUrl()
+            : request.imgUrl();
         // profile 이 없으면 새로 생성
         if (profile == null) {
             PhotographerProfile newProfile = PhotographerProfile.createPhotographerProfile(
                     photographer,
-                    request.imgUrl(),
+                    imgUrl,
                     request.nickname(),
                     request.intro(),
                     convertToolsToMap(request.tools()),
-                    request.link(),
-                    false
+                    request.link()
             );
 
             photographerProfileRepository.save(newProfile);
             photographer.connectProfile(newProfile);
         } else {
             // profile 이 있으면 수정
+            if (profileImg != null && !profileImg.isEmpty() && request.imgUrl() != null) {
+                s3Service.delete(request.imgUrl());
+            }
             profile.updatePhotographerProfile(
-                    request.imgUrl(),
+                    imgUrl,
                     request.nickname(),
                     request.intro(),
                     convertToolsToMap(request.tools()),

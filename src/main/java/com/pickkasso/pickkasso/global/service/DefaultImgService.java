@@ -17,6 +17,17 @@ public class DefaultImgService {
 
     private final S3Service s3Service;
 
+    public DefaultImgDto uploadImage(MultipartFile newFile, Integer order, String dirName) {
+        try {
+            String ext = StringUtils.getFilenameExtension(newFile.getOriginalFilename());
+            String imgName = UUID.randomUUID().toString() + (ext != null ? "." + ext : "");
+            String imgUrl = s3Service.upload(newFile, dirName, imgName);
+            return new DefaultImgDto(imgUrl, order);
+        } catch (IOException e) {
+            throw new ImageUploadException("이미지 업로드에 실패했습니다.", e);
+        }
+    }
+
     // 신규 업로드 (등록 시)
     public List<DefaultImgDto> uploadImages(List<MultipartFile> newFiles, List<Integer> newFileOrders, String dirName) throws ImageUploadException {
         if (newFiles == null || newFiles.isEmpty()) {
@@ -26,15 +37,7 @@ public class DefaultImgService {
         List<DefaultImgDto> result = new ArrayList<>();
 
         for (int i = 0; i < newFiles.size(); i++) {
-            try {
-                String ext = StringUtils.getFilenameExtension(newFiles.get(i).getOriginalFilename());
-                String imgName = UUID.randomUUID().toString() + (ext != null ? "." + ext : "");
-                String imgUrl = s3Service.upload(newFiles.get(i), dirName, imgName);
-                Integer order = newFileOrders != null ? newFileOrders.get(i) : i;
-                result.add(new DefaultImgDto(imgUrl, order));
-            } catch (IOException e) {
-                throw new ImageUploadException("이미지 업로드에 실패했습니다.", e);
-            }
+            result.add(uploadImage(newFiles.get(i), newFileOrders.get(i), dirName));
         }
         return result;
     }
@@ -65,18 +68,8 @@ public class DefaultImgService {
         }
 
         // 2. 신규 업로드
-        if (newFiles != null) {
-            for (int i = 0; i < newFiles.size(); i++) {
-                try {
-                    String ext = StringUtils.getFilenameExtension(newFiles.get(i).getOriginalFilename());
-                    String imgName = UUID.randomUUID().toString() + (ext != null ? "." + ext : "");
-                    String imgUrl = s3Service.upload(newFiles.get(i), dirName, imgName);
-                    Integer order = newFileOrders != null ? newFileOrders.get(i) : i;
-                    result.add(new DefaultImgDto(imgUrl, order));
-                } catch (IOException e) {
-                    throw new ImageUploadException("이미지 업로드에 실패했습니다.", e);
-                }
-            }
+        for (int i = 0; i < newFiles.size(); i++) {
+            result.add(uploadImage(newFiles.get(i), newFileOrders.get(i), dirName));
         }
 
         // 3. 삭제

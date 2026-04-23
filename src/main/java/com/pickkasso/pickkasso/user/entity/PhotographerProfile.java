@@ -1,5 +1,6 @@
 package com.pickkasso.pickkasso.user.entity;
 
+import com.pickkasso.pickkasso.global.img.DefaultImg;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -13,7 +14,7 @@ import java.util.Map;
 @Table(name = "t_photographer_info")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PhotographerProfile {
+public class PhotographerProfile extends DefaultImg {
     @Id
     @Column(name = "profile_id")
     private Long id;
@@ -22,9 +23,6 @@ public class PhotographerProfile {
     @OneToOne
     @JoinColumn(name = "profile_id")
     private Photographer photographer;
-
-    @Column(name = "img_url")
-    private String imgUrl;
 
     @Column(name = "nickname", nullable = false)
     private String nickname;
@@ -49,15 +47,15 @@ public class PhotographerProfile {
         String nickname,
         String intro,
         Map<String, Object> tools,
-        String link,
-        Boolean verified) {
+        String link) {
         this.photographer = photographer;
         this.imgUrl = imgUrl;
         this.nickname = nickname;
         this.intro = intro;
         this.tools = tools;
         this.link = link;
-        this.verified = verified;
+        this.verified = false;
+        this.imgOrder = 0;
     }
 
     //== 생성 method ==//
@@ -67,9 +65,8 @@ public class PhotographerProfile {
         String nickname,
         String intro,
         Map<String, Object> tools,
-        String link,
-        Boolean verified) {
-        return new PhotographerProfile(photographer, imgUrl, nickname, intro, tools, link, verified);
+        String link) {
+        return new PhotographerProfile(photographer, imgUrl, nickname, intro, tools, link);
     }
 
     //기존 프로필 수정용 method
@@ -88,5 +85,9 @@ public class PhotographerProfile {
         this.tools = tools;
         this.link = link;
         this.verified = verified;
+    }
+
+    public void verify() {
+        this.verified = true;
     }
 }

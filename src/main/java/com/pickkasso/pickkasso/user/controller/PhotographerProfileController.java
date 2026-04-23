@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 @RequiredArgsConstructor
@@ -49,10 +50,11 @@ public class PhotographerProfileController {
     public String editProfile(
             @PathVariable Long photographerId,
             @ModelAttribute("profile") PhotographerProfileEditRequest request,
+            @RequestParam(value = "profileImg", required = false) MultipartFile profileImg,
             Model model
     ) {
         try {
-            photographerProfileService.createOrUpdateProfile(photographerId, request);
+            photographerProfileService.createOrUpdateProfile(photographerId, request, profileImg);
             return "redirect:/photographer/" + photographerId + "/profile";
         } catch (IllegalArgumentException e) {
             model.addAttribute("errorMessage", e.getMessage());
