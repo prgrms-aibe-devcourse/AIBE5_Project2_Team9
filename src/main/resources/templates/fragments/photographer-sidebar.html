@@ -46,8 +46,8 @@
       </svg>
       후기 관리
     </a>
-    <!-- 수익 정산 (Mockup) -->
-    <a th:href="@{'/photographer/' + ${userId} + '/dashboard'}"
+    <!-- 수익 정산 -->
+    <a th:href="@{'/photographer/' + ${userId} + '/settlement'}"
        th:classappend="${activeTab == 'settlement'} ? 'bg-[#EEF2FB] text-[#1D3CFF] font-semibold' : 'text-[#444] hover:bg-[#EEF2FB] hover:text-[#1D3CFF]'"
        class="flex items-center gap-2.5 text-sm px-3 py-2.5 rounded-lg transition-colors no-underline">
       <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">

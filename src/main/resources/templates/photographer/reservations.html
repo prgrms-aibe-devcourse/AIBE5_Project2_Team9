@@ -203,23 +203,17 @@
                                 총 0건의 예약을 표시 중입니다.
                             </p>
                         </div>
-                        <div class="text-[12px] text-[#888]">
-                            상태 우선순위: 승인 대기 → 예약 확정 → 촬영 완료 → 거절 / 취소
-                        </div>
                     </div>
 
-                    <div th:if="${hasReservations}" class="divide-y divide-[#EEE]">
+                    <div th:if="${hasReservations}" id="reservation-list" class="divide-y divide-[#EEE]">
                         <article th:each="reservation : ${reservationItems}"
-                                 class="px-5 py-5 hover:bg-[#FCFCFD] transition-colors">
+                                 class="reservation-item px-5 py-5 hover:bg-[#FCFCFD] transition-colors">
                             <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                                 <div class="min-w-0">
                                     <div class="flex flex-wrap items-center gap-2 mb-3">
                                         <span class="status-pill"
                                               th:classappend="${reservation.statusClassName}"
                                               th:text="${reservation.statusLabel}">승인 대기</span>
-                                        <span class="text-[11px] font-bold"
-                                              th:classappend="${reservation.statusHintColorClass}"
-                                              th:text="${reservation.statusHint}">빠른 응답 필요</span>
                                     </div>
 
                                     <div class="flex items-start gap-3">
@@ -279,6 +273,10 @@
                         </article>
                     </div>
 
+                    <div th:if="${hasReservations}" id="pagination-bar"
+                         class="flex items-center justify-center gap-1 px-5 py-4 border-t border-[#EEE]">
+                    </div>
+
                     <div th:unless="${hasReservations}"
                          class="px-8 py-16 text-center">
                         <div class="text-5xl mb-4">📅</div>
@@ -289,62 +287,63 @@
                     </div>
                 </div>
 
-                <div class="flex flex-col gap-6">
-                    <section class="bg-white border border-[#CCC] rounded-2xl p-5">
-                        <div class="flex items-center gap-2 mb-4">
-                            <div class="w-8 h-8 rounded-xl bg-[#EEF2FB] text-[#1D3CFF] flex items-center justify-center">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </div>
-                            <h2 class="text-base font-black text-[#1A1A1A]">운영 포인트</h2>
-                        </div>
-
-                        <div class="space-y-4">
-                            <div class="rounded-2xl border border-[#CCC] bg-[#F9FAFC] p-4">
-                                <p class="text-[11px] font-bold text-[#888] mb-2">승인 대기 대응</p>
-                                <p class="text-[13px] text-[#444] leading-relaxed">
-                                    승인 대기 예약은 리스트 최상단에 먼저 노출됩니다. 빠르게 응답할수록 고객 이탈 가능성을 낮출 수 있습니다.
-                                </p>
-                            </div>
-                            <div class="rounded-2xl border border-[#CCC] bg-[#F9FAFC] p-4">
-                                <p class="text-[11px] font-bold text-[#888] mb-2">검색 범위</p>
-                                <p class="text-[13px] text-[#444] leading-relaxed">
-                                    고객명, 서비스명, 촬영 장소를 기준으로 검색할 수 있도록 연결했습니다.
-                                </p>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section class="bg-white border border-[#CCC] rounded-2xl p-5">
-                        <div class="flex items-center justify-between mb-4">
-                            <h2 class="text-base font-black text-[#1A1A1A]">빠른 요약</h2>
-                            <span class="text-[11px] font-bold text-[#1D3CFF]">실시간 기준</span>
-                        </div>
-
-                        <div class="space-y-3">
-                            <div class="flex items-center justify-between rounded-xl border border-[#EEE] bg-[#F9FAFC] px-4 py-3">
-                                <span class="text-sm text-[#444]">오늘 촬영</span>
-                                <span class="text-sm font-black text-[#1A1A1A]" th:text="${reservationManagementSummary.todayShootCount} + '건'">0건</span>
-                            </div>
-                            <div class="flex items-center justify-between rounded-xl border border-[#EEE] bg-[#F9FAFC] px-4 py-3">
-                                <span class="text-sm text-[#444]">승인 대기</span>
-                                <span class="text-sm font-black text-[#FF6B2B]" th:text="${reservationManagementSummary.pendingCount} + '건'">0건</span>
-                            </div>
-                            <div class="flex items-center justify-between rounded-xl border border-[#EEE] bg-[#F9FAFC] px-4 py-3">
-                                <span class="text-sm text-[#444]">이번 주 확정</span>
-                                <span class="text-sm font-black text-[#1D3CFF]" th:text="${reservationManagementSummary.confirmedCountThisWeek} + '건'">0건</span>
-                            </div>
-                            <div class="flex items-center justify-between rounded-xl border border-[#EEE] bg-[#F9FAFC] px-4 py-3">
-                                <span class="text-sm text-[#444]">완료 전환율</span>
-                                <span class="text-sm font-black text-[#1A8E40]" th:text="${reservationManagementSummary.completionRate} + '%'">0%</span>
-                            </div>
-                        </div>
-                    </section>
-                </div>
             </section>
         </div>
     </div>
+
+<script>
+(function () {
+    const PAGE_SIZE = 5;
+    const items = Array.from(document.querySelectorAll('.reservation-item'));
+    const bar = document.getElementById('pagination-bar');
+    if (!items.length || !bar) return;
+
+    let current = 0;
+    const totalPages = Math.ceil(items.length / PAGE_SIZE);
+
+    function render(page) {
+        current = page;
+        items.forEach((el, i) => {
+            el.style.display = (i >= page * PAGE_SIZE && i < (page + 1) * PAGE_SIZE) ? '' : 'none';
+        });
+        renderBar();
+    }
+
+    function btnClass(active) {
+        return active
+            ? 'w-8 h-8 flex items-center justify-center text-sm font-bold rounded-lg bg-[#1D3CFF] border border-[#1D3CFF] text-white'
+            : 'w-8 h-8 flex items-center justify-center text-sm font-semibold rounded-lg bg-white border border-[#CCC] text-[#888] hover:border-[#1D3CFF] hover:text-[#1D3CFF] transition-colors';
+    }
+
+    function renderBar() {
+        bar.innerHTML = '';
+
+        const prev = document.createElement('button');
+        prev.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>';
+        prev.className = btnClass(false) + (current === 0 ? ' opacity-30 cursor-not-allowed' : '');
+        prev.disabled = current === 0;
+        prev.onclick = () => render(current - 1);
+        bar.appendChild(prev);
+
+        for (let i = 0; i < totalPages; i++) {
+            const btn = document.createElement('button');
+            btn.textContent = i + 1;
+            btn.className = btnClass(i === current);
+            btn.onclick = () => render(i);
+            bar.appendChild(btn);
+        }
+
+        const next = document.createElement('button');
+        next.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>';
+        next.className = btnClass(false) + (current === totalPages - 1 ? ' opacity-30 cursor-not-allowed' : '');
+        next.disabled = current === totalPages - 1;
+        next.onclick = () => render(current + 1);
+        bar.appendChild(next);
+    }
+
+    render(0);
+})();
+</script>
 </main>
 
 </body>
