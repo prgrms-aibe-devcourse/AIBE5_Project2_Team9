@@ -26,28 +26,28 @@ public class ServiceRegisterController {
     private final TagService tagService;
     private final PhotographerProfileService photographerProfileService;
 
-    private static final Map<String, String> CATEGORY_EMOJIS = Map.ofEntries(
-        Map.entry("데이트스냅", "🌸"),
-        Map.entry("데이트 스냅", "🌸"),
-        Map.entry("프로필", "🤳"),
-        Map.entry("졸업", "🎓"),
-        Map.entry("졸업사진", "🎓"),
-        Map.entry("웨딩", "💒"),
-        Map.entry("웨딩 스냅", "💒"),
-        Map.entry("가족/아이", "👨‍👩‍👧"),
-        Map.entry("가족사진", "👨‍👩‍👧"),
-        Map.entry("증명사진", "🪪"),
-        Map.entry("반려동물", "🐾"),
-        Map.entry("제품/커머셜", "🛍️"),
-        Map.entry("제품 촬영", "🛍️"),
-        Map.entry("음식", "🍽️"),
-        Map.entry("건축", "🏛️"),
-        Map.entry("야외", "🌿"),
-        Map.entry("야외 촬영", "🌿"),
-        Map.entry("스튜디오", "🎞️"),
-        Map.entry("드론", "🚁"),
-        Map.entry("공연", "🎭")
-    );
+    // private static final Map<String, String> CATEGORY_EMOJIS = Map.ofEntries(
+    //     Map.entry("데이트스냅", "🌸"),
+    //     Map.entry("데이트 스냅", "🌸"),
+    //     Map.entry("프로필", "🤳"),
+    //     Map.entry("졸업", "🎓"),
+    //     Map.entry("졸업사진", "🎓"),
+    //     Map.entry("웨딩", "💒"),
+    //     Map.entry("웨딩 스냅", "💒"),
+    //     Map.entry("가족/아이", "👨‍👩‍👧"),
+    //     Map.entry("가족사진", "👨‍👩‍👧"),
+    //     Map.entry("증명사진", "🪪"),
+    //     Map.entry("반려동물", "🐾"),
+    //     Map.entry("제품/커머셜", "🛍️"),
+    //     Map.entry("제품 촬영", "🛍️"),
+    //     Map.entry("음식", "🍽️"),
+    //     Map.entry("건축", "🏛️"),
+    //     Map.entry("야외", "🌿"),
+    //     Map.entry("야외 촬영", "🌿"),
+    //     Map.entry("스튜디오", "🎞️"),
+    //     Map.entry("드론", "🚁"),
+    //     Map.entry("공연", "🎭")
+    // );
 
     @GetMapping("/{itemId}")
     public String serviceDetail(
@@ -65,7 +65,6 @@ public class ServiceRegisterController {
     public String serviceRegisterForm(@PathVariable Long photographerId, Model model) {
         model.addAttribute("photographerId", photographerId);
         model.addAttribute("tagList", tagService.findAllTagReference());
-        model.addAttribute("categoryEmojis", CATEGORY_EMOJIS);
         model.addAttribute("itemRegisterRequest", new ItemRegisterRequest());
         return "photographer/service-register";
     }

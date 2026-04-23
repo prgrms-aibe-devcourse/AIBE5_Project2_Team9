@@ -99,7 +99,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 item.id,
                 item.name,
                 Expressions.nullExpression(String.class),
-                new QTagReference(item.tag.id, item.tag.name),
+                new QTagReference(item.tag.id, item.tag.name, item.tag.emoji),
                 new QPhotographerSimpleCardDto(Expressions.nullExpression(String.class), item.photographer.name),
                 new QRegionDto(item.address, item.detailAddress, item.lat, item.lng),
                 item.avgScore,

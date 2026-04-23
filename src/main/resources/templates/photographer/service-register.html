@@ -171,43 +171,8 @@
               <th:block th:each="tag : ${tagList}">
                 <label class="category-option relative flex flex-col items-center justify-center gap-2 py-4 px-2.5 bg-[#F9FAFC] border-[1.5px] border-[#CCC] rounded-xl cursor-pointer text-[13px] font-medium text-[#444] text-center leading-snug transition-all hover:border-[#1D3CFF] hover:bg-[#EEF1FF]">
                   <input type="radio" name="tagName" th:value="${tag.name}" class="absolute opacity-0 w-0 h-0">
-                  <span class="cat-emoji text-2xl" th:text="${categoryEmojis[tag.name] ?: '📷'}">📷</span>
+                  <span class="cat-emoji text-2xl" th:text="${tag.emoji ?: '📷'}">📷</span>
                   <span th:text="${tag.name}">카테고리</span>
-                </label>
-              </th:block>
-              <!-- Fallback if no tags from DB -->
-              <th:block th:if="${#lists.isEmpty(tagList)}">
-                <label class="category-option relative flex flex-col items-center justify-center gap-2 py-4 px-2.5 bg-[#F9FAFC] border-[1.5px] border-[#CCC] rounded-xl cursor-pointer text-[13px] font-medium text-[#444] text-center leading-snug transition-all hover:border-[#1D3CFF] hover:bg-[#EEF1FF]">
-                  <input type="radio" name="tagName" value="데이트 스냅" class="absolute opacity-0 w-0 h-0">
-                  <span class="text-2xl">🌸</span>데이트 스냅
-                </label>
-                <label class="category-option relative flex flex-col items-center justify-center gap-2 py-4 px-2.5 bg-[#F9FAFC] border-[1.5px] border-[#CCC] rounded-xl cursor-pointer text-[13px] font-medium text-[#444] text-center leading-snug transition-all hover:border-[#1D3CFF] hover:bg-[#EEF1FF]">
-                  <input type="radio" name="tagName" value="프로필" class="absolute opacity-0 w-0 h-0">
-                  <span class="text-2xl">🤳</span>프로필
-                </label>
-                <label class="category-option relative flex flex-col items-center justify-center gap-2 py-4 px-2.5 bg-[#F9FAFC] border-[1.5px] border-[#CCC] rounded-xl cursor-pointer text-[13px] font-medium text-[#444] text-center leading-snug transition-all hover:border-[#1D3CFF] hover:bg-[#EEF1FF]">
-                  <input type="radio" name="tagName" value="졸업사진" class="absolute opacity-0 w-0 h-0">
-                  <span class="text-2xl">🎓</span>졸업사진
-                </label>
-                <label class="category-option relative flex flex-col items-center justify-center gap-2 py-4 px-2.5 bg-[#F9FAFC] border-[1.5px] border-[#CCC] rounded-xl cursor-pointer text-[13px] font-medium text-[#444] text-center leading-snug transition-all hover:border-[#1D3CFF] hover:bg-[#EEF1FF]">
-                  <input type="radio" name="tagName" value="웨딩 스냅" class="absolute opacity-0 w-0 h-0">
-                  <span class="text-2xl">💒</span>웨딩 스냅
-                </label>
-                <label class="category-option relative flex flex-col items-center justify-center gap-2 py-4 px-2.5 bg-[#F9FAFC] border-[1.5px] border-[#CCC] rounded-xl cursor-pointer text-[13px] font-medium text-[#444] text-center leading-snug transition-all hover:border-[#1D3CFF] hover:bg-[#EEF1FF]">
-                  <input type="radio" name="tagName" value="가족사진" class="absolute opacity-0 w-0 h-0">
-                  <span class="text-2xl">👨‍👩‍👧</span>가족사진
-                </label>
-                <label class="category-option relative flex flex-col items-center justify-center gap-2 py-4 px-2.5 bg-[#F9FAFC] border-[1.5px] border-[#CCC] rounded-xl cursor-pointer text-[13px] font-medium text-[#444] text-center leading-snug transition-all hover:border-[#1D3CFF] hover:bg-[#EEF1FF]">
-                  <input type="radio" name="tagName" value="증명사진" class="absolute opacity-0 w-0 h-0">
-                  <span class="text-2xl">🪪</span>증명사진
-                </label>
-                <label class="category-option relative flex flex-col items-center justify-center gap-2 py-4 px-2.5 bg-[#F9FAFC] border-[1.5px] border-[#CCC] rounded-xl cursor-pointer text-[13px] font-medium text-[#444] text-center leading-snug transition-all hover:border-[#1D3CFF] hover:bg-[#EEF1FF]">
-                  <input type="radio" name="tagName" value="반려동물" class="absolute opacity-0 w-0 h-0">
-                  <span class="text-2xl">🐾</span>반려동물
-                </label>
-                <label class="category-option relative flex flex-col items-center justify-center gap-2 py-4 px-2.5 bg-[#F9FAFC] border-[1.5px] border-[#CCC] rounded-xl cursor-pointer text-[13px] font-medium text-[#444] text-center leading-snug transition-all hover:border-[#1D3CFF] hover:bg-[#EEF1FF]">
-                  <input type="radio" name="tagName" value="제품 촬영" class="absolute opacity-0 w-0 h-0">
-                  <span class="text-2xl">🛍️</span>제품 촬영
                 </label>
               </th:block>
             </div>
