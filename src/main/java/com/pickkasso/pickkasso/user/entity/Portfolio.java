@@ -44,6 +44,9 @@ public class Portfolio {
 
     @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PortfolioTag> portfolioTagList = new ArrayList<>();
+    // 지금의 이미지 관리는, 이미지 삭제를 서비스에서 호출한 다음 update시켜야 함
+    @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PortfolioImg> portfolioImgList = new ArrayList<>();
 
 
     private Portfolio(
@@ -83,5 +86,11 @@ public class Portfolio {
         tagList.forEach(tag ->
             this.portfolioTagList.add(PortfolioTag.createPortfolioTag(this, tag))
         );
+    }
+
+    // 최대 list 길이 20 이하로 가정
+    public void updateImgs(List<PortfolioImg> imgList) {
+        this.portfolioImgList.clear();
+        this.portfolioImgList.addAll(imgList);
     }
 }

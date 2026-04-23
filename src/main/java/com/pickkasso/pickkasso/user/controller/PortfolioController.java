@@ -1,5 +1,6 @@
 package com.pickkasso.pickkasso.user.controller;
 
+import com.pickkasso.pickkasso.global.img.ImageUploadException;
 import com.pickkasso.pickkasso.global.tag.TagService;
 import com.pickkasso.pickkasso.user.dto.portfolio.PortfolioDto;
 import com.pickkasso.pickkasso.user.service.PortfolioService;
@@ -7,8 +8,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -31,12 +34,23 @@ public class PortfolioController {
     public String createPortfolio(
             @PathVariable Long photographerId,
             @ModelAttribute("portfolioDto") PortfolioDto portfolioDto,
+            @RequestParam(required = false) List<String> keptImgUrls,
+            @RequestParam(required = false) List<Integer> keptImgOrders,
+            @RequestParam(required = false) List<MultipartFile> newFiles,
+            @RequestParam(required = false) List<Integer> newFileOrders,
             Model model
     ) {
+        // System.out.println("===");
+        // System.out.println(keptImgUrls);
+        // System.out.println(keptImgOrders);
+        // System.out.println(newFiles == null ? null : newFiles.size());
+        // System.out.println(newFileOrders);
+        // System.out.println("===");
+
         try {
-            Long portfolioId = portfolioService.createPortfolio(photographerId, portfolioDto);
+            Long portfolioId = portfolioService.createPortfolio(photographerId, portfolioDto, newFiles, newFileOrders);
             return "redirect:/photographer/" + photographerId + "/portfolio/" + portfolioId;
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | ImageUploadException e) {
             model.addAttribute("errorMessage", e.getMessage());
             model.addAttribute("portfolioDto", portfolioDto);
             model.addAttribute("tagList", tagService.findAllTagReference());

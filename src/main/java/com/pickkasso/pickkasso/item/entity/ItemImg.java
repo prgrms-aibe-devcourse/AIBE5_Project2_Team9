@@ -25,11 +25,13 @@ public class ItemImg extends DefaultImg {
     private ItemImg(
         Item item,
         String imgName,
+        String imgUrl,
         Integer imgOrder
     ) {
 
         this.item = item;
         this.imgName = imgName;
+        this.imgUrl = imgUrl;
         this.imgOrder = imgOrder;
     }
 
@@ -37,13 +39,18 @@ public class ItemImg extends DefaultImg {
     public static ItemImg createItemImg(
         Item item,
         String imgName,
+        String imgUrl,
         Integer imgOrder
     ) {
-        return new ItemImg(item, imgName, imgOrder);
+        return new ItemImg(item, imgName, imgUrl, imgOrder);
     }
 
     public void updateItemImg(String imgName, Integer imgOrder) {
         this.imgName = imgName;
+        this.imgOrder = imgOrder;
+    }
+
+    public void updateItemImg(Integer imgOrder) {
         this.imgOrder = imgOrder;
     }
 }

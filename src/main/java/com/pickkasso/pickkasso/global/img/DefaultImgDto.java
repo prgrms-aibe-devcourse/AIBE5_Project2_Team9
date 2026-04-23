@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class DefaultImgDto {
     private String imgName;
-    private String imrUrl;
+    private String imgUrl;
     private Integer imgOrder;
-    private LocalDateTime regTime;
 }

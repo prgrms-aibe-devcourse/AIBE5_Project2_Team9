@@ -5,128 +5,7 @@
 <head>
   <title th:fragment="title">포트폴리오 등록 | PICKKASSO</title>
   <th:block th:fragment="pageStyles">
-    <script>
-        const MAX_COUNT = 20;
-        const MAX_SIZE = 30 * 1024 * 1024; // 30MB
-        let files = []; // { file, previewUrl } 배열
 
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('imageInput').addEventListener('change', function(e) {
-                addFiles(Array.from(e.target.files));
-                this.value = '';
-            });
-        });
-
-        function handleDrop(e) {
-            e.preventDefault();
-            // 파일 드롭인 경우만 처리
-            if (e.dataTransfer.files.length === 0) return;
-            document.getElementById('dropZone').classList.remove('border-[#6B8DD6]', 'bg-[#EEF3FC]');
-            addFiles(Array.from(e.dataTransfer.files).filter(f => f.type.match(/image\/(jpeg|png|webp)/)));
-        }
-
-        function addFiles(newFiles) {
-            for (const file of newFiles) {
-                if (files.length >= MAX_COUNT) {
-                    alert('최대 20장까지 업로드할 수 있어요.');
-                    break;
-                }
-                if (file.size > MAX_SIZE) {
-                    alert(`${file.name}은 30MB를 초과해요.`);
-                    continue;
-                }
-                const previewUrl = URL.createObjectURL(file);
-                files.push({ file, previewUrl });
-            }
-            renderPreview();
-        }
-
-        function removeFile(index) {
-            URL.revokeObjectURL(files[index].previewUrl);
-            files.splice(index, 1);
-            renderPreview();
-        }
-
-        function renderPreview() {
-            const grid = document.getElementById('previewGrid');
-            grid.innerHTML = '';
-
-            files.forEach((item, index) => {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'relative aspect-square rounded-lg overflow-hidden group cursor-grab';
-                wrapper.draggable = true;
-                wrapper.dataset.index = index;
-
-                wrapper.innerHTML = `
-            <img src="${item.previewUrl}" class="w-full h-full object-cover pointer-events-none">
-            ${index === 0 ? '<span class="absolute bottom-1 left-1 text-[10px] font-bold bg-[#6B8DD6] text-white px-1.5 py-0.5 rounded">대표</span>' : ''}
-            <button type="button" onclick="removeFile(${index})"
-                class="absolute top-1 right-1 w-5 h-5 bg-black/60 text-white rounded-full text-xs hidden group-hover:flex items-center justify-center leading-none">
-                ×
-            </button>
-        `;
-
-                // 드래그 시작
-                wrapper.addEventListener('dragstart', (e) => {
-                    e.dataTransfer.effectAllowed = 'move';
-                    e.dataTransfer.setData('text/plain', index);
-                    wrapper.classList.add('opacity-40');
-                });
-
-                // 드래그 끝
-                wrapper.addEventListener('dragend', () => {
-                    wrapper.classList.remove('opacity-40');
-                    document.querySelectorAll('#previewGrid [data-index]').forEach(el => {
-                        el.classList.remove('border-2', 'border-[#6B8DD6]');
-                    });
-                });
-
-                // 드래그 대상 위에 올라왔을 때
-                wrapper.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    e.dataTransfer.dropEffect = 'move';
-                    wrapper.classList.add('border-2', 'border-[#6B8DD6]');
-                });
-
-                wrapper.addEventListener('dragleave', () => {
-                    wrapper.classList.remove('border-2', 'border-[#6B8DD6]');
-                });
-
-                // 드롭
-                wrapper.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
-                    const toIndex = parseInt(wrapper.dataset.index);
-
-                    if (fromIndex !== toIndex) {
-                        const moved = files.splice(fromIndex, 1)[0];
-                        files.splice(toIndex, 0, moved);
-                        renderPreview();
-                    }
-                });
-
-                grid.appendChild(wrapper);
-            });
-
-            // + 버튼
-            if (files.length < MAX_COUNT) {
-                const addBtn = document.createElement('div');
-                addBtn.className = 'aspect-square rounded-lg border-2 border-dashed border-[#CCC] bg-[#F9FAFC] flex items-center justify-center text-[#CCC] text-xl cursor-pointer hover:border-[#6B8DD6] hover:text-[#6B8DD6] transition-colors';
-                addBtn.textContent = '+';
-                addBtn.onclick = () => document.getElementById('imageInput').click();
-                grid.appendChild(addBtn);
-            }
-        }
-
-        // S3 연동 시 이 함수만 교체하면 돼요
-        async function uploadToS3(file) {
-            const formData = new FormData();
-            formData.append('file', file);
-            const res = await fetch('/upload/s3', { method: 'POST', body: formData });
-            const data = await res.json();
-            return data.imgUrl;
-        }
-    </script>
   </th:block>
 </head>
 <body>
@@ -168,6 +47,7 @@
     <!-- Form -->
     <form th:action="${formAction}"
           method="post" id="portfolio-form"
+          enctype="multipart/form-data"
           th:object="${portfolioDto}">
       <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 
@@ -287,7 +167,8 @@
 
         <!-- 업로드 영역 — S3 연동 전 visual only -->
         <div>
-          <input type="file" id="imageInput" accept="image/jpeg,image/png,image/webp" multiple style="display:none">
+          <input type="file" id="imageInput" name="newFiles"
+                 accept="image/jpeg,image/png,image/webp" multiple style="display:none">
           <div id="dropZone"
                class="border-2 border-dashed border-[#CCC] rounded-xl bg-[#F9FAFC] px-6 py-12 flex flex-col items-center gap-3 cursor-pointer select-none mb-4 transition-colors hover:border-[#6B8DD6] hover:bg-[#EEF3FC]"
                onclick="document.getElementById('imageInput').click()"
@@ -674,16 +555,20 @@
     syncTriggerLabels();
     syncRangeWarning();
 
-    if (portfolioForm) {
-      portfolioForm.addEventListener('submit', function (event) {
-        if (!syncRangeWarning()) {
-          event.preventDefault();
-          if (activeTarget !== 'end') {
-            openPicker('end');
-          }
-        }
+      document.addEventListener('DOMContentLoaded', function() {
+          var portfolioForm = document.getElementById('portfolio-form');
+          if (!portfolioForm) return;
+
+          portfolioForm.addEventListener('submit', function(event) {
+              event.preventDefault();
+              if (!syncRangeWarning()) {
+                  openPicker('end');
+                  return;
+              }
+              syncImgHiddenInputs();
+              portfolioForm.submit();
+          });
       });
-    }
   })();
 
   // ── 태그 토글(실제 체크 상태와 UI 동기화) ───────────────────────
@@ -731,6 +616,159 @@
     textarea.addEventListener('input', update);
     update();
   })();
+  </script>
+  <script>
+      const MAX_COUNT = 20;
+      const MAX_SIZE = 30 * 1024 * 1024; // 30MB
+      let files = []; // { file, previewUrl } 배열
+
+      document.addEventListener('DOMContentLoaded', function() {
+          document.getElementById('imageInput').addEventListener('change', function(e) {
+              addFiles(Array.from(e.target.files));
+              this.value = '';
+          });
+      });
+
+      function handleDrop(e) {
+          e.preventDefault();
+          // 파일 드롭인 경우만 처리
+          if (e.dataTransfer.files.length === 0) return;
+          document.getElementById('dropZone').classList.remove('border-[#6B8DD6]', 'bg-[#EEF3FC]');
+          addFiles(Array.from(e.dataTransfer.files).filter(f => f.type.match(/image\/(jpeg|png|webp)/)));
+      }
+
+      function addFiles(newFiles) {
+          for (const file of newFiles) {
+              if (files.length >= MAX_COUNT) {
+                  alert('최대 20장까지 업로드할 수 있어요.');
+                  break;
+              }
+              if (file.size > MAX_SIZE) {
+                  alert(`${file.name}은 30MB를 초과해요.`);
+                  continue;
+              }
+              const previewUrl = URL.createObjectURL(file);
+              files.push({ file, previewUrl, existingUrl: null });
+          }
+          renderPreview();
+      }
+
+      function removeFile(index) {
+          URL.revokeObjectURL(files[index].previewUrl);
+          files.splice(index, 1);
+          renderPreview();
+      }
+
+      function initExistingImages(imgList) {
+          imgList.forEach(function(img) {
+              files.push({ file: null, previewUrl: img.imgUrl, existingUrl: img.imgUrl });
+          });
+          renderPreview();
+      }
+
+      function renderPreview() {
+          const grid = document.getElementById('previewGrid');
+          grid.innerHTML = '';
+
+          files.forEach((item, index) => {
+              const wrapper = document.createElement('div');
+              wrapper.className = 'relative aspect-square rounded-lg overflow-hidden group cursor-grab';
+              wrapper.draggable = true;
+              wrapper.dataset.index = index;
+
+              wrapper.innerHTML = `
+            <img src="${item.previewUrl}" class="w-full h-full object-cover pointer-events-none">
+            ${index === 0 ? '<span class="absolute bottom-1 left-1 text-[10px] font-bold bg-[#6B8DD6] text-white px-1.5 py-0.5 rounded">대표</span>' : ''}
+            <button type="button" onclick="removeFile(${index})"
+                class="absolute top-1 right-1 w-5 h-5 bg-black/60 text-white rounded-full text-xs hidden group-hover:flex items-center justify-center leading-none">
+                ×
+            </button>
+        `;
+
+              // 드래그 시작
+              wrapper.addEventListener('dragstart', (e) => {
+                  e.dataTransfer.effectAllowed = 'move';
+                  e.dataTransfer.setData('text/plain', index);
+                  wrapper.classList.add('opacity-40');
+              });
+
+              // 드래그 끝
+              wrapper.addEventListener('dragend', () => {
+                  wrapper.classList.remove('opacity-40');
+                  document.querySelectorAll('#previewGrid [data-index]').forEach(el => {
+                      el.classList.remove('border-2', 'border-[#6B8DD6]');
+                  });
+              });
+
+              // 드래그 대상 위에 올라왔을 때
+              wrapper.addEventListener('dragover', (e) => {
+                  e.preventDefault();
+                  e.dataTransfer.dropEffect = 'move';
+                  wrapper.classList.add('border-2', 'border-[#6B8DD6]');
+              });
+
+              wrapper.addEventListener('dragleave', () => {
+                  wrapper.classList.remove('border-2', 'border-[#6B8DD6]');
+              });
+
+              // 드롭
+              wrapper.addEventListener('drop', (e) => {
+                  e.preventDefault();
+                  const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+                  const toIndex = parseInt(wrapper.dataset.index);
+
+                  if (fromIndex !== toIndex) {
+                      const moved = files.splice(fromIndex, 1)[0];
+                      files.splice(toIndex, 0, moved);
+                      renderPreview();
+                  }
+              });
+
+              grid.appendChild(wrapper);
+          });
+
+          // + 버튼
+          if (files.length < MAX_COUNT) {
+              const addBtn = document.createElement('div');
+              addBtn.className = 'aspect-square rounded-lg border-2 border-dashed border-[#CCC] bg-[#F9FAFC] flex items-center justify-center text-[#CCC] text-xl cursor-pointer hover:border-[#6B8DD6] hover:text-[#6B8DD6] transition-colors';
+              addBtn.textContent = '+';
+              addBtn.onclick = () => document.getElementById('imageInput').click();
+              grid.appendChild(addBtn);
+          }
+      }
+
+      function syncImgHiddenInputs() {
+          const container = document.getElementById('hiddenInputs');
+          container.innerHTML = '';
+          console.log('기본 호출됨');
+          // 기존 유지 이미지 → hidden으로 URL + order 전송
+          files.forEach(function(item, index) {
+              console.log('syncImgHiddenInputs 호출됨, files:', files);
+              if (item.existingUrl) {
+                  container.innerHTML +=
+                      '<input type="hidden" name="keptImgUrls" value="' + item.existingUrl + '">' +
+                      '<input type="hidden" name="keptImgOrders" value="' + index + '">';
+              } else {
+                  // 신규 파일 → order만 hidden으로 (파일은 name="newFiles"로 전송)
+                  container.innerHTML +=
+                      '<input type="hidden" name="newFileOrders" value="' + index + '">';
+              }
+          });
+
+          // 신규 파일을 imageInput에 반영 (순서 유지)
+          const dt = new DataTransfer();
+          files.filter(function(f) { return f.file; })
+              .forEach(function(f) { dt.items.add(f.file); });
+          document.getElementById('imageInput').files = dt.files;
+      }
+
+  </script>
+  <script th:if="${portfolioDto.imgDtoList != null and !portfolioDto.imgDtoList.isEmpty()}">
+      document.addEventListener('DOMContentLoaded', function() {
+          initExistingImages([
+              /*[[${portfolioDto.imgDtoList}]]*/ []
+          ]);
+      });
   </script>
 </main>
 
