@@ -116,10 +116,7 @@ public class PortfolioController {
             model.addAttribute("errorMessage", e.getMessage());
             model.addAttribute("portfolioDto", portfolioDto);
             model.addAttribute("tagList", tagService.findAllTagReference());
-            model.addAttribute("keptImgUrls", keptImgUrls);
-            model.addAttribute("keptImgOrders", keptImgOrders);
-            model.addAttribute("newFiles", newFiles);
-            model.addAttribute("newFileOrders", newFileOrders);
+            model.addAttribute("portfolioImgList", portfolioService.getPortfolioImage(photographerId, portfolioId));
             model.addAttribute("photographerId", photographerId);
             model.addAttribute("portfolioId", portfolioId);
             model.addAttribute("formAction", "/photographer/" + photographerId + "/portfolio/" + portfolioId + "/edit");

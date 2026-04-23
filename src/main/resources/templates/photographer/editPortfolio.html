@@ -46,6 +46,7 @@
     <!-- Form -->
     <form th:action="${formAction}"
           method="post" id="portfolio-form"
+          class="mb-20"
           enctype="multipart/form-data"
           th:object="${portfolioDto}">
       <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
@@ -562,6 +563,18 @@
               event.preventDefault();
               if (!syncRangeWarning()) {
                   openPicker('end');
+                  return;
+              }
+              // 설명 100자 체크
+              var textarea = document.getElementById('desc-textarea');
+              if (textarea && textarea.value.length < 100) {
+                  textarea.focus();
+                  textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  var status = document.getElementById('desc-count-status');
+                  if (status) {
+                      status.textContent = '100자 이상 입력해주세요';
+                      status.className = 'text-xs text-red-500';
+                  }
                   return;
               }
               syncImgHiddenInputs();
