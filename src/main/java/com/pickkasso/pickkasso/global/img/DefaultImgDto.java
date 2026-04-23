@@ -3,10 +3,7 @@ package com.pickkasso.pickkasso.global.img;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -14,8 +11,15 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class DefaultImgDto {
-    private String imgName;
     private String imgUrl;
     private Integer imgOrder;
+
+    public static DefaultImgDto from(DefaultImg defaultImg) {
+        return DefaultImgDto.builder()
+            .imgUrl(defaultImg.getImgUrl())
+            .imgOrder(defaultImg.getImgOrder())
+            .build();
+    }
 }

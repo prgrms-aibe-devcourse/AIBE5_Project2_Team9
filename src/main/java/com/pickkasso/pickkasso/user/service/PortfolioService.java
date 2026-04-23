@@ -52,7 +52,6 @@ public class PortfolioService {
         return imgDtoList.stream()
             .map(dto -> PortfolioImg.createPortfolioImg(
                 portfolio,
-                dto.getImgName(),
                 dto.getImgUrl(),
                 dto.getImgOrder()
             ))
@@ -99,12 +98,26 @@ public class PortfolioService {
             .toList();
     }
 
-    public void updatePortfolio(Long photographerId, Long portfolioId, PortfolioDto dto) {
+    @Transactional(readOnly = true)
+    public List<DefaultImgDto> getPortfolioImage(Long photographerId, Long portfolioId) {
+        Portfolio portfolio = getOwnedPortfolio(photographerId, portfolioId);
+        return portfolio.getPortfolioImgList().stream()
+            .map(DefaultImgDto::from)
+            .toList();
+    }
+
+    public void updatePortfolio(Long photographerId, Long portfolioId, PortfolioDto dto,
+        List<String> keptImgUrls, List<Integer> keptImgOrders, List<MultipartFile> newFiles, List<Integer> newFileOrders) {
         validatePortfolio(dto);
 
         Portfolio portfolio = getOwnedPortfolio(photographerId, portfolioId);
+        // 이미지 업로드 후 저장
+        String dirName = "photographer/user_" + photographerId + "/portfolio";
+        List<DefaultImgDto> imgDtoList = defaultImgService.updateImages(portfolio.getPortfolioImgList(), keptImgUrls, keptImgOrders, newFiles, newFileOrders, dirName);
+
         portfolio.updatePortfolio(dto.name(), dto.description(), resolveProjectType(dto));
         portfolio.updateTags(tagService.toTagList(dto.tagIdList()));
+        portfolio.updateImgs(toPortfolioImgList(portfolio, imgDtoList));
     }
 
     public void deletePortfolio(Long photographerId, Long portfolioId) {

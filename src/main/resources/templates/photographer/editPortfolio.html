@@ -5,7 +5,6 @@
 <head>
   <title th:fragment="title">포트폴리오 등록 | PICKKASSO</title>
   <th:block th:fragment="pageStyles">
-
   </th:block>
 </head>
 <body>
@@ -167,7 +166,7 @@
 
         <!-- 업로드 영역 — S3 연동 전 visual only -->
         <div>
-          <input type="file" id="imageInput" name="newFiles"
+          <input type="file" id="imageInput"
                  accept="image/jpeg,image/png,image/webp" multiple style="display:none">
           <div id="dropZone"
                class="border-2 border-dashed border-[#CCC] rounded-xl bg-[#F9FAFC] px-6 py-12 flex flex-col items-center gap-3 cursor-pointer select-none mb-4 transition-colors hover:border-[#6B8DD6] hover:bg-[#EEF3FC]"
@@ -660,6 +659,7 @@
       }
 
       function initExistingImages(imgList) {
+          console.log('initExistingImages:', imgList); // 실제 데이터 확인
           imgList.forEach(function(img) {
               files.push({ file: null, previewUrl: img.imgUrl, existingUrl: img.imgUrl });
           });
@@ -755,22 +755,29 @@
               }
           });
 
-          // 신규 파일을 imageInput에 반영 (순서 유지)
+          // 신규 파일마다 별도 file input 생성
           const dt = new DataTransfer();
           files.filter(function(f) { return f.file; })
               .forEach(function(f) { dt.items.add(f.file); });
-          document.getElementById('imageInput').files = dt.files;
+
+          if (dt.files.length > 0) {
+              const fileInput = document.createElement('input');
+              fileInput.type = 'file';
+              fileInput.name = 'newFiles';
+              fileInput.style.display = 'none';
+              fileInput.files = dt.files;
+              container.appendChild(fileInput);
+          }
       }
 
   </script>
-  <script th:if="${portfolioDto.imgDtoList != null and !portfolioDto.imgDtoList.isEmpty()}">
+  <script th:if="${portfolioImgList != null and !portfolioImgList.isEmpty()}"
+          th:inline="javascript">
       document.addEventListener('DOMContentLoaded', function() {
-          initExistingImages([
-              /*[[${portfolioDto.imgDtoList}]]*/ []
-          ]);
+          var imgList = /*[[${portfolioImgList}]]*/ [];
+          initExistingImages(imgList);
       });
   </script>
-</main>
 
 </body>
 </html>

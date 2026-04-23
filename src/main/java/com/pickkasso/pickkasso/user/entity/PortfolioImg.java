@@ -17,24 +17,18 @@ public class PortfolioImg extends DefaultImg {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "portfolio_id")
+    @JoinColumn(name = "portfolio_id", nullable = false)
     private Portfolio portfolio;
 
-    private PortfolioImg(Portfolio portfolio, String imgName, String imgUrl, Integer imgOrder) {
+    private PortfolioImg(Portfolio portfolio, String imgUrl, Integer imgOrder) {
         this.portfolio = portfolio;
-        this.imgName = imgName;
         this.imgUrl = imgUrl;
         this.imgOrder = imgOrder;
     }
 
     //== 생성 method ==//
-    public static PortfolioImg createPortfolioImg(Portfolio portfolio, String imgName, String imgUrl, Integer imgOrder) {
-        return new PortfolioImg(portfolio, imgName, imgUrl, imgOrder);
-    }
-
-    public void updatePortfolioImg(String imgName, Integer imgOrder) {
-        this.imgName = imgName;
-        this.imgOrder = imgOrder;
+    public static PortfolioImg createPortfolioImg(Portfolio portfolio, String imgUrl, Integer imgOrder) {
+        return new PortfolioImg(portfolio, imgUrl, imgOrder);
     }
 
     public void updatePortfolioImg(Integer imgOrder) {

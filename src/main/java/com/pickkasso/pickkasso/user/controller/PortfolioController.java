@@ -71,6 +71,7 @@ public class PortfolioController {
         model.addAttribute("portfolioDescription", portfolioDto.description());
         model.addAttribute("tagList", tagService.findAllTagReference());
         model.addAttribute("portfolioTagList", portfolioService.getPortfolioTagReference(photographerId, portfolioId));
+        model.addAttribute("portfolioImgList", portfolioService.getPortfolioImage(photographerId, portfolioId));
         model.addAttribute("portfolioProjectType", portfolioDto.projectType());
         model.addAttribute("photographerId", photographerId);
         model.addAttribute("portfolioId", portfolioId);
@@ -91,6 +92,7 @@ public class PortfolioController {
         model.addAttribute("portfolioDto", portfolioDto);
         model.addAttribute("photographerId", photographerId);
         model.addAttribute("tagList", tagService.findAllTagReference());
+        model.addAttribute("portfolioImgList", portfolioService.getPortfolioImage(photographerId, portfolioId));
         model.addAttribute("portfolioId", portfolioId);
         model.addAttribute("formAction", "/photographer/" + photographerId + "/portfolio/" + portfolioId + "/edit");
         return "photographer/editPortfolio";
@@ -101,15 +103,23 @@ public class PortfolioController {
             @PathVariable Long photographerId,
             @PathVariable Long portfolioId,
             @ModelAttribute("portfolioDto") PortfolioDto portfolioDto,
+            @RequestParam(required = false) List<String> keptImgUrls,
+            @RequestParam(required = false) List<Integer> keptImgOrders,
+            @RequestParam(required = false) List<MultipartFile> newFiles,
+            @RequestParam(required = false) List<Integer> newFileOrders,
             Model model
     ) {
         try {
-            portfolioService.updatePortfolio(photographerId, portfolioId, portfolioDto);
+            portfolioService.updatePortfolio(photographerId, portfolioId, portfolioDto, keptImgUrls, keptImgOrders, newFiles, newFileOrders);
             return "redirect:/photographer/" + photographerId + "/portfolio/" + portfolioId;
         } catch (IllegalArgumentException e) {
             model.addAttribute("errorMessage", e.getMessage());
             model.addAttribute("portfolioDto", portfolioDto);
             model.addAttribute("tagList", tagService.findAllTagReference());
+            model.addAttribute("keptImgUrls", keptImgUrls);
+            model.addAttribute("keptImgOrders", keptImgOrders);
+            model.addAttribute("newFiles", newFiles);
+            model.addAttribute("newFileOrders", newFileOrders);
             model.addAttribute("photographerId", photographerId);
             model.addAttribute("portfolioId", portfolioId);
             model.addAttribute("formAction", "/photographer/" + photographerId + "/portfolio/" + portfolioId + "/edit");

@@ -36,7 +36,7 @@ public class S3Service {
     }
 
     public void delete(String fileUrl) {
-        String fileName = fileUrl.substring(fileUrl.indexOf(bucket) + bucket.length() + 1);
+        String fileName = fileUrl.substring(fileUrl.indexOf(".amazonaws.com/") + ".amazonaws.com/".length());
         amazonS3.deleteObject(bucket, fileName);
     }
 }
