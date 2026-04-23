@@ -69,4 +69,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             where r.id = :id
             """)
     Optional<Reservation> findByIdWithDetails(@Param("id") Long id);
+
+    List<Reservation> findByStatusAndScheduledAtBefore(ReservationStatus status, LocalDateTime before);
 }
