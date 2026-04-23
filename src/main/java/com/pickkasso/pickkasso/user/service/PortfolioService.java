@@ -122,6 +122,8 @@ public class PortfolioService {
 
     public void deletePortfolio(Long photographerId, Long portfolioId) {
         Portfolio portfolio = getOwnedPortfolio(photographerId, portfolioId);
+        String dirName = "photographer/user_" + photographerId + "/portfolio";
+        defaultImgService.updateImages(portfolio.getPortfolioImgList(), null, null, null, null, dirName);
         portfolio.updateTags(List.of());
         portfolioRepository.delete(portfolio);
     }
