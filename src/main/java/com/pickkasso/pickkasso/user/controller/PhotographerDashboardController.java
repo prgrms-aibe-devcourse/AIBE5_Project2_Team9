@@ -9,11 +9,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.time.LocalDate;
 
 @Controller
 @RequiredArgsConstructor
@@ -25,31 +29,40 @@ public class PhotographerDashboardController {
     private final PhotographerReservationService reservationService;
 
     @GetMapping("/{photographerId}/dashboard")
-    public String dashboard(@PathVariable Long photographerId, Authentication auth, Model model) {
-        if (auth == null || !auth.isAuthenticated()) {
-            return "redirect:/login";
-        }
-        Photographer photographer = photographerRepository.findByAccountUsername(auth.getName());
-        if (photographer == null || !photographer.getId().equals(photographerId)) {
-            return "redirect:/";
-        }
+    public String dashboard(@PathVariable Long photographerId,
+                            @RequestParam(required = false)
+                            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate weekStart,
+                            Authentication auth,
+                            Model model) {
+        Photographer photographer = resolveAuthorizedPhotographer(photographerId, auth);
+        if (photographer == null) return auth == null || !auth.isAuthenticated() ? "redirect:/login" : "redirect:/";
 
-        ProfileCompletionDto completion = photographerProfileService.getProfileCompletion(photographerId);
-
-        model.addAttribute("photographer", photographer);
-        model.addAttribute("completion", completion);
-        model.addAttribute("activeTab", "dashboard");
-        model.addAttribute("summary", reservationService.getSummary(photographerId));
-        model.addAttribute("pendingList", reservationService.getPendingList(photographerId));
-        model.addAttribute("todaySchedule", reservationService.getTodaySchedule(photographerId));
-        model.addAttribute("weekly", reservationService.getWeeklyCalendar(photographerId));
+        populateDashboardModel(model, photographer, weekStart);
 
         return "photographer/dashboard";
+    }
+
+    @GetMapping("/{photographerId}/dashboard/weekly-calendar")
+    public String weeklyCalendar(@PathVariable Long photographerId,
+                                 @RequestParam(required = false)
+                                 @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate weekStart,
+                                 Authentication auth,
+                                 Model model) {
+        Photographer photographer = resolveAuthorizedPhotographer(photographerId, auth);
+        if (photographer == null) return auth == null || !auth.isAuthenticated() ? "redirect:/login" : "redirect:/";
+
+        model.addAttribute("photographer", photographer);
+        model.addAttribute("weekly", reservationService.getWeeklyCalendar(
+                photographerId, reservationService.normalizeWeekStart(weekStart)
+        ));
+        return "photographer/dashboard :: weeklyCalendarCard";
     }
 
     @PostMapping("/{photographerId}/reservations/{reservationId}/accept")
     public String accept(@PathVariable Long photographerId,
                          @PathVariable Long reservationId,
+                         @RequestParam(required = false)
+                         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate weekStart,
                          Authentication auth,
                          RedirectAttributes ra) {
         if (auth == null || !auth.isAuthenticated()) return "redirect:/login";
@@ -61,12 +74,14 @@ public class PhotographerDashboardController {
         } catch (IllegalArgumentException | IllegalStateException e) {
             ra.addFlashAttribute("toastError", e.getMessage());
         }
-        return "redirect:/photographer/" + photographerId + "/dashboard";
+        return redirectToDashboard(photographerId, weekStart);
     }
 
     @PostMapping("/{photographerId}/reservations/{reservationId}/reject")
     public String reject(@PathVariable Long photographerId,
                          @PathVariable Long reservationId,
+                         @RequestParam(required = false)
+                         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate weekStart,
                          Authentication auth,
                          RedirectAttributes ra) {
         if (auth == null || !auth.isAuthenticated()) return "redirect:/login";
@@ -78,6 +93,38 @@ public class PhotographerDashboardController {
         } catch (IllegalArgumentException | IllegalStateException e) {
             ra.addFlashAttribute("toastError", e.getMessage());
         }
-        return "redirect:/photographer/" + photographerId + "/dashboard";
+        return redirectToDashboard(photographerId, weekStart);
+    }
+
+    private String redirectToDashboard(Long photographerId, LocalDate weekStart) {
+        if (weekStart == null) {
+            return "redirect:/photographer/" + photographerId + "/dashboard";
+        }
+        return "redirect:/photographer/" + photographerId + "/dashboard?weekStart=" + weekStart;
+    }
+
+    private Photographer resolveAuthorizedPhotographer(Long photographerId, Authentication auth) {
+        if (auth == null || !auth.isAuthenticated()) {
+            return null;
+        }
+        Photographer photographer = photographerRepository.findByAccountUsername(auth.getName());
+        if (photographer == null || !photographer.getId().equals(photographerId)) {
+            return null;
+        }
+        return photographer;
+    }
+
+    private void populateDashboardModel(Model model, Photographer photographer, LocalDate weekStart) {
+        Long photographerId = photographer.getId();
+        LocalDate normalizedWeekStart = reservationService.normalizeWeekStart(weekStart);
+        ProfileCompletionDto completion = photographerProfileService.getProfileCompletion(photographerId);
+
+        model.addAttribute("photographer", photographer);
+        model.addAttribute("completion", completion);
+        model.addAttribute("activeTab", "dashboard");
+        model.addAttribute("summary", reservationService.getSummary(photographerId));
+        model.addAttribute("pendingList", reservationService.getPendingList(photographerId));
+        model.addAttribute("todaySchedule", reservationService.getTodaySchedule(photographerId));
+        model.addAttribute("weekly", reservationService.getWeeklyCalendar(photographerId, normalizedWeekStart));
     }
 }

@@ -66,6 +66,115 @@
             .cal-event.sky { background: #E6F7FF; color: #0097FF; border-left-color: #0097FF; }
             .cal-event.purple { background: #F3EEFB; color: #7C3AED; border-left-color: #7C3AED; }
         </style>
+        <script>
+            (() => {
+                function buildFragmentUrl(baseUrl, weekStart) {
+                    const url = new URL(baseUrl, window.location.origin);
+                    if (weekStart) {
+                        url.searchParams.set('weekStart', weekStart);
+                    } else {
+                        url.searchParams.delete('weekStart');
+                    }
+                    return url.toString();
+                }
+
+                function syncCurrentWeekInputs(weekStart) {
+                    document.querySelectorAll('.js-current-week-start').forEach((input) => {
+                        input.value = weekStart || '';
+                    });
+                }
+
+                async function loadWeeklyCalendar(fragmentUrl, pageUrl, pushState) {
+                    const currentCard = document.getElementById('weekly-calendar-card');
+                    if (!currentCard) return;
+
+                    currentCard.classList.add('opacity-60', 'pointer-events-none');
+
+                    try {
+                        const response = await fetch(fragmentUrl, {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('failed to load weekly calendar');
+                        }
+
+                        const html = (await response.text()).trim();
+                        const template = document.createElement('template');
+                        template.innerHTML = html;
+                        const nextCard = template.content.firstElementChild;
+
+                        if (!nextCard) {
+                            throw new Error('empty weekly calendar fragment');
+                        }
+
+                        currentCard.replaceWith(nextCard);
+                        syncCurrentWeekInputs(nextCard.dataset.weekStart || '');
+
+                        if (pushState) {
+                            history.pushState({ pageUrl, fragmentUrl }, '', pageUrl);
+                        }
+                    } catch (error) {
+                        window.location.href = pageUrl;
+                    }
+                }
+
+                function getCurrentCard() {
+                    return document.getElementById('weekly-calendar-card');
+                }
+
+                function replaceStateFromDom() {
+                    const currentCard = getCurrentCard();
+                    if (!currentCard) return;
+
+                    const currentUrl = new URL(window.location.href);
+                    const weekStart = currentUrl.searchParams.get('weekStart');
+                    history.replaceState({
+                        pageUrl: currentUrl.toString(),
+                        fragmentUrl: buildFragmentUrl(currentCard.dataset.fragmentUrl, weekStart)
+                    }, '', currentUrl.toString());
+                    syncCurrentWeekInputs(currentCard.dataset.weekStart || '');
+                }
+
+                document.addEventListener('click', (event) => {
+                    const link = event.target.closest('[data-weekly-calendar-nav]');
+                    if (!link) return;
+
+                    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || link.target === '_blank') {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    loadWeeklyCalendar(link.dataset.fragmentHref, link.href, true);
+                });
+
+                window.addEventListener('popstate', (event) => {
+                    const currentCard = getCurrentCard();
+                    if (!currentCard) return;
+
+                    if (event.state?.fragmentUrl && event.state?.pageUrl) {
+                        loadWeeklyCalendar(event.state.fragmentUrl, event.state.pageUrl, false);
+                        return;
+                    }
+
+                    const currentUrl = new URL(window.location.href);
+                    const weekStart = currentUrl.searchParams.get('weekStart');
+                    loadWeeklyCalendar(
+                        buildFragmentUrl(currentCard.dataset.fragmentUrl, weekStart),
+                        currentUrl.toString(),
+                        false
+                    );
+                });
+
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', replaceStateFromDom, { once: true });
+                } else {
+                    replaceStateFromDom();
+                }
+            })();
+        </script>
     </th:block>
 </head>
 <body>
@@ -147,7 +256,12 @@
             <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
                 
                 <!-- 주간 예약 현황 -->
-                <div class="xl:col-span-2 bg-white border border-[#CCC] rounded-2xl overflow-hidden flex flex-col">
+                <div id="weekly-calendar-card"
+                     th:fragment="weeklyCalendarCard"
+                     class="xl:col-span-2 bg-white border border-[#CCC] rounded-2xl overflow-hidden flex flex-col"
+                     th:attr="data-week-start=${weekly.weekStartIso},
+                              data-dashboard-url=@{/photographer/{pid}/dashboard(pid=${photographer.id})},
+                              data-fragment-url=@{/photographer/{pid}/dashboard/weekly-calendar(pid=${photographer.id})}">
                     <div class="p-5 border-b border-[#EEE] flex items-center justify-between">
                         <div class="flex items-center gap-2 font-bold text-[#1A1A1A]">
                             <svg class="w-4 h-4 text-[#1D3CFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
@@ -162,11 +276,21 @@
                     <div class="p-4 bg-[#F9FAFC] flex items-center justify-between border-b border-[#EEE]">
                         <span class="text-xs font-bold text-[#444]" th:text="${weekly.rangeLabel}">2026년 4월 6일 – 12일</span>
                         <div class="flex items-center gap-2">
-                            <button class="bg-white border border-[#CCC] rounded-lg px-2.5 py-1 text-[11px] font-bold text-[#444] hover:border-[#1D3CFF] transition-colors">오늘</button>
+                            <a th:href="@{/photographer/{pid}/dashboard(pid=${photographer.id}, weekStart=${weekly.todayWeekStartIso})}"
+                               th:attr="data-fragment-href=@{/photographer/{pid}/dashboard/weekly-calendar(pid=${photographer.id}, weekStart=${weekly.todayWeekStartIso})}"
+                               data-weekly-calendar-nav
+                               class="bg-white border rounded-lg px-2.5 py-1 text-[11px] font-bold transition-colors no-underline"
+                               th:classappend="${weekly.currentWeek()} ? ' border-[#1D3CFF] text-[#1D3CFF] bg-[#EEF2FB] pointer-events-none' : ' border-[#CCC] text-[#444] hover:border-[#1D3CFF]'">오늘</a>
                             <div class="flex items-center border border-[#CCC] bg-white rounded-lg">
-                                <button class="p-1 px-1.5 hover:text-[#1D3CFF] transition-colors"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
+                                <a th:href="@{/photographer/{pid}/dashboard(pid=${photographer.id}, weekStart=${weekly.prevWeekStartIso})}"
+                                   th:attr="data-fragment-href=@{/photographer/{pid}/dashboard/weekly-calendar(pid=${photographer.id}, weekStart=${weekly.prevWeekStartIso})}"
+                                   data-weekly-calendar-nav
+                                   class="p-1 px-1.5 text-[#444] hover:text-[#1D3CFF] transition-colors no-underline"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></a>
                                 <div class="w-[1px] h-3 bg-[#CCC]"></div>
-                                <button class="p-1 px-1.5 hover:text-[#1D3CFF] transition-colors"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
+                                <a th:href="@{/photographer/{pid}/dashboard(pid=${photographer.id}, weekStart=${weekly.nextWeekStartIso})}"
+                                   th:attr="data-fragment-href=@{/photographer/{pid}/dashboard/weekly-calendar(pid=${photographer.id}, weekStart=${weekly.nextWeekStartIso})}"
+                                   data-weekly-calendar-nav
+                                   class="p-1 px-1.5 text-[#444] hover:text-[#1D3CFF] transition-colors no-underline"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></a>
                             </div>
                         </div>
                     </div>
@@ -263,11 +387,13 @@
                                     <form th:action="@{/photographer/{pid}/reservations/{rid}/accept(pid=${photographer.id},rid=${p.reservationId})}"
                                           method="post" class="inline">
                                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                        <input type="hidden" name="weekStart" th:value="${weekly.weekStartIso}" class="js-current-week-start" />
                                         <button type="submit" class="bg-white border border-[#1D3CFF] text-[#1D3CFF] text-[10px] font-bold px-2 py-1 rounded-md hover:bg-[#1D3CFF] hover:text-white transition-colors">수락</button>
                                     </form>
                                     <form th:action="@{/photographer/{pid}/reservations/{rid}/reject(pid=${photographer.id},rid=${p.reservationId})}"
                                           method="post" class="inline">
                                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                        <input type="hidden" name="weekStart" th:value="${weekly.weekStartIso}" class="js-current-week-start" />
                                         <button type="submit" class="bg-white border border-[#CCC] text-[#888] text-[10px] font-bold px-2 py-1 rounded-md hover:border-[#888] hover:text-[#444] transition-colors">거절</button>
                                     </form>
                                 </div>

@@ -10,11 +10,16 @@ import java.util.stream.IntStream;
 
 public record WeeklyCalendarDto(
         LocalDate weekStart,
+        String weekStartIso,
         String rangeLabel,
         List<DayHeaderDto> dayHeaders,
         List<Integer> hourSlots,
         Map<String, CalendarEventDto> eventByCellKey,
-        LocalDate today
+        LocalDate today,
+        String prevWeekStartIso,
+        String nextWeekStartIso,
+        String todayWeekStartIso,
+        boolean currentWeek
 ) {
     private static final String[] DAY_NAMES_KOR = {"일", "월", "화", "수", "목", "금", "토"};
     private static final String[] COLOR_CLASSES = {"blue", "green", "orange", "sky", "purple"};
@@ -23,6 +28,7 @@ public record WeeklyCalendarDto(
 
     public static WeeklyCalendarDto of(LocalDate weekStart, List<Reservation> reservations) {
         LocalDate today = LocalDate.now();
+        LocalDate todayWeekStart = today.minusDays(today.getDayOfWeek().getValue() % 7);
 
         List<DayHeaderDto> headers = new ArrayList<>();
         for (int i = 0; i < 7; i++) {
@@ -58,6 +64,18 @@ public record WeeklyCalendarDto(
         LocalDate weekEnd = weekStart.plusDays(6);
         String rangeLabel = weekStart.format(RANGE_FMT) + " – " + weekEnd.getDayOfMonth() + "일";
 
-        return new WeeklyCalendarDto(weekStart, rangeLabel, headers, hourSlots, eventMap, today);
+        return new WeeklyCalendarDto(
+                weekStart,
+                weekStart.toString(),
+                rangeLabel,
+                headers,
+                hourSlots,
+                eventMap,
+                today,
+                weekStart.minusWeeks(1).toString(),
+                weekStart.plusWeeks(1).toString(),
+                todayWeekStart.toString(),
+                weekStart.equals(todayWeekStart)
+        );
     }
 }

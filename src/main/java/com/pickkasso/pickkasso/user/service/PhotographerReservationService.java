@@ -56,19 +56,24 @@ public class PhotographerReservationService {
     }
 
     @Transactional(readOnly = true)
-    public WeeklyCalendarDto getWeeklyCalendar(Long photographerId) {
-        LocalDate today = LocalDate.now();
-        int shift = today.getDayOfWeek().getValue() % 7; // 일=0, 월=1, ..., 토=6
-        LocalDate weekStart = today.minusDays(shift);
-        LocalDate weekEnd = weekStart.plusDays(7);
+    public LocalDate normalizeWeekStart(LocalDate weekStart) {
+        LocalDate baseDate = weekStart != null ? weekStart : LocalDate.now();
+        int shift = baseDate.getDayOfWeek().getValue() % 7; // 일=0, 월=1, ..., 토=6
+        return baseDate.minusDays(shift);
+    }
+
+    @Transactional(readOnly = true)
+    public WeeklyCalendarDto getWeeklyCalendar(Long photographerId, LocalDate weekStart) {
+        LocalDate normalizedWeekStart = normalizeWeekStart(weekStart);
+        LocalDate weekEnd = normalizedWeekStart.plusDays(7);
 
         List<Reservation> reservations = reservationRepository.findInRange(
                 photographerId,
-                weekStart.atStartOfDay(),
+                normalizedWeekStart.atStartOfDay(),
                 weekEnd.atStartOfDay(),
                 List.of(ReservationStatus.CONFIRMED));
 
-        return WeeklyCalendarDto.of(weekStart, reservations);
+        return WeeklyCalendarDto.of(normalizedWeekStart, reservations);
     }
 
     public void approve(Long photographerId, Long reservationId) {
