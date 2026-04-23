@@ -41,6 +41,15 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("to") LocalDateTime to,
             @Param("statuses") Collection<ReservationStatus> statuses);
 
+    @Query("""
+            select r from Reservation r
+              join fetch r.member m
+              join fetch r.item i
+            where r.photographer.id = :photographerId
+            order by r.scheduledAt desc
+            """)
+    List<Reservation> findAllByPhotographerIdForManagement(@Param("photographerId") Long photographerId);
+
     long countByPhotographerIdAndStatusAndScheduledAtBetween(
             Long photographerId, ReservationStatus status,
             LocalDateTime from, LocalDateTime to);

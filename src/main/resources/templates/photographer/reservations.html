@@ -16,6 +16,12 @@
                 font-size: 11px;
                 font-weight: 700;
                 color: #444;
+                text-decoration: none;
+                transition: border-color 0.15s, color 0.15s, background 0.15s;
+            }
+            .reservation-chip:hover {
+                border-color: #1D3CFF;
+                color: #1D3CFF;
             }
             .reservation-chip.active {
                 border-color: #1D3CFF;
@@ -48,18 +54,14 @@
                 background: #F5F5F5;
                 color: #888;
             }
-            .mini-dot {
-                width: 8px;
-                height: 8px;
-                border-radius: 9999px;
-                flex-shrink: 0;
-            }
         </style>
     </th:block>
 </head>
 <body>
 
-<main th:fragment="content" class="max-w-[1216px] mx-auto px-6 py-8">
+<main th:fragment="content"
+      th:with="hasReservations=${reservationItems != null and !#lists.isEmpty(reservationItems)}"
+      class="max-w-[1216px] mx-auto px-6 py-8">
     <div class="flex flex-col lg:flex-row gap-8 items-start">
 
         <th:block th:replace="~{fragments/photographer-sidebar :: sidebar}" />
@@ -74,26 +76,26 @@
                             <span th:text="${photographer.name}">김민준</span> 작가님의 전체 예약 현황
                         </h1>
                         <p class="text-[13px] text-white/75 mt-3 leading-relaxed">
-                            예약 요청부터 촬영 완료까지 한 화면에서 흐름을 관리할 수 있도록 정리한 운영 페이지입니다.
+                            승인 대기, 예약 확정, 촬영 완료 흐름을 한 화면에서 보고 바로 대응할 수 있도록 정리했습니다.
                         </p>
                     </div>
 
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 xl:min-w-[520px]">
                         <div class="rounded-2xl bg-white/10 border border-white/10 px-4 py-4 backdrop-blur-sm">
                             <p class="text-[11px] text-white/70 mb-1">전체 예약</p>
-                            <p class="text-2xl font-black">28<span class="text-sm font-semibold ml-1">건</span></p>
+                            <p class="text-2xl font-black"><span th:text="${reservationManagementSummary.totalCount}">0</span><span class="text-sm font-semibold ml-1">건</span></p>
                         </div>
                         <div class="rounded-2xl bg-white/10 border border-white/10 px-4 py-4 backdrop-blur-sm">
                             <p class="text-[11px] text-white/70 mb-1">승인 대기</p>
-                            <p class="text-2xl font-black" th:text="${summary.pendingCount} + '건'">2건</p>
+                            <p class="text-2xl font-black"><span th:text="${reservationManagementSummary.pendingCount}">0</span><span class="text-sm font-semibold ml-1">건</span></p>
                         </div>
                         <div class="rounded-2xl bg-white/10 border border-white/10 px-4 py-4 backdrop-blur-sm">
                             <p class="text-[11px] text-white/70 mb-1">이번 주 확정</p>
-                            <p class="text-2xl font-black">11<span class="text-sm font-semibold ml-1">건</span></p>
+                            <p class="text-2xl font-black"><span th:text="${reservationManagementSummary.confirmedCountThisWeek}">0</span><span class="text-sm font-semibold ml-1">건</span></p>
                         </div>
                         <div class="rounded-2xl bg-white/10 border border-white/10 px-4 py-4 backdrop-blur-sm">
                             <p class="text-[11px] text-white/70 mb-1">완료 전환율</p>
-                            <p class="text-2xl font-black">92<span class="text-sm font-semibold ml-1">%</span></p>
+                            <p class="text-2xl font-black"><span th:text="${reservationManagementSummary.completionRate}">0</span><span class="text-sm font-semibold ml-1">%</span></p>
                         </div>
                     </div>
                 </div>
@@ -106,26 +108,42 @@
                 <div class="flex flex-col gap-4">
                     <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
                         <div class="flex flex-wrap gap-2">
-                            <button type="button" class="reservation-chip active">전체</button>
-                            <button type="button" class="reservation-chip">승인 대기</button>
-                            <button type="button" class="reservation-chip">예약 확정</button>
-                            <button type="button" class="reservation-chip">촬영 완료</button>
-                            <button type="button" class="reservation-chip">거절 / 취소</button>
+                            <a th:href="@{/photographer/{pid}/reservations(pid=${photographer.id}, status='ALL', keyword=${keyword})}"
+                               th:classappend="${selectedStatus == 'ALL'} ? ' active' : ''"
+                               class="reservation-chip">전체</a>
+                            <a th:href="@{/photographer/{pid}/reservations(pid=${photographer.id}, status='PENDING', keyword=${keyword})}"
+                               th:classappend="${selectedStatus == 'PENDING'} ? ' active' : ''"
+                               class="reservation-chip">승인 대기</a>
+                            <a th:href="@{/photographer/{pid}/reservations(pid=${photographer.id}, status='CONFIRMED', keyword=${keyword})}"
+                               th:classappend="${selectedStatus == 'CONFIRMED'} ? ' active' : ''"
+                               class="reservation-chip">예약 확정</a>
+                            <a th:href="@{/photographer/{pid}/reservations(pid=${photographer.id}, status='COMPLETED', keyword=${keyword})}"
+                               th:classappend="${selectedStatus == 'COMPLETED'} ? ' active' : ''"
+                               class="reservation-chip">촬영 완료</a>
+                            <a th:href="@{/photographer/{pid}/reservations(pid=${photographer.id}, status='CLOSED', keyword=${keyword})}"
+                               th:classappend="${selectedStatus == 'CLOSED'} ? ' active' : ''"
+                               class="reservation-chip">거절 / 취소</a>
                         </div>
-                        <div class="flex flex-col sm:flex-row gap-2">
+
+                        <form method="get"
+                              th:action="@{/photographer/{pid}/reservations(pid=${photographer.id})}"
+                              class="flex flex-col sm:flex-row gap-2">
+                            <input type="hidden" name="status" th:value="${selectedStatus}" />
                             <div class="relative">
                                 <input type="text"
-                                       placeholder="고객명, 서비스명으로 검색"
-                                       class="w-full sm:w-[240px] rounded-xl border border-[#CCC] bg-[#F9FAFC] pl-10 pr-4 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#1D3CFF] focus:ring-1 focus:ring-[#1D3CFF]">
+                                       name="keyword"
+                                       th:value="${keyword}"
+                                       placeholder="고객명, 서비스명, 장소 검색"
+                                       class="w-full sm:w-[280px] rounded-xl border border-[#CCC] bg-[#F9FAFC] pl-10 pr-4 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#1D3CFF] focus:ring-1 focus:ring-[#1D3CFF]">
                                 <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#888]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 110-15 7.5 7.5 0 010 15z" />
                                 </svg>
                             </div>
-                            <button type="button"
+                            <button type="submit"
                                     class="rounded-xl border border-[#CCC] bg-white px-4 py-2.5 text-sm font-bold text-[#444] hover:border-[#1D3CFF] hover:text-[#1D3CFF] transition-colors">
-                                이번 달
+                                검색
                             </button>
-                        </div>
+                        </form>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -133,8 +151,8 @@
                             <p class="text-[11px] font-bold text-[#888] mb-2">오늘 우선 처리</p>
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-lg font-black text-[#1A1A1A]">2건</p>
-                                    <p class="text-[12px] text-[#888] mt-1">30분 안에 응답 권장</p>
+                                    <p class="text-lg font-black text-[#1A1A1A]"><span th:text="${reservationManagementSummary.urgentPendingCount}">0</span>건</p>
+                                    <p class="text-[12px] text-[#888] mt-1">승인 대기 요청 점검</p>
                                 </div>
                                 <div class="w-11 h-11 rounded-2xl bg-[#FFF4EE] text-[#FF6B2B] flex items-center justify-center">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -147,8 +165,8 @@
                             <p class="text-[11px] font-bold text-[#888] mb-2">오늘 촬영</p>
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-lg font-black text-[#1A1A1A]">3건</p>
-                                    <p class="text-[12px] text-[#888] mt-1">오전 10시부터 시작</p>
+                                    <p class="text-lg font-black text-[#1A1A1A]"><span th:text="${reservationManagementSummary.todayShootCount}">0</span>건</p>
+                                    <p class="text-[12px] text-[#888] mt-1">확정 예약 기준</p>
                                 </div>
                                 <div class="w-11 h-11 rounded-2xl bg-[#EEF2FB] text-[#1D3CFF] flex items-center justify-center">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -161,8 +179,8 @@
                             <p class="text-[11px] font-bold text-[#888] mb-2">이번 주 매출 예상</p>
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-lg font-black text-[#1A1A1A]">830,000C</p>
-                                    <p class="text-[12px] text-[#888] mt-1">확정 예약 기준</p>
+                                    <p class="text-lg font-black text-[#1A1A1A]"><span th:text="${#numbers.formatInteger(reservationManagementSummary.expectedWeekRevenue, 0, 'COMMA')}">0</span>C</p>
+                                    <p class="text-[12px] text-[#888] mt-1">확정/완료 예약 기준</p>
                                 </div>
                                 <div class="w-11 h-11 rounded-2xl bg-[#E6F7FF] text-[#0097FF] flex items-center justify-center">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -180,130 +198,94 @@
                     <div class="px-5 py-4 border-b border-[#EEE] flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <h2 class="text-lg font-black text-[#1A1A1A]">전체 예약 리스트</h2>
-                            <p class="text-[12px] text-[#888] mt-1">승인 대기부터 완료 건까지 시간순으로 관리할 수 있습니다.</p>
+                            <p class="text-[12px] text-[#888] mt-1"
+                               th:text="${hasReservations ? '총 ' + #lists.size(reservationItems) + '건의 예약을 표시 중입니다.' : '조건에 맞는 예약이 없습니다.'}">
+                                총 0건의 예약을 표시 중입니다.
+                            </p>
                         </div>
-                        <div class="inline-flex items-center gap-1 rounded-full bg-[#F9FAFC] border border-[#CCC] px-1.5 py-1 text-[11px] font-bold text-[#888]">
-                            <button type="button" class="rounded-full bg-white border border-[#CCC] px-3 py-1 text-[#1A1A1A]">리스트</button>
-                            <button type="button" class="rounded-full px-3 py-1 hover:text-[#1D3CFF] transition-colors">보드</button>
+                        <div class="text-[12px] text-[#888]">
+                            상태 우선순위: 승인 대기 → 예약 확정 → 촬영 완료 → 거절 / 취소
                         </div>
                     </div>
 
-                    <div class="divide-y divide-[#EEE]">
-                        <article class="px-5 py-5 hover:bg-[#FCFCFD] transition-colors">
+                    <div th:if="${hasReservations}" class="divide-y divide-[#EEE]">
+                        <article th:each="reservation : ${reservationItems}"
+                                 class="px-5 py-5 hover:bg-[#FCFCFD] transition-colors">
                             <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                                 <div class="min-w-0">
                                     <div class="flex flex-wrap items-center gap-2 mb-3">
-                                        <span class="status-pill pending">승인 대기</span>
-                                        <span class="text-[11px] font-bold text-[#FF6B2B]">오늘 안에 응답 필요</span>
+                                        <span class="status-pill"
+                                              th:classappend="${reservation.statusClassName}"
+                                              th:text="${reservation.statusLabel}">승인 대기</span>
+                                        <span class="text-[11px] font-bold"
+                                              th:classappend="${reservation.statusHintColorClass}"
+                                              th:text="${reservation.statusHint}">빠른 응답 필요</span>
                                     </div>
+
                                     <div class="flex items-start gap-3">
-                                        <div class="w-12 h-12 rounded-2xl bg-[#D3DEF2] text-[#1D3CFF] flex items-center justify-center text-lg font-black shrink-0">정</div>
+                                        <div class="w-12 h-12 rounded-2xl bg-[#D3DEF2] text-[#1D3CFF] flex items-center justify-center text-lg font-black shrink-0"
+                                             th:text="${reservation.memberInitial}">정</div>
                                         <div class="min-w-0">
-                                            <h3 class="text-[18px] font-black text-[#1A1A1A] leading-tight">정우진 고객 · 증명사진</h3>
-                                            <p class="text-[13px] text-[#888] mt-1">4월 25일 (토) 09:00 · 강남 스튜디오 · 50,000C</p>
-                                            <p class="text-[13px] text-[#444] mt-3 leading-relaxed">
-                                                취업용 증명사진 촬영 요청. 자연스러운 보정 위주로 희망하며 오전 시간대 촬영을 선호한다고 남겼습니다.
+                                            <h3 class="text-[18px] font-black text-[#1A1A1A] leading-tight">
+                                                <span th:text="${reservation.memberName}">정우진</span> 고객 ·
+                                                <span th:text="${reservation.itemName}">증명사진</span>
+                                            </h3>
+                                            <p class="text-[13px] text-[#888] mt-1">
+                                                <span th:text="${reservation.scheduleLabel}">4월 25일 (토) 09:00 - 10:00</span>
+                                                · <span th:text="${reservation.address}">강남 스튜디오</span>
+                                                · <span th:text="${reservation.priceLabel}">50,000C</span>
+                                            </p>
+                                            <p class="text-[13px] text-[#444] mt-3 leading-relaxed whitespace-pre-line"
+                                               th:text="${reservation.memo}">
+                                                예약 메모
                                             </p>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="flex flex-col sm:flex-row lg:flex-col gap-2 lg:min-w-[138px]">
-                                    <button type="button" class="rounded-xl border border-[#1D3CFF] bg-white px-4 py-2.5 text-sm font-bold text-[#1D3CFF] hover:bg-[#1D3CFF] hover:text-white transition-colors">수락</button>
-                                    <button type="button" class="rounded-xl border border-[#CCC] bg-white px-4 py-2.5 text-sm font-bold text-[#666] hover:border-[#888] hover:text-[#1A1A1A] transition-colors">거절</button>
-                                </div>
-                            </div>
-                        </article>
 
-                        <article class="px-5 py-5 hover:bg-[#FCFCFD] transition-colors">
-                            <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                                <div class="min-w-0">
-                                    <div class="flex flex-wrap items-center gap-2 mb-3">
-                                        <span class="status-pill confirmed">예약 확정</span>
-                                        <span class="text-[11px] font-bold text-[#1D3CFF]">D-1 리마인드 발송 예정</span>
-                                    </div>
-                                    <div class="flex items-start gap-3">
-                                        <div class="w-12 h-12 rounded-2xl bg-[#E6F7FF] text-[#0097FF] flex items-center justify-center text-lg font-black shrink-0">이</div>
-                                        <div class="min-w-0">
-                                            <h3 class="text-[18px] font-black text-[#1A1A1A] leading-tight">이수빈 고객 · 데이트 스냅</h3>
-                                            <p class="text-[13px] text-[#888] mt-1">4월 26일 (일) 13:00 - 15:00 · 홍대 / 연남동 · 150,000C</p>
-                                            <div class="mt-3 flex flex-wrap gap-2">
-                                                <span class="inline-flex items-center gap-1 rounded-full bg-[#F9FAFC] border border-[#CCC] px-3 py-1 text-[11px] font-semibold text-[#444]">
-                                                    <span class="mini-dot bg-[#1D3CFF]"></span> 커플 촬영
-                                                </span>
-                                                <span class="inline-flex items-center gap-1 rounded-full bg-[#F9FAFC] border border-[#CCC] px-3 py-1 text-[11px] font-semibold text-[#444]">
-                                                    <span class="mini-dot bg-[#22C55E]"></span> 보정본 10컷
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                                 <div class="flex flex-col sm:flex-row lg:flex-col gap-2 lg:min-w-[138px]">
-                                    <button type="button" class="rounded-xl border border-[#CCC] bg-white px-4 py-2.5 text-sm font-bold text-[#444] hover:border-[#1D3CFF] hover:text-[#1D3CFF] transition-colors">상세 보기</button>
-                                    <button type="button" class="rounded-xl border border-[#CCC] bg-[#F9FAFC] px-4 py-2.5 text-sm font-bold text-[#888] hover:border-[#888] hover:text-[#444] transition-colors">일정 변경</button>
-                                </div>
-                            </div>
-                        </article>
-
-                        <article class="px-5 py-5 hover:bg-[#FCFCFD] transition-colors">
-                            <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                                <div class="min-w-0">
-                                    <div class="flex flex-wrap items-center gap-2 mb-3">
-                                        <span class="status-pill completed">촬영 완료</span>
-                                        <span class="text-[11px] font-bold text-[#1A8E40]">정산 대기 중</span>
-                                    </div>
-                                    <div class="flex items-start gap-3">
-                                        <div class="w-12 h-12 rounded-2xl bg-[#EEFBF3] text-[#1A8E40] flex items-center justify-center text-lg font-black shrink-0">김</div>
-                                        <div class="min-w-0">
-                                            <h3 class="text-[18px] font-black text-[#1A1A1A] leading-tight">김하늘 고객 · 졸업사진</h3>
-                                            <p class="text-[13px] text-[#888] mt-1">4월 21일 (화) 10:00 - 12:00 · 광화문 · 180,000C</p>
-                                            <p class="text-[13px] text-[#444] mt-3 leading-relaxed">
-                                                촬영은 정상 종료되었고, 1차 셀렉 가이드를 전달한 상태입니다. 보정본 전달 마감은 4월 28일로 예정되어 있습니다.
-                                            </p>
+                                    <th:block th:if="${reservation.actionable}">
+                                        <form th:action="@{/photographer/{pid}/reservations/{rid}/accept(pid=${photographer.id},rid=${reservation.reservationId})}"
+                                              method="post" class="w-full">
+                                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                            <input type="hidden" name="redirectTo" value="reservations" />
+                                            <input type="hidden" name="status" th:value="${selectedStatus}" />
+                                            <input type="hidden" name="keyword" th:value="${keyword}" />
+                                            <button type="submit"
+                                                    class="w-full rounded-xl border border-[#1D3CFF] bg-white px-4 py-2.5 text-sm font-bold text-[#1D3CFF] hover:bg-[#1D3CFF] hover:text-white transition-colors">
+                                                수락
+                                            </button>
+                                        </form>
+                                        <form th:action="@{/photographer/{pid}/reservations/{rid}/reject(pid=${photographer.id},rid=${reservation.reservationId})}"
+                                              method="post" class="w-full">
+                                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                            <input type="hidden" name="redirectTo" value="reservations" />
+                                            <input type="hidden" name="status" th:value="${selectedStatus}" />
+                                            <input type="hidden" name="keyword" th:value="${keyword}" />
+                                            <button type="submit"
+                                                    class="w-full rounded-xl border border-[#CCC] bg-white px-4 py-2.5 text-sm font-bold text-[#666] hover:border-[#888] hover:text-[#1A1A1A] transition-colors">
+                                                거절
+                                            </button>
+                                        </form>
+                                    </th:block>
+                                    <th:block th:unless="${reservation.actionable}">
+                                        <div class="rounded-xl border border-[#EEE] bg-[#F9FAFC] px-4 py-3 text-center">
+                                            <p class="text-[11px] font-bold text-[#888]">현재 상태</p>
+                                            <p class="text-sm font-black text-[#1A1A1A] mt-1" th:text="${reservation.statusLabel}">예약 확정</p>
                                         </div>
-                                    </div>
-                                </div>
-                                <div class="flex flex-col sm:flex-row lg:flex-col gap-2 lg:min-w-[138px]">
-                                    <button type="button" class="rounded-xl border border-[#CCC] bg-white px-4 py-2.5 text-sm font-bold text-[#444] hover:border-[#1D3CFF] hover:text-[#1D3CFF] transition-colors">후기 요청</button>
-                                    <button type="button" class="rounded-xl border border-[#CCC] bg-[#F9FAFC] px-4 py-2.5 text-sm font-bold text-[#888] hover:border-[#888] hover:text-[#444] transition-colors">정산 보기</button>
-                                </div>
-                            </div>
-                        </article>
-
-                        <article class="px-5 py-5 hover:bg-[#FCFCFD] transition-colors">
-                            <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                                <div class="min-w-0">
-                                    <div class="flex flex-wrap items-center gap-2 mb-3">
-                                        <span class="status-pill rejected">작가 거절</span>
-                                        <span class="text-[11px] font-bold text-[#888]">응답 완료</span>
-                                    </div>
-                                    <div class="flex items-start gap-3">
-                                        <div class="w-12 h-12 rounded-2xl bg-[#F2F2F2] text-[#888] flex items-center justify-center text-lg font-black shrink-0">강</div>
-                                        <div class="min-w-0">
-                                            <h3 class="text-[18px] font-black text-[#1A1A1A] leading-tight">강지우 고객 · 웨딩 스냅</h3>
-                                            <p class="text-[13px] text-[#888] mt-1">4월 19일 (일) 14:00 · 한강공원 · 200,000C</p>
-                                            <p class="text-[13px] text-[#444] mt-3 leading-relaxed">
-                                                요청 시간대에 이미 기존 촬영이 있어 진행이 어려워 거절한 케이스입니다. 자동 환불 처리 영역이 들어올 자리를 고려해 안내 문구 영역을 확보했습니다.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="flex flex-col sm:flex-row lg:flex-col gap-2 lg:min-w-[138px]">
-                                    <button type="button" class="rounded-xl border border-[#CCC] bg-white px-4 py-2.5 text-sm font-bold text-[#444] hover:border-[#1D3CFF] hover:text-[#1D3CFF] transition-colors">상세 보기</button>
-                                    <button type="button" class="rounded-xl border border-[#CCC] bg-[#F9FAFC] px-4 py-2.5 text-sm font-bold text-[#888] hover:border-[#888] hover:text-[#444] transition-colors">사유 수정</button>
+                                    </th:block>
                                 </div>
                             </div>
                         </article>
                     </div>
 
-                    <div class="px-5 py-4 border-t border-[#EEE] flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                        <p class="text-[12px] text-[#888]">총 28건 중 1 - 4건 표시</p>
-                        <div class="flex items-center gap-1">
-                            <button type="button" class="w-9 h-9 rounded-lg border border-[#CCC] bg-white text-[#888] hover:border-[#1D3CFF] hover:text-[#1D3CFF] transition-colors">‹</button>
-                            <button type="button" class="w-9 h-9 rounded-lg border border-[#1D3CFF] bg-[#EEF2FB] text-[#1D3CFF] font-bold">1</button>
-                            <button type="button" class="w-9 h-9 rounded-lg border border-[#CCC] bg-white text-[#444] font-bold hover:border-[#1D3CFF] hover:text-[#1D3CFF] transition-colors">2</button>
-                            <button type="button" class="w-9 h-9 rounded-lg border border-[#CCC] bg-white text-[#444] font-bold hover:border-[#1D3CFF] hover:text-[#1D3CFF] transition-colors">3</button>
-                            <button type="button" class="w-9 h-9 rounded-lg border border-[#CCC] bg-white text-[#888] hover:border-[#1D3CFF] hover:text-[#1D3CFF] transition-colors">›</button>
-                        </div>
+                    <div th:unless="${hasReservations}"
+                         class="px-8 py-16 text-center">
+                        <div class="text-5xl mb-4">📅</div>
+                        <p class="text-base font-semibold text-[#444] mb-2">조건에 맞는 예약이 아직 없어요.</p>
+                        <p class="text-sm text-[#888]">
+                            필터를 바꾸거나 검색어를 지우면 다른 예약을 확인할 수 있습니다.
+                        </p>
                     </div>
                 </div>
 
@@ -315,62 +297,47 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                             </div>
-                            <h2 class="text-base font-black text-[#1A1A1A]">운영 메모</h2>
+                            <h2 class="text-base font-black text-[#1A1A1A]">운영 포인트</h2>
                         </div>
 
                         <div class="space-y-4">
                             <div class="rounded-2xl border border-[#CCC] bg-[#F9FAFC] p-4">
-                                <p class="text-[11px] font-bold text-[#888] mb-2">응답 SLA</p>
-                                <p class="text-[13px] text-[#444] leading-relaxed">승인 대기 예약은 1시간 이내 응답을 기본 목표로 두고, 24시간 이상 미응답 건은 별도 강조로 표시하는 구조를 고려했습니다.</p>
+                                <p class="text-[11px] font-bold text-[#888] mb-2">승인 대기 대응</p>
+                                <p class="text-[13px] text-[#444] leading-relaxed">
+                                    승인 대기 예약은 리스트 최상단에 먼저 노출됩니다. 빠르게 응답할수록 고객 이탈 가능성을 낮출 수 있습니다.
+                                </p>
                             </div>
                             <div class="rounded-2xl border border-[#CCC] bg-[#F9FAFC] p-4">
-                                <p class="text-[11px] font-bold text-[#888] mb-2">후속 확장 포인트</p>
-                                <p class="text-[13px] text-[#444] leading-relaxed">추후 실제 데이터 연결 시 상태 필터, 날짜 범위, 고객 검색, 정렬, 보드/리스트 전환을 자연스럽게 이어 붙일 수 있도록 레이아웃을 잡았습니다.</p>
+                                <p class="text-[11px] font-bold text-[#888] mb-2">검색 범위</p>
+                                <p class="text-[13px] text-[#444] leading-relaxed">
+                                    고객명, 서비스명, 촬영 장소를 기준으로 검색할 수 있도록 연결했습니다.
+                                </p>
                             </div>
                         </div>
                     </section>
 
                     <section class="bg-white border border-[#CCC] rounded-2xl p-5">
                         <div class="flex items-center justify-between mb-4">
-                            <h2 class="text-base font-black text-[#1A1A1A]">오늘 처리 체크</h2>
-                            <span class="text-[11px] font-bold text-[#1D3CFF]">3 / 5 완료</span>
+                            <h2 class="text-base font-black text-[#1A1A1A]">빠른 요약</h2>
+                            <span class="text-[11px] font-bold text-[#1D3CFF]">실시간 기준</span>
                         </div>
 
                         <div class="space-y-3">
-                            <div class="flex items-start gap-3">
-                                <div class="w-5 h-5 rounded-full bg-[#22C55E] text-white flex items-center justify-center text-[10px] font-black mt-0.5">✓</div>
-                                <div>
-                                    <p class="text-sm font-bold text-[#1A1A1A]">오전 촬영 일정 리마인드 전달</p>
-                                    <p class="text-[12px] text-[#888] mt-1">10:00 / 13:00 예약 고객에게 자동 메시지 발송 예정</p>
-                                </div>
+                            <div class="flex items-center justify-between rounded-xl border border-[#EEE] bg-[#F9FAFC] px-4 py-3">
+                                <span class="text-sm text-[#444]">오늘 촬영</span>
+                                <span class="text-sm font-black text-[#1A1A1A]" th:text="${reservationManagementSummary.todayShootCount} + '건'">0건</span>
                             </div>
-                            <div class="flex items-start gap-3">
-                                <div class="w-5 h-5 rounded-full bg-[#22C55E] text-white flex items-center justify-center text-[10px] font-black mt-0.5">✓</div>
-                                <div>
-                                    <p class="text-sm font-bold text-[#1A1A1A]">확정 예약 주소 재확인</p>
-                                    <p class="text-[12px] text-[#888] mt-1">홍대 / 연남동 야외 촬영 동선 메모 업데이트</p>
-                                </div>
+                            <div class="flex items-center justify-between rounded-xl border border-[#EEE] bg-[#F9FAFC] px-4 py-3">
+                                <span class="text-sm text-[#444]">승인 대기</span>
+                                <span class="text-sm font-black text-[#FF6B2B]" th:text="${reservationManagementSummary.pendingCount} + '건'">0건</span>
                             </div>
-                            <div class="flex items-start gap-3">
-                                <div class="w-5 h-5 rounded-full bg-[#22C55E] text-white flex items-center justify-center text-[10px] font-black mt-0.5">✓</div>
-                                <div>
-                                    <p class="text-sm font-bold text-[#1A1A1A]">완료 건 보정본 전달 일정 체크</p>
-                                    <p class="text-[12px] text-[#888] mt-1">졸업사진 보정본 납기 4월 28일</p>
-                                </div>
+                            <div class="flex items-center justify-between rounded-xl border border-[#EEE] bg-[#F9FAFC] px-4 py-3">
+                                <span class="text-sm text-[#444]">이번 주 확정</span>
+                                <span class="text-sm font-black text-[#1D3CFF]" th:text="${reservationManagementSummary.confirmedCountThisWeek} + '건'">0건</span>
                             </div>
-                            <div class="flex items-start gap-3">
-                                <div class="w-5 h-5 rounded-full border-2 border-[#CCC] mt-0.5"></div>
-                                <div>
-                                    <p class="text-sm font-bold text-[#1A1A1A]">승인 대기 2건 응답</p>
-                                    <p class="text-[12px] text-[#888] mt-1">정우진 / 강지우 고객 예약 요청 처리 필요</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start gap-3">
-                                <div class="w-5 h-5 rounded-full border-2 border-[#CCC] mt-0.5"></div>
-                                <div>
-                                    <p class="text-sm font-bold text-[#1A1A1A]">거절 사유 템플릿 정리</p>
-                                    <p class="text-[12px] text-[#888] mt-1">일정 중복 / 촬영 범위 불일치 유형 분리</p>
-                                </div>
+                            <div class="flex items-center justify-between rounded-xl border border-[#EEE] bg-[#F9FAFC] px-4 py-3">
+                                <span class="text-sm text-[#444]">완료 전환율</span>
+                                <span class="text-sm font-black text-[#1A8E40]" th:text="${reservationManagementSummary.completionRate} + '%'">0%</span>
                             </div>
                         </div>
                     </section>

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
@@ -44,14 +45,21 @@ public class PhotographerDashboardController {
 
     @GetMapping("/{photographerId}/reservations")
     public String reservations(@PathVariable Long photographerId,
+                               @RequestParam(required = false) String status,
+                               @RequestParam(required = false) String keyword,
                                Authentication auth,
                                Model model) {
         Photographer photographer = resolveAuthorizedPhotographer(photographerId, auth);
         if (photographer == null) return auth == null || !auth.isAuthenticated() ? "redirect:/login" : "redirect:/";
 
         model.addAttribute("photographer", photographer);
+        model.addAttribute("userId", photographerId);
         model.addAttribute("activeTab", "reservations");
         model.addAttribute("summary", reservationService.getSummary(photographerId));
+        model.addAttribute("reservationManagementSummary", reservationService.getManagementSummary(photographerId));
+        model.addAttribute("reservationItems", reservationService.getManagementReservations(photographerId, status, keyword));
+        model.addAttribute("selectedStatus", reservationService.normalizeStatusFilter(status));
+        model.addAttribute("keyword", keyword == null ? "" : keyword.trim());
 
         return "photographer/reservations";
     }
@@ -77,6 +85,9 @@ public class PhotographerDashboardController {
                          @PathVariable Long reservationId,
                          @RequestParam(required = false)
                          @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate weekStart,
+                         @RequestParam(required = false) String redirectTo,
+                         @RequestParam(required = false) String status,
+                         @RequestParam(required = false) String keyword,
                          Authentication auth,
                          RedirectAttributes ra) {
         if (auth == null || !auth.isAuthenticated()) return "redirect:/login";
@@ -88,7 +99,7 @@ public class PhotographerDashboardController {
         } catch (IllegalArgumentException | IllegalStateException e) {
             ra.addFlashAttribute("toastError", e.getMessage());
         }
-        return redirectToDashboard(photographerId, weekStart);
+        return redirectAfterReservationAction(photographerId, redirectTo, weekStart, status, keyword);
     }
 
     @PostMapping("/{photographerId}/reservations/{reservationId}/reject")
@@ -96,6 +107,9 @@ public class PhotographerDashboardController {
                          @PathVariable Long reservationId,
                          @RequestParam(required = false)
                          @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate weekStart,
+                         @RequestParam(required = false) String redirectTo,
+                         @RequestParam(required = false) String status,
+                         @RequestParam(required = false) String keyword,
                          Authentication auth,
                          RedirectAttributes ra) {
         if (auth == null || !auth.isAuthenticated()) return "redirect:/login";
@@ -107,7 +121,7 @@ public class PhotographerDashboardController {
         } catch (IllegalArgumentException | IllegalStateException e) {
             ra.addFlashAttribute("toastError", e.getMessage());
         }
-        return redirectToDashboard(photographerId, weekStart);
+        return redirectAfterReservationAction(photographerId, redirectTo, weekStart, status, keyword);
     }
 
     private String redirectToDashboard(Long photographerId, LocalDate weekStart) {
@@ -115,6 +129,20 @@ public class PhotographerDashboardController {
             return "redirect:/photographer/" + photographerId + "/dashboard";
         }
         return "redirect:/photographer/" + photographerId + "/dashboard?weekStart=" + weekStart;
+    }
+
+    private String redirectAfterReservationAction(Long photographerId,
+                                                  String redirectTo,
+                                                  LocalDate weekStart,
+                                                  String status,
+                                                  String keyword) {
+        if ("reservations".equalsIgnoreCase(redirectTo)) {
+            UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/photographer/{photographerId}/reservations")
+                    .queryParamIfPresent("status", java.util.Optional.ofNullable(status).filter(s -> !s.isBlank()))
+                    .queryParamIfPresent("keyword", java.util.Optional.ofNullable(keyword).filter(s -> !s.isBlank()));
+            return "redirect:" + builder.buildAndExpand(photographerId).encode().toUriString();
+        }
+        return redirectToDashboard(photographerId, weekStart);
     }
 
     private Photographer resolveAuthorizedPhotographer(Long photographerId, Authentication auth) {
@@ -134,6 +162,7 @@ public class PhotographerDashboardController {
         ProfileCompletionDto completion = photographerProfileService.getProfileCompletion(photographerId);
 
         model.addAttribute("photographer", photographer);
+        model.addAttribute("userId", photographerId);
         model.addAttribute("completion", completion);
         model.addAttribute("activeTab", "dashboard");
         model.addAttribute("summary", reservationService.getSummary(photographerId));
