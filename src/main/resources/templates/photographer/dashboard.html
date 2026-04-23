@@ -243,10 +243,8 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         </div>
                     </div>
-                    <div class="text-xl font-extrabold text-[#1A1A1A]">520,000<span class="text-sm font-medium ml-0.5">C</span></div>
-                    <div class="mt-2 text-[11px] text-[#888] flex items-center gap-1.5">
-                        <span class="inline-flex items-center gap-0.5 bg-[#EAF7EE] text-[#1A8E40] font-bold rounded px-1.5 py-0.5">▲ 18%</span> 전월 대비
-                    </div>
+                    <div class="text-xl font-extrabold text-[#1A1A1A]"><span th:text="${#numbers.formatInteger(summary.monthlyRevenue, 1, 'COMMA')}">0</span><span class="text-sm font-medium ml-0.5">C</span></div>
+                    <div class="mt-2 text-[11px] text-[#888]">이번 달 누적</div>
                 </div>
                 <div class="bg-white border border-[#CCC] rounded-2xl p-5">
                     <div class="flex items-center justify-between mb-2.5">
