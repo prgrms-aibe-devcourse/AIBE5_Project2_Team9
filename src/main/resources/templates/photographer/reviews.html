@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/default :: layout(~{::title}, ~{::headExtra}, ~{::content})}">
+<head>
+    <title>후기 관리 - PICKASSO</title>
+    <th:block th:fragment="headExtra">
+        <style>
+            .star-filled { color: #FBBF24; }
+            .star-empty  { color: #E5E7EB; }
+            .review-card:hover { background: #FCFCFD; }
+        </style>
+    </th:block>
+</head>
+<body>
+
+<main th:fragment="content" class="max-w-[1216px] mx-auto px-6 py-8">
+    <div class="flex flex-col lg:flex-row gap-8 items-start">
+
+        <th:block th:replace="~{fragments/photographer-sidebar :: sidebar}" />
+
+        <div class="flex-1 min-w-0 flex flex-col gap-6">
+
+            <!-- 헤더 배너 -->
+            <section class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1D3CFF] to-[#0097FF] px-7 py-7 text-white">
+                <div class="relative z-10 flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+                    <div class="min-w-0">
+                        <p class="text-[13px] font-semibold uppercase tracking-[0.22em] text-white/75 mb-2">Review Management</p>
+                        <h1 class="text-2xl leading-tight font-extrabold whitespace-nowrap">
+                            고객이 남긴 후기를 확인하세요
+                        </h1>
+                        <p class="text-[13px] text-white/75 mt-3 leading-relaxed">
+                            후기는 작가님의 신뢰도와 검색 노출에 영향을 줍니다.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3 xl:min-w-[360px]">
+                        <div class="rounded-2xl bg-white/10 border border-white/10 px-4 py-4 backdrop-blur-sm">
+                            <p class="text-[11px] text-white/70 mb-1">전체 후기</p>
+                            <p class="text-2xl font-black">5<span class="text-sm font-semibold ml-1">건</span></p>
+                        </div>
+                        <div class="rounded-2xl bg-white/10 border border-white/10 px-4 py-4 backdrop-blur-sm">
+                            <p class="text-[11px] text-white/70 mb-1">평균 별점</p>
+                            <p class="text-2xl font-black">4.8<span class="text-sm font-semibold ml-1">점</span></p>
+                        </div>
+                        <div class="rounded-2xl bg-white/10 border border-white/10 px-4 py-4 backdrop-blur-sm">
+                            <p class="text-[11px] text-white/70 mb-1">이번 달 신규</p>
+                            <p class="text-2xl font-black">2<span class="text-sm font-semibold ml-1">건</span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute -right-12 -top-12 h-44 w-44 rounded-full bg-white/10"></div>
+                <div class="absolute right-28 bottom-[-52px] h-36 w-36 rounded-full bg-white/10"></div>
+            </section>
+
+            <!-- 별점 분포 + 안내 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- 별점 분포 -->
+                <div class="bg-white border border-[#CCC] rounded-2xl p-5">
+                    <h2 class="text-sm font-bold text-[#1A1A1A] mb-4">별점 분포</h2>
+                    <div class="flex flex-col gap-2">
+                        <div class="flex items-center gap-3">
+                            <span class="text-[12px] font-bold text-[#444] w-6 text-right">5★</span>
+                            <div class="flex-1 h-2 rounded-full bg-[#F0F0F0] overflow-hidden">
+                                <div class="h-full rounded-full bg-[#FBBF24]" style="width: 80%"></div>
+                            </div>
+                            <span class="text-[12px] text-[#888] w-6">4건</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-[12px] font-bold text-[#444] w-6 text-right">4★</span>
+                            <div class="flex-1 h-2 rounded-full bg-[#F0F0F0] overflow-hidden">
+                                <div class="h-full rounded-full bg-[#FBBF24]" style="width: 20%"></div>
+                            </div>
+                            <span class="text-[12px] text-[#888] w-6">1건</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-[12px] font-bold text-[#444] w-6 text-right">3★</span>
+                            <div class="flex-1 h-2 rounded-full bg-[#F0F0F0] overflow-hidden">
+                                <div class="h-full rounded-full bg-[#FBBF24]" style="width: 0%"></div>
+                            </div>
+                            <span class="text-[12px] text-[#888] w-6">0건</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-[12px] font-bold text-[#444] w-6 text-right">2★</span>
+                            <div class="flex-1 h-2 rounded-full bg-[#F0F0F0] overflow-hidden">
+                                <div class="h-full rounded-full bg-[#FBBF24]" style="width: 0%"></div>
+                            </div>
+                            <span class="text-[12px] text-[#888] w-6">0건</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-[12px] font-bold text-[#444] w-6 text-right">1★</span>
+                            <div class="flex-1 h-2 rounded-full bg-[#F0F0F0] overflow-hidden">
+                                <div class="h-full rounded-full bg-[#FBBF24]" style="width: 0%"></div>
+                            </div>
+                            <span class="text-[12px] text-[#888] w-6">0건</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 안내 -->
+                <div class="bg-[#F9FAFC] border border-[#CCC] rounded-2xl p-5 flex flex-col justify-center gap-3">
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-xl bg-[#EEF2FB] text-[#1D3CFF] flex items-center justify-center shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-[13px] font-bold text-[#1A1A1A] mb-0.5">후기는 촬영 완료 후 고객이 작성합니다</p>
+                            <p class="text-[12px] text-[#888] leading-relaxed">예약 상태가 <span class="font-semibold text-[#1A8E40]">촬영 완료</span>로 전환된 예약에 한해 고객이 후기를 남길 수 있습니다.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-xl bg-[#FFF4EE] text-[#FF6B2B] flex items-center justify-center shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-[13px] font-bold text-[#1A1A1A] mb-0.5">후기 삭제 및 수정은 불가합니다</p>
+                            <p class="text-[12px] text-[#888] leading-relaxed">후기는 고객만 수정·삭제할 수 있으며, 부적절한 후기는 고객센터를 통해 신고할 수 있습니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 후기 목록 -->
+            <div class="bg-white border border-[#CCC] rounded-2xl overflow-hidden">
+                <div class="px-5 py-4 border-b border-[#EEE] flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-black text-[#1A1A1A]">전체 후기</h2>
+                        <p class="text-[12px] text-[#888] mt-1">총 5건의 후기가 있습니다.</p>
+                    </div>
+                </div>
+
+                <div class="divide-y divide-[#EEE]">
+
+                    <!-- 후기 카드 1 -->
+                    <article class="review-card px-5 py-5 transition-colors">
+                        <div class="flex items-start justify-between gap-4 mb-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-[#D3DEF2] text-[#1D3CFF] flex items-center justify-center text-sm font-black shrink-0">최</div>
+                                <div>
+                                    <p class="text-sm font-bold text-[#1A1A1A]">최유진</p>
+                                    <p class="text-[11px] text-[#888]">졸업사진 촬영 · 2026.04.08</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-0.5 shrink-0">
+                                <svg class="w-4 h-4 star-filled" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <svg class="w-4 h-4 star-filled" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <svg class="w-4 h-4 star-filled" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <svg class="w-4 h-4 star-filled" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <svg class="w-4 h-4 star-filled" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <span class="text-[12px] font-bold text-[#1A1A1A] ml-1">5.0</span>
+                            </div>
+                        </div>
+                        <p class="text-[13px] text-[#444] leading-relaxed">작가님이 너무 친절하시고 사진도 예쁘게 잘 나왔어요! 다음에도 꼭 다시 이용하고 싶습니다. 분위기도 너무 좋았어요.</p>
+                    </article>
+
+                    <!-- 후기 카드 2 -->
+                    <article class="review-card px-5 py-5 transition-colors">
+                        <div class="flex items-start justify-between gap-4 mb-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-[#D3DEF2] text-[#1D3CFF] flex items-center justify-center text-sm font-black shrink-0">박</div>
+                                <div>
+                                    <p class="text-sm font-bold text-[#1A1A1A]">박준서</p>
+                                    <p class="text-[11px] text-[#888]">데이트 스냅 (2인) · 2026.04.05</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-0.5 shrink-0">
+                                <svg class="w-4 h-4 star-filled" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <svg class="w-4 h-4 star-filled" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <svg class="w-4 h-4 star-filled" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <svg class="w-4 h-4 star-filled" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <svg class="w-4 h-4 star-filled" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <span class="text-[12px] font-bold text-[#1A1A1A] ml-1">5.0</span>
+                            </div>
+                        </div>
+                        <p class="text-[13px] text-[#444] leading-relaxed">포즈 추천도 많이 해주시고 편안한 분위기에서 촬영할 수 있어서 좋았습니다. 보정본도 너무 맘에 들어요!</p>
+                    </article>
+
+                    <!-- 후기 카드 3 -->
+                    <article class="review-card px-5 py-5 transition-colors">
+                        <div class="flex items-start justify-between gap-4 mb-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-[#D3DEF2] text-[#1D3CFF] flex items-center justify-center text-sm font-black shrink-0">이</div>
+                                <div>
+                                    <p class="text-sm font-bold text-[#1A1A1A]">이수민</p>
+                                    <p class="text-[11px] text-[#888]">프로필 사진 촬영 · 2026.03.29</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-0.5 shrink-0">
+                                <svg class="w-4 h-4 star-filled" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <svg class="w-4 h-4 star-filled" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <svg class="w-4 h-4 star-filled" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <svg class="w-4 h-4 star-filled" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <svg class="w-4 h-4 star-empty" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <span class="text-[12px] font-bold text-[#1A1A1A] ml-1">4.0</span>
+                            </div>
+                        </div>
+                        <p class="text-[13px] text-[#444] leading-relaxed">전반적으로 만족스러운 촬영이었어요. 장소 안내가 조금 더 자세했으면 좋겠다는 생각이 들었지만, 사진 결과물은 정말 마음에 들어요.</p>
+                    </article>
+
+                    <!-- 후기 카드 4 -->
+                    <article class="review-card px-5 py-5 transition-colors">
+                        <div class="flex items-start justify-between gap-4 mb-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-[#D3DEF2] text-[#1D3CFF] flex items-center justify-center text-sm font-black shrink-0">정</div>
+                                <div>
+                                    <p class="text-sm font-bold text-[#1A1A1A]">정다은</p>
+                                    <p class="text-[11px] text-[#888]">졸업사진 촬영 · 2026.03.15</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-0.5 shrink-0">
+                                <svg class="w-4 h-4 star-filled" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <svg class="w-4 h-4 star-filled" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <svg class="w-4 h-4 star-filled" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <svg class="w-4 h-4 star-filled" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <svg class="w-4 h-4 star-filled" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <span class="text-[12px] font-bold text-[#1A1A1A] ml-1">5.0</span>
+                            </div>
+                        </div>
+                        <p class="text-[13px] text-[#444] leading-relaxed">졸업 기념으로 찍었는데 정말 소중한 추억이 됐어요. 작가님이 긴장된 저를 편하게 해주셔서 자연스러운 사진이 많이 나왔어요. 강추합니다!</p>
+                    </article>
+
+                    <!-- 후기 카드 5 -->
+                    <article class="review-card px-5 py-5 transition-colors">
+                        <div class="flex items-start justify-between gap-4 mb-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-[#D3DEF2] text-[#1D3CFF] flex items-center justify-center text-sm font-black shrink-0">한</div>
+                                <div>
+                                    <p class="text-sm font-bold text-[#1A1A1A]">한지원</p>
+                                    <p class="text-[11px] text-[#888]">데이트 스냅 (2인) · 2026.03.02</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-0.5 shrink-0">
+                                <svg class="w-4 h-4 star-filled" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <svg class="w-4 h-4 star-filled" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <svg class="w-4 h-4 star-filled" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <svg class="w-4 h-4 star-filled" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <svg class="w-4 h-4 star-filled" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <span class="text-[12px] font-bold text-[#1A1A1A] ml-1">5.0</span>
+                            </div>
+                        </div>
+                        <p class="text-[13px] text-[#444] leading-relaxed">커플 스냅 처음 찍어봤는데 정말 자연스럽게 이끌어 주셨어요. 결과물도 너무 예쁘고 SNS에 올리니까 반응이 엄청 좋았어요!</p>
+                    </article>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+</body>
+</html>

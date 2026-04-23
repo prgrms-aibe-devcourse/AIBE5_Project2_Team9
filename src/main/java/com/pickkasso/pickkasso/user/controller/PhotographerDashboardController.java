@@ -80,6 +80,21 @@ public class PhotographerDashboardController {
         return "photographer/dashboard :: weeklyCalendarCard";
     }
 
+    @GetMapping("/{photographerId}/reviews")
+    public String reviews(@PathVariable Long photographerId,
+                          Authentication auth,
+                          Model model) {
+        Photographer photographer = resolveAuthorizedPhotographer(photographerId, auth);
+        if (photographer == null) return auth == null || !auth.isAuthenticated() ? "redirect:/login" : "redirect:/";
+
+        model.addAttribute("photographer", photographer);
+        model.addAttribute("userId", photographerId);
+        model.addAttribute("activeTab", "reviews");
+        model.addAttribute("summary", reservationService.getSummary(photographerId));
+
+        return "photographer/reviews";
+    }
+
     @GetMapping("/{photographerId}/settlement")
     public String settlement(@PathVariable Long photographerId,
                              Authentication auth,
