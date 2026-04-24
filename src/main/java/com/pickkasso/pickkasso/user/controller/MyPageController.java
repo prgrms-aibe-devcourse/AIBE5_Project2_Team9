@@ -1,6 +1,7 @@
 package com.pickkasso.pickkasso.user.controller;
 
 import com.pickkasso.pickkasso.user.dto.PasswordChangeDto;
+import com.pickkasso.pickkasso.user.dto.UserReservationDto;
 import com.pickkasso.pickkasso.user.entity.Account;
 import com.pickkasso.pickkasso.user.entity.Member;
 import com.pickkasso.pickkasso.user.entity.Photographer;
@@ -8,9 +9,8 @@ import com.pickkasso.pickkasso.user.entity.Role;
 import com.pickkasso.pickkasso.user.repository.AccountRepository;
 import com.pickkasso.pickkasso.user.repository.MemberRepository;
 import com.pickkasso.pickkasso.user.repository.PhotographerRepository;
-import com.pickkasso.pickkasso.user.service.AccountService;
+import com.pickkasso.pickkasso.user.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -26,6 +26,7 @@ public class MyPageController {
     private final PhotographerRepository photographerRepository;
     private final MemberRepository memberRepository;
     private final AccountRepository accountRepository;
+    private final ReservationRepository reservationRepository;
     private final PasswordEncoder passwordEncoder;
 
     private Member getCurrentMember(Authentication auth) {
@@ -40,8 +41,12 @@ public class MyPageController {
 
     @GetMapping("/reservations")
     public String reservations(Authentication auth, Model model) {
-        model.addAttribute("member", getCurrentMember(auth));
+        Member member = getCurrentMember(auth);
+        model.addAttribute("member", member);
         model.addAttribute("activeTab", "reservations");
+        model.addAttribute("reservations",
+                reservationRepository.findByMemberIdWithDetails(member.getId())
+                        .stream().map(UserReservationDto::new).toList());
         return "user/mypage/reservations";
     }
 

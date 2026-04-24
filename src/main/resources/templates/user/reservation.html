@@ -429,7 +429,9 @@
 <!-- ─── JavaScript ─────────────────────────────────────── -->
 <script th:inline="javascript">
   /* 서버에서 받은 값 */
-  const MIN_LEAD_DAYS = /*[[${item.minBookingLeadTime}]]*/ 3;
+  const MIN_LEAD_DAYS    = /*[[${item.minBookingLeadTime}]]*/ 3;
+  const PHOTOGRAPHER_ID  = /*[[${item.photographer.id}]]*/ 0;
+  const PLAN_DURATION    = /*[[${selectedPlan?.shootingDuration ?: 1}]]*/ 1;
 
   const MONTH_KO = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
   const DAY_KO   = ['일','월','화','수','목','금','토'];
@@ -522,6 +524,8 @@
       `${cal.sel.y}.${mm}.${dd} (${DAY_KO[date.getDay()]})`;
     document.getElementById('summaryDate').classList.remove('text-[#AAA]');
     document.getElementById('summaryDate').classList.add('text-[#1A1A1A]');
+
+    fetchAndRenderSlots(dateStr);
   }
 
   document.getElementById('prevMonth').addEventListener('click', () => {
@@ -536,27 +540,29 @@
   renderCalendar();
 
   /* ── 시간 슬롯 ── */
-  const TIME_SLOTS = [
-    { t: '09:00', h: 9,  ok: true },
-    { t: '10:00', h: 10, ok: true },
-    { t: '11:00', h: 11, ok: true },
-    { t: '12:00', h: 12, ok: true },
-    { t: '13:00', h: 13, ok: true },
-    { t: '14:00', h: 14, ok: true },
-    { t: '15:00', h: 15, ok: true },
-    { t: '16:00', h: 16, ok: true },
-    { t: '17:00', h: 17, ok: true },
-    { t: '18:00', h: 18, ok: true },
-    { t: '19:00', h: 19, ok: true },
-    { t: '20:00', h: 20, ok: true },
+  const BASE_SLOTS = [
+    { t: '09:00', h: 9  },
+    { t: '10:00', h: 10 },
+    { t: '11:00', h: 11 },
+    { t: '12:00', h: 12 },
+    { t: '13:00', h: 13 },
+    { t: '14:00', h: 14 },
+    { t: '15:00', h: 15 },
+    { t: '16:00', h: 16 },
+    { t: '17:00', h: 17 },
+    { t: '18:00', h: 18 },
+    { t: '19:00', h: 19 },
+    { t: '20:00', h: 20 },
   ];
 
   let selectedHour = null;
+  let blockedHours = [];
 
   function renderTimeSlots() {
     const container = document.getElementById('timeSlots');
     container.innerHTML = '';
-    TIME_SLOTS.forEach(({ t, h, ok }) => {
+    BASE_SLOTS.forEach(({ t, h }) => {
+      const ok = !blockedHours.includes(h);
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.textContent = t;
@@ -575,6 +581,27 @@
       }
       container.appendChild(btn);
     });
+  }
+
+  async function fetchAndRenderSlots(dateStr) {
+    try {
+      const res = await fetch(
+        `/api/reservation/availability?photographerId=${PHOTOGRAPHER_ID}&date=${dateStr}&duration=${PLAN_DURATION}`
+      );
+      const data = await res.json();
+      blockedHours = data.blockedHours || [];
+    } catch (_) {
+      blockedHours = [];
+    }
+    if (selectedHour !== null && blockedHours.includes(selectedHour)) {
+      selectedHour = null;
+      document.getElementById('scheduledHour').value = '';
+      const summaryTime = document.getElementById('summaryTime');
+      summaryTime.textContent = '시간 선택';
+      summaryTime.classList.add('text-[#AAA]');
+      summaryTime.classList.remove('text-[#1A1A1A]');
+    }
+    renderTimeSlots();
   }
 
   renderTimeSlots();
