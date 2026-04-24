@@ -11,6 +11,7 @@ import com.pickkasso.pickkasso.review.dto.ReviewDto;
 import com.pickkasso.pickkasso.review.repository.ReviewRepository;
 import com.pickkasso.pickkasso.user.service.PhotographerProfileService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -84,16 +85,28 @@ public class ItemController {
     }
 
     @GetMapping("/item/{id}")
-    public String itemDetail(@PathVariable Long id, Model model) {
+    public String itemDetail(@PathVariable Long id, Model model, Authentication authentication) {
         Item item = itemService.getItemById(id);
         Long photographerId = item.getPhotographer().getId();
         model.addAttribute("item", item);
         model.addAttribute("profile", photographerProfileService.getProfileForm(photographerId));
+        model.addAttribute("canEditService", isOwnerPhotographer(item, authentication));
 
         List<ReviewDto> reviews = reviewRepository.findByItemIdWithDetails(id)
                 .stream().map(ReviewDto::new).toList();
         model.addAttribute("reviews", reviews);
 
         return "photographer/service-detail";
+    }
+
+    private boolean isOwnerPhotographer(Item item, Authentication authentication) {
+        if (authentication == null || authentication.getName() == null) {
+            return false;
+        }
+        if (authentication.getAuthorities().stream().noneMatch(a -> "ROLE_PHOTOGRAPHER".equals(a.getAuthority()))) {
+            return false;
+        }
+        String ownerUsername = item.getPhotographer().getAccount().getUsername();
+        return ownerUsername != null && ownerUsername.equals(authentication.getName());
     }
 }
