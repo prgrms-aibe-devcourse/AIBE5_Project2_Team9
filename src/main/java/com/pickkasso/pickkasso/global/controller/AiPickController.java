@@ -227,14 +227,24 @@ public class AiPickController {
     private boolean isRecommendAsIsAnswer(String query) {
         if (query == null) return false;
         String normalized = query.replaceAll("\\s+", "").toLowerCase();
+        if (normalized.equals("추천")
+            || normalized.equals("추천해")
+            || normalized.equals("추천해줘")
+            || normalized.equals("추천해주세요")
+            || normalized.equals("추천해줘요")) {
+            return true;
+        }
         return normalized.contains("이대로추천")
             || normalized.contains("바로추천")
             || normalized.contains("바로추천해줘")
+            || normalized.contains("바로추천해주세요")
             || normalized.contains("바로보여줘")
             || normalized.contains("이정도로")
             || normalized.contains("이정도만")
             || normalized.contains("그냥추천")
             || normalized.contains("걍추천")
+            || normalized.contains("추천만")
+            || normalized.contains("추천해")
             || normalized.contains("더안채울")
             || normalized.contains("채우기싫")
             || normalized.contains("조건없이추천");
