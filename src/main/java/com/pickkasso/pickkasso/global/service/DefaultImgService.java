@@ -68,8 +68,10 @@ public class DefaultImgService {
         }
 
         // 2. 신규 업로드
-        for (int i = 0; i < newFiles.size(); i++) {
-            result.add(uploadImage(newFiles.get(i), newFileOrders.get(i), dirName));
+        if (newFiles != null && !newFiles.isEmpty()) {
+            for (int i = 0; i < newFiles.size(); i++) {
+                result.add(uploadImage(newFiles.get(i), newFileOrders.get(i), dirName));
+            }
         }
 
         // 3. 삭제

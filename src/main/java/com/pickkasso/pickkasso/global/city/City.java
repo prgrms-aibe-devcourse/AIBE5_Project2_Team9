@@ -48,7 +48,7 @@ public enum City {
     public static City fromString(String value) {
         if (value == null) throw new IllegalArgumentException("City value must not be null");
         return Arrays.stream(values())
-            .filter(c -> c.aliases.stream().anyMatch(a -> a.startsWith(value)))
+            .filter(c -> c.aliases.stream().anyMatch(value::startsWith))
             .findFirst()
             .orElseThrow(() -> new IllegalArgumentException("Unknown city: " + value));
     }

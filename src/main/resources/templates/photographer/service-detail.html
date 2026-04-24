@@ -95,7 +95,7 @@
           <h2 class="text-xl font-semibold text-[#1A1A1A] mb-4">작가 소개</h2>
 
           <div th:if="${profile.intro != null and !#strings.isEmpty(profile.intro)}"
-               class="text-base text-[#444] leading-8 whitespace-pre-line"
+               class="text-base text-[#444] leading-8 whitespace-pre-line break-words"
                th:text="${profile.intro}"></div>
 
           <div th:unless="${profile.intro != null and !#strings.isEmpty(profile.intro)}"
@@ -163,7 +163,10 @@
                th:if="${stat.index < 6}"
                th:href="@{/photographer/{id}/portfolio/{pid}(id=${profile.photographerId}, pid=${portfolio.portfolioId})}"
                class="rounded-xl overflow-hidden bg-[#D3DEF2] aspect-square flex items-center justify-center text-2xl text-[#888] hover:opacity-80 transition-opacity">
-              🖼️
+              <img th:if="${portfolio.imgUrl != null and !#strings.isEmpty(portfolio.imgUrl)}"
+                   th:src="${portfolio.imgUrl}" alt="포트폴리오"
+                   class="w-full h-full object-cover">
+              <span th:unless="${portfolio.imgUrl != null and !#strings.isEmpty(portfolio.imgUrl)}">🖼️</span>
             </a>
           </div>
 

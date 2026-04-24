@@ -129,6 +129,30 @@ public class Item extends Region {
         return item;
     }
 
+    public void updateItem(
+        Tag tag,
+        String name,
+        String description,
+        String includes,
+        String excludes,
+        ItemType itemType,
+        Integer minBookingLeadTime,
+        String cancellationPolicy,
+        String address,
+        Double lat,
+        Double lng) {
+        this.tag = tag;
+        this.name = name;
+        this.description = description;
+        this.includes = includes;
+        this.excludes = excludes;
+        this.itemType = itemType;
+        this.minBookingLeadTime = minBookingLeadTime;
+        this.cancellationPolicy = cancellationPolicy;
+        this.initRegion(address, "", lat, lng);
+    }
+
+
     // plan
     public void addPlan(Plan plan) {
         planList.add(plan);

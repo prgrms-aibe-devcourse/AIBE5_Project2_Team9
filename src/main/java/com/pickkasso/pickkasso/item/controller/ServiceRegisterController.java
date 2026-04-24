@@ -8,13 +8,11 @@ import com.pickkasso.pickkasso.user.service.PhotographerProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -66,6 +64,7 @@ public class ServiceRegisterController {
         model.addAttribute("photographerId", photographerId);
         model.addAttribute("tagList", tagService.findAllTagReference());
         model.addAttribute("itemRegisterRequest", new ItemRegisterRequest());
+        model.addAttribute("formAction", "/photographer/" + photographerId + "/service/new");
         return "photographer/service-register";
     }
 
@@ -73,15 +72,52 @@ public class ServiceRegisterController {
     public String registerService(
         @PathVariable Long photographerId,
         @ModelAttribute ItemRegisterRequest itemRegisterRequest,
+        @RequestParam(required = false) List<String> keptImgUrls,
+        @RequestParam(required = false) List<Integer> keptImgOrders,
+        @RequestParam(required = false) List<MultipartFile> newFiles,
+        @RequestParam(required = false) List<Integer> newFileOrders,
         RedirectAttributes redirectAttributes) {
 
         try {
-            Long itemId = itemService.registerItem(photographerId, itemRegisterRequest);
+            Long itemId = itemService.registerItem(photographerId, itemRegisterRequest, newFiles, newFileOrders);
             redirectAttributes.addFlashAttribute("successMessage", "서비스가 등록되었습니다.");
             return "redirect:/photographer/" + photographerId + "/profile";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/photographer/" + photographerId + "/service/new";
+        }
+    }
+
+
+    @GetMapping("/{itemId}/edit")
+    public String serviceEditForm(@PathVariable Long photographerId, @PathVariable Long itemId, Model model) {
+        model.addAttribute("photographerId", photographerId);
+        model.addAttribute("tagList", tagService.findAllTagReference());
+        model.addAttribute("itemRegisterRequest", itemService.getItemRegisterRequest(photographerId, itemId));
+        model.addAttribute("itemImgList", itemService.getItemImage(photographerId, itemId));
+        model.addAttribute("formAction", "/photographer/" + photographerId + "/service/edit");
+        return "photographer/service-register";
+    }
+
+
+    @PostMapping("/{itemId}/edit")
+    public String updateService(
+        @PathVariable Long photographerId,
+        @PathVariable Long itemId,
+        @ModelAttribute ItemRegisterRequest itemRegisterRequest,
+        @RequestParam(required = false) List<String> keptImgUrls,
+        @RequestParam(required = false) List<Integer> keptImgOrders,
+        @RequestParam(required = false) List<MultipartFile> newFiles,
+        @RequestParam(required = false) List<Integer> newFileOrders,
+        RedirectAttributes redirectAttributes) {
+
+        try {
+            itemService.updateItem(photographerId, itemId, itemRegisterRequest, keptImgUrls, keptImgOrders, newFiles, newFileOrders);
+            redirectAttributes.addFlashAttribute("successMessage", "서비스가 수정되었습니다.");
+            return "redirect:/photographer/" + photographerId + "/" + itemId;
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/photographer/" + photographerId + "/" + itemId + "/edit";
         }
     }
 }
