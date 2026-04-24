@@ -7,6 +7,8 @@ import com.pickkasso.pickkasso.item.dto.ItemSearchFormDto;
 import com.pickkasso.pickkasso.item.entity.ItemType;
 import com.pickkasso.pickkasso.item.entity.Item;
 import com.pickkasso.pickkasso.item.service.ItemService;
+import com.pickkasso.pickkasso.review.dto.ReviewDto;
+import com.pickkasso.pickkasso.review.repository.ReviewRepository;
 import com.pickkasso.pickkasso.user.service.PhotographerProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -18,6 +20,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
+
 @Controller
 @RequiredArgsConstructor
 public class ItemController {
@@ -25,6 +29,7 @@ public class ItemController {
     private final TagService tagService;
     private final ItemService itemService;
     private final PhotographerProfileService photographerProfileService;
+    private final ReviewRepository reviewRepository;
     private static final int PAGE_VIEW_COUNT = 20;
 
     private ItemSearchCondition toCondition(ItemSearchFormDto dto) {
@@ -86,6 +91,11 @@ public class ItemController {
         model.addAttribute("item", item);
         model.addAttribute("profile", photographerProfileService.getProfileForm(photographerId));
         model.addAttribute("canEditService", isOwnerPhotographer(item, authentication));
+
+        List<ReviewDto> reviews = reviewRepository.findByItemIdWithDetails(id)
+                .stream().map(ReviewDto::new).toList();
+        model.addAttribute("reviews", reviews);
+
         return "photographer/service-detail";
     }
 

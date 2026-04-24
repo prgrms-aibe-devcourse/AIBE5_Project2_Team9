@@ -99,4 +99,24 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     Optional<Reservation> findByIdWithDetails(@Param("id") Long id);
 
     List<Reservation> findByStatusAndScheduledAtBefore(ReservationStatus status, LocalDateTime before);
+
+    @Query("""
+            select r from Reservation r
+              join fetch r.item i
+              join fetch i.photographer p
+            where r.member.id = :memberId
+            order by r.scheduledAt desc
+            """)
+    List<Reservation> findByMemberIdWithDetails(@Param("memberId") Long memberId);
+
+    @Query(value = """
+            SELECT COUNT(*) > 0 FROM t_order
+            WHERE photographer_id = :photographerId
+              AND status IN ('PENDING', 'CONFIRMED')
+              AND scheduled_at < :newEnd
+              AND DATE_ADD(scheduled_at, INTERVAL duration_minutes MINUTE) > :newStart
+            """, nativeQuery = true)
+    boolean existsOverlapping(@Param("photographerId") Long photographerId,
+                              @Param("newStart") java.time.LocalDateTime newStart,
+                              @Param("newEnd") java.time.LocalDateTime newEnd);
 }

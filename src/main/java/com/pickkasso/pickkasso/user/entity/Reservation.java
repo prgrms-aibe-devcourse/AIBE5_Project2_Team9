@@ -92,7 +92,14 @@ public class Reservation {
         }
         this.status = ReservationStatus.REJECTED;
         this.decidedAt = LocalDateTime.now();
-        // TODO(다음 PR): 캐시 환불 → member.refundCache(totalPrice)
+    }
+
+    public void cancel() {
+        if (status != ReservationStatus.PENDING && status != ReservationStatus.CONFIRMED) {
+            throw new IllegalStateException("취소 가능한 상태가 아닙니다.");
+        }
+        this.status = ReservationStatus.CANCELED;
+        this.decidedAt = LocalDateTime.now();
     }
 
     public void markCompleted() {

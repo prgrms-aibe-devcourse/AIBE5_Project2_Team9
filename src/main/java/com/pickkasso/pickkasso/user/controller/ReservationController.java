@@ -77,6 +77,26 @@ public class ReservationController {
         }
     }
 
+    @PostMapping("/reservations/{reservationId}/cancel")
+    public String cancelReservation(
+            @PathVariable Long reservationId,
+            Authentication auth,
+            RedirectAttributes redirectAttrs) {
+
+        Member member = resolveMember(auth);
+        if (member == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            userReservationService.cancelByMember(member.getId(), reservationId);
+            redirectAttrs.addFlashAttribute("toast", "예약이 취소되었습니다. 캐시가 환불되었습니다.");
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            redirectAttrs.addFlashAttribute("toastError", e.getMessage());
+        }
+        return "redirect:/member/mypage/reservations";
+    }
+
     @GetMapping("/reservations/{reservationId}/complete")
     public String reservationComplete(
             @PathVariable Long reservationId,
