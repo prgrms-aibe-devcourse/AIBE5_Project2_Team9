@@ -2,6 +2,7 @@ package com.pickkasso.pickkasso.global.advice;
 
 import com.pickkasso.pickkasso.user.entity.Account;
 import com.pickkasso.pickkasso.user.entity.Member;
+import com.pickkasso.pickkasso.user.entity.Role;
 import com.pickkasso.pickkasso.user.repository.AccountRepository;
 import com.pickkasso.pickkasso.user.repository.MemberRepository;
 import org.springframework.security.core.Authentication;

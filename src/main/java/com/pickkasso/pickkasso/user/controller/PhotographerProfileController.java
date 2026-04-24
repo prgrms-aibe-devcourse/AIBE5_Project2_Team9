@@ -1,6 +1,8 @@
 package com.pickkasso.pickkasso.user.controller;
 
 import com.pickkasso.pickkasso.item.service.ItemService;
+import com.pickkasso.pickkasso.review.dto.ReviewDto;
+import com.pickkasso.pickkasso.review.repository.ReviewRepository;
 import com.pickkasso.pickkasso.user.dto.photographer.PhotographerProfileEditRequest;
 import com.pickkasso.pickkasso.user.dto.photographer.PhotographerProfileResponse;
 import com.pickkasso.pickkasso.user.entity.Account;
@@ -14,6 +16,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/photographer/{photographerId}/profile")
@@ -22,12 +26,20 @@ public class PhotographerProfileController {
     private final PhotographerProfileService photographerProfileService;
     private final ItemService itemService;
     private final AccountRepository accountRepository;
+    private final ReviewRepository reviewRepository;
 
     @GetMapping
     public String profilePage(@PathVariable Long photographerId, Model model, Authentication authentication) {
         PhotographerProfileResponse response = photographerProfileService.getProfileForm(photographerId);
         model.addAttribute("profile", response);
         model.addAttribute("items", itemService.getItemsByPhotographerId(photographerId));
+
+        List<ReviewDto> reviews = reviewRepository.findByPhotographerIdWithDetails(photographerId)
+                .stream().map(ReviewDto::new).toList();
+        double avgRating = reviews.stream().mapToInt(ReviewDto::getRating).average().orElse(0.0);
+        model.addAttribute("reviews", reviews);
+        model.addAttribute("reviewCount", reviews.size());
+        model.addAttribute("avgRating", String.format("%.1f", avgRating));
 
         boolean isOwner = false;
         if (authentication != null && authentication.isAuthenticated()) {

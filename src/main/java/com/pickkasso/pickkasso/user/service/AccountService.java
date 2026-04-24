@@ -39,6 +39,11 @@ public class AccountService {
         }
     }
 
+    public boolean isUsernameAvailable(String username) {
+        Account findAccount = accountRepository.findByUsername(username);
+        return findAccount == null; // true면 사용 가능
+    }
+
     public String findUsername(String name, String email){
         Member member = memberRepository.findByNameAndEmail(name, email)
                 .orElseThrow(() -> new IllegalStateException("회원 없음"));

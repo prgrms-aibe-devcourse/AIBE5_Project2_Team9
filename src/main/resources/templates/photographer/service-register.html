@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>서비스 등록 | PICKKASSO</title>
+  <title>서비스 등록 | PICKASSO</title>
   <link rel="stylesheet" th:href="@{/css/global.css}">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -144,7 +144,7 @@
       <span th:text="${errorMessage}"></span>
     </div>
 
-    <form th:action="@{/photographer/{id}/service/new(id=${photographerId})}"
+    <form th:action="${formAction}"
           method="post" id="service-form"
           class="flex flex-col gap-5">
 
@@ -170,7 +170,9 @@
             <div class="grid grid-cols-4 gap-2.5" id="category-grid">
               <th:block th:each="tag : ${tagList}">
                 <label class="category-option relative flex flex-col items-center justify-center gap-2 py-4 px-2.5 bg-[#F9FAFC] border-[1.5px] border-[#CCC] rounded-xl cursor-pointer text-[13px] font-medium text-[#444] text-center leading-snug transition-all hover:border-[#1D3CFF] hover:bg-[#EEF1FF]">
-                  <input type="radio" name="tagName" th:value="${tag.name}" class="absolute opacity-0 w-0 h-0">
+                  <input type="radio" name="tagName" th:value="${tag.name}"
+                         th:checked="${itemRegisterRequest.tagName == tag.name}"
+                         class="absolute opacity-0 w-0 h-0">
                   <span class="cat-emoji text-2xl" th:text="${categoryEmojis[tag.name] ?: '📷'}">📷</span>
                   <span th:text="${tag.name}">카테고리</span>
                 </label>
@@ -219,7 +221,8 @@
               촬영 방식            </label>
             <div class="flex gap-3">
               <label class="shoot-type-option flex-1 relative flex items-center gap-3.5 px-5 py-4 bg-[#F9FAFC] border-[1.5px] border-[#CCC] rounded-xl cursor-pointer transition-all hover:border-[#1D3CFF]">
-                <input type="radio" name="itemType" value="OUT" class="absolute opacity-0 w-0 h-0" checked>
+                <input type="radio" name="itemType" value="OUT" class="absolute opacity-0 w-0 h-0"
+                       th:checked="${itemRegisterRequest.itemType == null or itemRegisterRequest.itemType.name() == 'OUT'}">
                 <div class="w-10 h-10 rounded-[10px] bg-[#D3DEF2] flex items-center justify-center text-xl flex-shrink-0">📍</div>
                 <div>
                   <div class="text-sm font-bold text-[#1A1A1A]">방문 촬영</div>
@@ -227,7 +230,8 @@
                 </div>
               </label>
               <label class="shoot-type-option flex-1 relative flex items-center gap-3.5 px-5 py-4 bg-[#F9FAFC] border-[1.5px] border-[#CCC] rounded-xl cursor-pointer transition-all hover:border-[#1D3CFF]">
-                <input type="radio" name="itemType" value="IN" class="absolute opacity-0 w-0 h-0">
+                <input type="radio" name="itemType" value="IN" class="absolute opacity-0 w-0 h-0"
+                       th:checked="${itemRegisterRequest.itemType != null and itemRegisterRequest.itemType.name() == 'IN'}">
                 <div class="w-10 h-10 rounded-[10px] bg-[#D3DEF2] flex items-center justify-center text-xl flex-shrink-0">🏢</div>
                 <div>
                   <div class="text-sm font-bold text-[#1A1A1A]">스튜디오 촬영</div>
@@ -242,6 +246,7 @@
             <label for="service-name" class="text-[13px] font-bold text-[#1A1A1A] flex items-center gap-1">
               서비스명            </label>
             <input id="service-name" type="text" name="name" maxlength="60"
+                   th:value="${itemRegisterRequest.name}"
                    placeholder="예: 감성 데이트 스냅 2시간 패키지"
                    class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-[10px] px-3.5 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] outline-none focus:border-[#1D3CFF] focus:ring-[3px] focus:ring-[#1D3CFF]/[0.08] transition-all">
           </div>
@@ -282,32 +287,38 @@
               <div class="plan-row grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1.5fr_36px] items-center px-4 py-3.5 border-b border-[#CCC] last:border-b-0 gap-2">
                 <div class="flex items-center gap-2">
                   <span class="text-base leading-none flex-shrink-0">📸</span>
-                  <input type="text" name="plans[0].planName" value="기본 패키지"
+                  <input type="text" name="plans[0].planName"
+                         th:value="${#lists.isEmpty(itemRegisterRequest.plans) ? '기본 패키지' : itemRegisterRequest.plans[0].planName}"
                          placeholder="패키지명"
                          class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-2.5 py-1.5 text-[13px] text-[#1A1A1A] placeholder-[#AAA] outline-none focus:border-[#1D3CFF] transition-colors">
                 </div>
                 <div class="flex items-center justify-center gap-1">
-                  <input type="number" name="plans[0].shootingDuration" value="2" min="1" max="12"
+                  <input type="number" name="plans[0].shootingDuration"
+                         th:value="${#lists.isEmpty(itemRegisterRequest.plans) ? 2 : itemRegisterRequest.plans[0].shootingDuration}" min="1" max="12"
                          class="w-14 text-center bg-[#F9FAFC] border border-[#CCC] rounded-lg px-1.5 py-1.5 text-[13px] text-[#1A1A1A] outline-none focus:border-[#1D3CFF] transition-colors">
                   <span class="text-xs text-[#888] flex-shrink-0">시간</span>
                 </div>
                 <div class="flex items-center justify-center gap-1">
-                  <input type="number" name="plans[0].originalPhotoCount" value="100" min="0"
+                  <input type="number" name="plans[0].originalPhotoCount"
+                         th:value="${#lists.isEmpty(itemRegisterRequest.plans) ? 100 : itemRegisterRequest.plans[0].originalPhotoCount}" min="0"
                          class="w-14 text-center bg-[#F9FAFC] border border-[#CCC] rounded-lg px-1.5 py-1.5 text-[13px] text-[#1A1A1A] outline-none focus:border-[#1D3CFF] transition-colors">
                   <span class="text-xs text-[#888] flex-shrink-0">장</span>
                 </div>
                 <div class="flex items-center justify-center gap-1">
-                  <input type="number" name="plans[0].editedPhotoCount" value="20" min="0"
+                  <input type="number" name="plans[0].editedPhotoCount"
+                         th:value="${#lists.isEmpty(itemRegisterRequest.plans) ? 20 : itemRegisterRequest.plans[0].editedPhotoCount}" min="0"
                          class="w-14 text-center bg-[#F9FAFC] border border-[#CCC] rounded-lg px-1.5 py-1.5 text-[13px] text-[#1A1A1A] outline-none focus:border-[#1D3CFF] transition-colors">
                   <span class="text-xs text-[#888] flex-shrink-0">장</span>
                 </div>
                 <div class="flex items-center justify-center gap-1">
-                  <input type="number" name="plans[0].deliveryDays" value="3" min="1"
+                  <input type="number" name="plans[0].deliveryDays"
+                         th:value="${#lists.isEmpty(itemRegisterRequest.plans) ? 3 : itemRegisterRequest.plans[0].deliveryDays}" min="1"
                          class="w-14 text-center bg-[#F9FAFC] border border-[#CCC] rounded-lg px-1.5 py-1.5 text-[13px] text-[#1A1A1A] outline-none focus:border-[#1D3CFF] transition-colors">
                   <span class="text-xs text-[#888] flex-shrink-0">일</span>
                 </div>
                 <div class="relative flex items-center">
                   <input type="number" name="plans[0].price" placeholder="0" min="0"
+                         th:value="${#lists.isEmpty(itemRegisterRequest.plans) ? null : itemRegisterRequest.plans[0].price}"
                          class="plan-price w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-2.5 pr-7 py-1.5 text-[13px] text-[#1A1A1A] placeholder-[#AAA] outline-none focus:border-[#1D3CFF] transition-colors">
                   <span class="absolute right-2.5 text-xs text-[#888] pointer-events-none">원</span>
                 </div>
@@ -339,9 +350,10 @@
             <label class="text-[13px] font-bold text-[#1A1A1A]">기준 지점 (출발지)</label>
             <p class="text-xs text-[#888]">방문 촬영 시 이동 거리 계산의 기준이 됩니다</p>
             <input type="text" name="address" placeholder="예: 서울 마포구 합정동"
+                   th:value="${itemRegisterRequest.address}"
                    class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-[10px] px-3.5 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] outline-none focus:border-[#1D3CFF] focus:ring-[3px] focus:ring-[#1D3CFF]/[0.08] transition-all">
-            <input type="hidden" name="lat" value="0.0">
-            <input type="hidden" name="lng" value="0.0">
+            <input type="hidden" name="lat" th:value="${itemRegisterRequest.lat != null ? itemRegisterRequest.lat : 0.0}">
+            <input type="hidden" name="lng" th:value="${itemRegisterRequest.lng != null ? itemRegisterRequest.lng : 0.0}">
           </div>
 
           <!-- 추가 옵션 -->
@@ -401,7 +413,7 @@
             <textarea name="description" rows="6" maxlength="1000"
                       placeholder="이 서비스가 어떤 고객에게 적합한지, 촬영 과정은 어떻게 진행되는지 자세히 설명해 주세요."
                       class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-[10px] px-3.5 py-3 text-sm text-[#1A1A1A] placeholder-[#AAA] outline-none focus:border-[#1D3CFF] focus:ring-[3px] focus:ring-[#1D3CFF]/[0.08] resize-y leading-7 transition-all"
-                      id="desc-textarea"></textarea>
+                      id="desc-textarea" th:text="${itemRegisterRequest.description}"></textarea>
             <div class="text-xs text-[#AAA] text-right"><span id="desc-count">0</span> / 1000자</div>
           </div>
 
@@ -467,6 +479,7 @@
             <p class="text-xs text-[#888]">촬영일 기준 최소 며칠 전에 예약해야 하는지 설정합니다</p>
             <div class="relative mt-1 max-w-[200px]">
               <input id="lead-time" type="number" name="minBookingLeadTime" placeholder="3" min="1" max="90"
+                     th:value="${itemRegisterRequest.minBookingLeadTime}"
                      class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-[10px] px-3.5 py-2.5 pr-14 text-sm text-[#1A1A1A] placeholder-[#AAA] outline-none focus:border-[#1D3CFF] focus:ring-[3px] focus:ring-[#1D3CFF]/[0.08] transition-all">
               <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-[13px] text-[#888] font-medium pointer-events-none">일 전</span>
             </div>
@@ -485,7 +498,8 @@
             </div>
             <textarea name="cancellationPolicy" rows="3"
                       placeholder="추가 취소/환불 안내 사항이 있으면 작성해 주세요."
-                      class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-[10px] px-3.5 py-3 text-sm text-[#1A1A1A] placeholder-[#AAA] outline-none focus:border-[#1D3CFF] focus:ring-[3px] focus:ring-[#1D3CFF]/[0.08] resize-y leading-7 transition-all mt-1"></textarea>
+                      class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-[10px] px-3.5 py-3 text-sm text-[#1A1A1A] placeholder-[#AAA] outline-none focus:border-[#1D3CFF] focus:ring-[3px] focus:ring-[#1D3CFF]/[0.08] resize-y leading-7 transition-all mt-1"
+                      th:text="${itemRegisterRequest.cancellationPolicy}"></textarea>
           </div>
 
           <!-- 고객 안내 사항 -->
@@ -555,6 +569,10 @@
       updatePreview();
     });
   });
+  const initialCategory = document.querySelector('.category-option input:checked');
+  if (initialCategory) {
+    initialCategory.dispatchEvent(new Event('change'));
+  }
 
   /* ─── 촬영 방식 선택 ─── */
   document.querySelectorAll('.shoot-type-option').forEach(label => {
@@ -575,8 +593,12 @@
       updatePreview();
     });
   });
-  // 초기 방문촬영 선택 상태 표시
-  document.querySelector('.shoot-type-option input[value="OUT"]').dispatchEvent(new Event('change'));
+  // 초기 선택 상태 표시
+  const initialShootType = document.querySelector('.shoot-type-option input:checked')
+    || document.querySelector('.shoot-type-option input[value="OUT"]');
+  if (initialShootType) {
+    initialShootType.dispatchEvent(new Event('change'));
+  }
 
   /* ─── 패키지 추가/삭제 ─── */
   let planIndex = 1;

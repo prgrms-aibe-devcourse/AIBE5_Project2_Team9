@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>예약하기 | PICKKASSO</title>
+  <title th:text="${item.name} + ' 예약 | PICKASSO'">예약하기 | PICKASSO</title>
   <link rel="stylesheet" th:href="@{/css/global.css}">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -19,7 +19,6 @@
     }
   </script>
   <style>
-    /* ── 캘린더 ── */
     .cal-day {
       width: 2.25rem; height: 2.25rem;
       border-radius: 9999px;
@@ -29,13 +28,13 @@
       transition: background 0.12s;
     }
     .cal-day.other-month { color: #CCC; cursor: default; pointer-events: none; }
-    .cal-day.sun { color: #F87171; }
-    .cal-day.sat { color: #0097FF; }
+    .cal-day.disabled { color: #CCC; cursor: not-allowed; pointer-events: none; text-decoration: line-through; }
+    .cal-day.sun { color: #F87171; cursor: pointer; }
+    .cal-day.sat { color: #0097FF; cursor: pointer; }
     .cal-day.normal { color: #1A1A1A; cursor: pointer; }
-    .cal-day.normal:hover { background: #F0F3FF; }
+    .cal-day.sun:hover, .cal-day.sat:hover, .cal-day.normal:hover { background: #F0F3FF; }
     .cal-day.selected { background: #1D3CFF !important; color: #fff !important; cursor: default; }
 
-    /* ── 시간 슬롯 ── */
     .time-btn {
       padding: 0.625rem 0;
       border-radius: 0.5rem;
@@ -58,30 +57,25 @@
     .time-btn:disabled {
       border-color: #CCC; background: #F9FAFC; color: #CCC; cursor: not-allowed;
     }
-
   </style>
 </head>
 <body class="bg-[#F9FAFC] text-[#1A1A1A] font-sans">
 
-<!-- ══════════════════════════════════════════
-     예약 전용 헤더
-══════════════════════════════════════════ -->
+<!-- ─── 헤더 ─────────────────────────────────────────── -->
 <header class="sticky top-0 z-50 bg-[#F9FAFC] border-b border-[#1A1A1A] h-16 flex items-center">
   <div class="max-w-[1216px] w-full mx-auto px-6 flex items-center justify-between">
-    <!-- 로고 -->
     <a th:href="@{/}" class="flex items-center gap-2">
-      <img th:src="@{/images/logo.png}" alt="PICKKASSO 로고" class="h-8 w-auto">
+      <img th:src="@{/images/logo.png}" alt="PICKASSO 로고" class="h-8 w-auto">
       <span class="font-angelica text-[16px] text-[#1D3CFF] tracking-wide">PICKASSO</span>
     </a>
 
-    <!-- 브레드크럼 -->
     <nav class="flex items-center gap-1.5 text-sm" aria-label="예약 흐름">
-      <a th:href="@{/}" class="text-[#888] hover:text-[#1D3CFF] transition-colors">서비스 상세</a>
+      <a th:href="@{/item/{id}(id=${item.id})}" class="text-[#888] hover:text-[#1D3CFF] transition-colors"
+         th:text="${item.name}">서비스 상세</a>
       <span class="text-[#CCC]">›</span>
       <span class="font-semibold text-[#1D3CFF]">예약하기</span>
     </nav>
 
-    <!-- 문의하기 -->
     <button type="button"
             class="text-sm font-medium border border-[#CCC] text-[#444] px-4 py-2 rounded-lg hover:border-[#888] hover:text-[#1A1A1A] transition-colors">
       문의하기
@@ -89,395 +83,386 @@
   </div>
 </header>
 
-<!-- ══════════════════════════════════════════
-     스텝 진행 표시
-══════════════════════════════════════════ -->
+<!-- ─── 스텝 진행 표시 ─────────────────────────────────── -->
 <div class="bg-white border-b border-[#CCC]">
-  <div class="max-w-[1216px] mx-auto px-6 py-4 flex justify-center">
-    <div class="flex items-center gap-0">
-
-      <!-- Step 1: 날짜·시간 (완료) -->
-      <div class="flex flex-col items-center">
-        <div class="w-8 h-8 rounded-full bg-[#1D3CFF] flex items-center justify-center">
-          <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-          </svg>
-        </div>
-        <span class="text-xs mt-1 font-medium text-[#1D3CFF]">날짜 · 시간</span>
+  <div class="max-w-[1216px] mx-auto px-6 py-3 flex items-center gap-3 text-sm">
+    <div class="flex items-center gap-2">
+      <div class="w-6 h-6 rounded-full bg-[#1D3CFF] flex items-center justify-center flex-shrink-0">
+        <span class="text-white text-xs font-bold">1</span>
       </div>
-
-      <div class="w-14 h-0.5 bg-[#1D3CFF] mb-5 mx-1"></div>
-
-      <!-- Step 2: 촬영 장소 (완료) -->
-      <div class="flex flex-col items-center">
-        <div class="w-8 h-8 rounded-full bg-[#1D3CFF] flex items-center justify-center">
-          <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-          </svg>
-        </div>
-        <span class="text-xs mt-1 font-medium text-[#1D3CFF]">촬영 장소</span>
+      <span class="font-semibold text-[#1D3CFF]">예약 정보 입력</span>
+    </div>
+    <div class="flex-1 h-px bg-[#CCC] max-w-[60px]"></div>
+    <div class="flex items-center gap-2">
+      <div class="w-6 h-6 rounded-full border border-[#CCC] bg-white flex items-center justify-center flex-shrink-0">
+        <span class="text-xs font-medium text-[#AAA]">2</span>
       </div>
-
-      <div class="w-14 h-0.5 bg-[#1D3CFF] mb-5 mx-1"></div>
-
-      <!-- Step 3: 옵션·결제 (현재) -->
-      <div class="flex flex-col items-center">
-        <div class="w-8 h-8 rounded-full border-2 border-[#1D3CFF] bg-white flex items-center justify-center">
-          <span class="text-xs font-bold text-[#1D3CFF]">3</span>
-        </div>
-        <span class="text-xs mt-1 font-bold text-[#1D3CFF]">옵션 · 결제</span>
-      </div>
-
-      <div class="w-14 h-0.5 bg-[#CCC] mb-5 mx-1"></div>
-
-      <!-- Step 4: 예약 완료 (비활성) -->
-      <div class="flex flex-col items-center">
-        <div class="w-8 h-8 rounded-full border-2 border-[#CCC] bg-white flex items-center justify-center">
-          <span class="text-xs font-medium text-[#AAA]">4</span>
-        </div>
-        <span class="text-xs mt-1 text-[#AAA]">예약 완료</span>
-      </div>
-
+      <span class="text-[#AAA]">예약 완료</span>
     </div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     메인 콘텐츠 (2컬럼)
-══════════════════════════════════════════ -->
+<!-- ─── 에러 메시지 ─────────────────────────────────── -->
+<div th:if="${errorMsg}" class="max-w-[1216px] mx-auto px-6 pt-4">
+  <div class="flex items-center gap-2 bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700">
+    <span>⚠️</span>
+    <span th:text="${errorMsg}">오류가 발생했습니다.</span>
+  </div>
+</div>
+
+<!-- ─── 메인 콘텐츠 ─────────────────────────────────────── -->
 <main class="max-w-[1216px] mx-auto px-6 py-8">
-  <div class="flex gap-8 items-start">
+  <form th:action="@{/items/{id}/reserve(id=${item.id})}" method="post">
+    <!-- 히든 필드 -->
+    <input type="hidden" name="planId" th:value="${selectedPlan?.id}">
+    <input type="hidden" name="scheduledDate" id="scheduledDate" value="">
+    <input type="hidden" name="scheduledHour" id="scheduledHour" value="">
 
-    <!-- ────────────────────────
-         좌측: 폼 섹션
-    ──────────────────────── -->
-    <div class="flex-1 min-w-0 flex flex-col gap-6">
+    <div class="flex gap-8 items-start">
 
-      <!-- ① 촬영 날짜 선택 ──────────── -->
-      <section class="bg-white border border-[#CCC] rounded-2xl p-6">
-        <h2 class="text-base font-semibold text-[#1A1A1A] mb-5 flex items-center gap-2">
-          <span>📅</span><span>촬영 날짜 선택</span>
-        </h2>
+      <!-- ── 좌측 폼 섹션 ──────────────────────── -->
+      <div class="flex-1 min-w-0 flex flex-col gap-6">
 
-        <!-- 캘린더 헤더 -->
-        <div class="flex items-center justify-between mb-3">
-          <button id="prevMonth" type="button"
-                  class="w-8 h-8 flex items-center justify-center rounded-full text-lg text-[#444] hover:bg-[#F9FAFC] transition-colors">
-            ‹
-          </button>
-          <span id="calendarTitle" class="text-sm font-semibold text-[#1A1A1A]">2026년 4월</span>
-          <button id="nextMonth" type="button"
-                  class="w-8 h-8 flex items-center justify-center rounded-full text-lg text-[#444] hover:bg-[#F9FAFC] transition-colors">
-            ›
-          </button>
-        </div>
+        <!-- ① 촬영 날짜 선택 -->
+        <section class="bg-white border border-[#CCC] rounded-2xl p-6">
+          <h2 class="text-base font-semibold text-[#1A1A1A] mb-5 flex items-center gap-2">
+            <span>📅</span><span>촬영 날짜 선택</span>
+          </h2>
+          <p class="text-xs text-[#888] mb-4"
+             th:text="'촬영 ' + ${item.minBookingLeadTime} + '일 전까지 예약 가능 · 오늘 기준 최소 예약 가능일 이전 날짜는 선택 불가'">
+            최소 예약 가능일 이전 날짜는 선택 불가합니다.
+          </p>
 
-        <!-- 요일 헤더 -->
-        <div class="grid grid-cols-7 mb-1">
-          <div class="text-center text-xs font-semibold text-red-400 py-2">일</div>
-          <div class="text-center text-xs font-semibold text-[#888] py-2">월</div>
-          <div class="text-center text-xs font-semibold text-[#888] py-2">화</div>
-          <div class="text-center text-xs font-semibold text-[#888] py-2">수</div>
-          <div class="text-center text-xs font-semibold text-[#888] py-2">목</div>
-          <div class="text-center text-xs font-semibold text-[#888] py-2">금</div>
-          <div class="text-center text-xs font-semibold text-[#0097FF] py-2">토</div>
-        </div>
-
-        <!-- 날짜 그리드 -->
-        <div id="calendarGrid" class="grid grid-cols-7 gap-y-1"></div>
-      </section>
-
-      <!-- ② 촬영 시작 시간 ──────────── -->
-      <section class="bg-white border border-[#CCC] rounded-2xl p-6">
-        <h2 class="text-base font-semibold text-[#1A1A1A] mb-1 flex items-center gap-2">
-          <span>🕐</span><span>촬영 시작 시간</span>
-        </h2>
-        <p class="text-xs text-[#888] mb-4">작가의 예약 가능 시간: 10:00 - 22:00 &nbsp;·&nbsp; 회색으로 표시된 시간은 예약 불가</p>
-
-        <div id="timeSlots" class="grid grid-cols-4 gap-2"></div>
-      </section>
-
-      <!-- ③ 촬영 장소 ──────────── -->
-      <section class="bg-white border border-[#CCC] rounded-2xl p-6">
-        <h2 class="text-base font-semibold text-[#1A1A1A] mb-4 flex items-center gap-2">
-          <span>📍</span><span>촬영 장소</span>
-        </h2>
-
-        <label class="text-sm font-medium text-[#444] mb-2 block">장소 검색</label>
-        <div class="relative mb-3">
-          <input type="text" value="서울특별시 마포구 홍대입구역"
-                 class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg pl-9 pr-4 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
-          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#888]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-          </svg>
-        </div>
-
-        <!-- 지도 플레이스홀더 -->
-        <div class="w-full h-40 bg-[#D3DEF2] rounded-xl flex flex-col items-center justify-center gap-2 mb-3">
-          <svg class="w-8 h-8 text-[#888]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-          </svg>
-          <span class="text-sm text-[#888]">서울 마포구 홍대입구역 일대</span>
-        </div>
-
-        <!-- 거리 추가요금 경고 -->
-        <div class="flex items-center gap-2 bg-[#FFFBEB] border border-[#FCD34D] rounded-lg px-4 py-2.5 mb-4">
-          <span class="text-base">⚠️</span>
-          <span class="text-sm text-[#444]">
-            기준지점(청정동)에서 1.2km &nbsp;·&nbsp; 거리 추가요금
-            <span class="font-semibold text-[#1D3CFF]">+1,200원</span> 예상
-          </span>
-        </div>
-
-        <label class="text-sm font-medium text-[#444] mb-2 block">상세 장소 안내</label>
-        <input type="text" value="홍대입구역 9번 출구 앞"
-               class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF] mb-1">
-        <p class="text-xs text-[#888]">작가가 찾을 수 있도록 구체적으로 알려주세요</p>
-      </section>
-
-      <!-- ④ 예약자 정보 ──────────── -->
-      <section class="bg-white border border-[#CCC] rounded-2xl p-6">
-        <h2 class="text-base font-semibold text-[#1A1A1A] mb-4 flex items-center gap-2">
-          <span>👤</span><span>예약자 정보</span>
-        </h2>
-
-        <!-- 안내 박스 -->
-        <div class="flex items-start gap-2 bg-[#EBF5FF] border border-[#BFDBFE] rounded-lg px-4 py-3 mb-5">
-          <svg class="w-4 h-4 text-[#0097FF] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-          </svg>
-          <span class="text-sm text-[#444]">예약 확정 후 작가에게 연락처가 공개됩니다. 정확하게 입력해 주세요.</span>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <label class="text-sm font-medium text-[#444] mb-1.5 block">이름 <span class="text-red-400">*</span></label>
-            <input type="text" th:value="${member?.name}"
-                   class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+          <!-- 캘린더 헤더 -->
+          <div class="flex items-center justify-between mb-3">
+            <button id="prevMonth" type="button"
+                    class="w-8 h-8 flex items-center justify-center rounded-full text-lg text-[#444] hover:bg-[#F9FAFC] transition-colors">
+              ‹
+            </button>
+            <span id="calendarTitle" class="text-sm font-semibold text-[#1A1A1A]"></span>
+            <button id="nextMonth" type="button"
+                    class="w-8 h-8 flex items-center justify-center rounded-full text-lg text-[#444] hover:bg-[#F9FAFC] transition-colors">
+              ›
+            </button>
           </div>
-          <div>
-            <label class="text-sm font-medium text-[#444] mb-1.5 block">연락처 <span class="text-red-400">*</span></label>
-            <input type="tel" th:value="${member?.phone}"
-                   class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+
+          <!-- 요일 헤더 -->
+          <div class="grid grid-cols-7 mb-1">
+            <div class="text-center text-xs font-semibold text-red-400 py-2">일</div>
+            <div class="text-center text-xs font-semibold text-[#888] py-2">월</div>
+            <div class="text-center text-xs font-semibold text-[#888] py-2">화</div>
+            <div class="text-center text-xs font-semibold text-[#888] py-2">수</div>
+            <div class="text-center text-xs font-semibold text-[#888] py-2">목</div>
+            <div class="text-center text-xs font-semibold text-[#888] py-2">금</div>
+            <div class="text-center text-xs font-semibold text-[#0097FF] py-2">토</div>
           </div>
-        </div>
 
-        <div class="mb-4">
-          <label class="text-sm font-medium text-[#444] mb-1.5 block">촬영 인원 <span class="text-red-400">*</span></label>
-          <select class="w-32 bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF] cursor-pointer">
-            <option value="1">1명</option>
-            <option value="2" selected>2명</option>
-            <option value="3">3명</option>
-            <option value="4">4명</option>
-            <option value="5">5명 이상</option>
-          </select>
-        </div>
+          <!-- 날짜 그리드 -->
+          <div id="calendarGrid" class="grid grid-cols-7 gap-y-1"></div>
+        </section>
 
-        <div>
-          <label class="text-sm font-medium text-[#444] mb-1.5 block">작가에게 전달할 요청사항</label>
-          <textarea rows="4"
-                    placeholder="원하는 분위기, 특별한 요청사항, 촬영 컨셉 등을 자유롭게 적어주세요."
-                    class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF] resize-none"></textarea>
-        </div>
-      </section>
+        <!-- ② 촬영 시작 시간 -->
+        <section class="bg-white border border-[#CCC] rounded-2xl p-6">
+          <h2 class="text-base font-semibold text-[#1A1A1A] mb-1 flex items-center gap-2">
+            <span>🕐</span><span>촬영 시작 시간</span>
+          </h2>
+          <p class="text-xs text-[#888] mb-4">예약 가능 시간: 09:00 ~ 20:00 &nbsp;·&nbsp; 회색으로 표시된 시간은 예약 불가</p>
+          <div id="timeSlots" class="grid grid-cols-4 gap-2"></div>
+        </section>
 
-      <!-- ⑤ 캐시 결제 ──────────── -->
-      <section class="bg-white border border-[#CCC] rounded-2xl p-6">
-        <h2 class="text-base font-semibold text-[#1A1A1A] mb-4 flex items-center gap-2">
-          <span>💳</span><span>캐시 결제</span>
-        </h2>
+        <!-- ③ 촬영 장소 -->
+        <section class="bg-white border border-[#CCC] rounded-2xl p-6">
+          <h2 class="text-base font-semibold text-[#1A1A1A] mb-4 flex items-center gap-2">
+            <span>📍</span><span>촬영 장소</span>
+          </h2>
 
-        <!-- 보유 캐시 -->
-        <div class="flex items-center justify-between bg-[#F9FAFC] border border-[#CCC] rounded-xl px-5 py-4 mb-4">
-          <div>
-            <p class="text-xs text-[#888] mb-0.5">보유 캐시</p>
-            <p class="text-xl font-bold text-[#1A1A1A]">
-              <span th:text="${member != null and member.cache != null ? #numbers.formatInteger(member.cache, 0, 'COMMA') : '0'}">0</span>
-              <span class="text-[#1D3CFF]">C</span>
-            </p>
+          <div th:if="${item.itemType.name() == 'IN'}"
+               class="flex items-center gap-2 bg-[#EBF5FF] border border-[#BFDBFE] rounded-lg px-4 py-3 mb-4">
+            <span class="text-sm">🏢</span>
+            <span class="text-sm text-[#444]">스튜디오 촬영 – 작가 스튜디오로 방문해 주세요.</span>
           </div>
-          <button type="button"
-                  class="text-sm font-semibold border border-[#1D3CFF] text-[#1D3CFF] px-4 py-2 rounded-lg hover:bg-[#1D3CFF] hover:text-white active:bg-[#1530E0] transition-colors">
-            + 캐시 충전
-          </button>
-        </div>
 
-        <!-- 차감 동의 -->
-        <label class="flex items-start gap-3 cursor-pointer mb-4 select-none">
-          <div class="w-5 h-5 rounded border-2 border-[#1D3CFF] bg-[#1D3CFF] flex items-center justify-center flex-shrink-0 mt-0.5">
-            <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+          <div class="mb-4">
+            <label class="text-sm font-medium text-[#444] mb-1.5 block">
+              장소 주소
+              <span th:if="${item.itemType.name() == 'OUT'}" class="text-red-400">*</span>
+            </label>
+            <input type="text" name="address" id="addressInput"
+                   th:value="${item.itemType.name() == 'IN' ? item.address : ''}"
+                   th:readonly="${item.itemType.name() == 'IN'}"
+                   placeholder="촬영하고 싶은 장소의 주소를 입력해 주세요"
+                   class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+          </div>
+
+          <div>
+            <label class="text-sm font-medium text-[#444] mb-1.5 block">상세 장소 안내</label>
+            <input type="text" name="detailAddress"
+                   placeholder="예: 9번 출구 앞, 공원 입구 등 찾기 쉬운 장소를 알려주세요"
+                   class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF] mb-1">
+            <p class="text-xs text-[#888]">작가가 찾아올 수 있도록 구체적으로 알려주세요</p>
+          </div>
+        </section>
+
+        <!-- ④ 예약자 정보 -->
+        <section class="bg-white border border-[#CCC] rounded-2xl p-6">
+          <h2 class="text-base font-semibold text-[#1A1A1A] mb-4 flex items-center gap-2">
+            <span>👤</span><span>예약자 정보</span>
+          </h2>
+
+          <div class="flex items-start gap-2 bg-[#EBF5FF] border border-[#BFDBFE] rounded-lg px-4 py-3 mb-5">
+            <svg class="w-4 h-4 text-[#0097FF] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
             </svg>
-          </div>
-          <span class="text-sm text-[#444]">
-            예약 확정 시 <span id="cashCheckLabel" class="font-bold text-[#1D3CFF]">151,200</span> 캐시가 차감됩니다
-          </span>
-        </label>
-
-        <!-- 안내 -->
-        <div class="border-t border-[#CCC] pt-4 space-y-1.5">
-          <p class="text-xs text-[#888]">• 예약 거절 또는 작가가 수락하면 취소 시 정책에 따라 환불 처리됩니다</p>
-          <p class="text-xs text-[#888]">• 촬영 7일 전 이전 취소: 전액 환불</p>
-          <p class="text-xs text-[#888]">• 캐시는 PICKKASSO 플랫폼 내에서만 사용 가능</p>
-        </div>
-      </section>
-
-    </div> <!-- end 좌측 -->
-
-    <!-- ────────────────────────
-         우측: 요약 패널 (sticky)
-    ──────────────────────── -->
-    <div class="w-[340px] flex-shrink-0">
-      <div class="sticky top-[84px] flex flex-col gap-4">
-
-        <!-- 서비스 정보 카드 -->
-        <div class="bg-white border border-[#CCC] rounded-2xl overflow-hidden">
-          <!-- 대표 이미지 -->
-          <div class="relative">
-            <div class="w-full h-44 bg-[#D3DEF2] flex items-center justify-center">
-              <span class="text-sm text-[#888]">서비스 대표 이미지</span>
-            </div>
-            <span class="absolute top-3 left-3 bg-[#1D3CFF] text-white text-xs font-semibold px-3 py-1 rounded-full">
-              방문 촬영
-            </span>
+            <span class="text-sm text-[#444]">예약 확정 후 작가에게 연락처가 공개됩니다. 정확하게 입력해 주세요.</span>
           </div>
 
-          <div class="p-5">
-            <!-- 카테고리 + 제목 -->
-            <p class="text-xs font-medium text-[#0097FF] mb-1">데이트 스냅</p>
-            <h3 class="text-sm font-bold text-[#1A1A1A] mb-3">감성 데이트 스냅 2시간 패키지</h3>
-
-            <!-- 작가 정보 -->
-            <div class="flex items-center gap-2 pb-4 mb-4 border-b border-[#CCC]">
-              <div class="w-7 h-7 rounded-full bg-[#D3DEF2] flex items-center justify-center flex-shrink-0 text-xs">
-                📷
-              </div>
-              <span class="text-sm font-medium text-[#444]">김민준 작가</span>
-              <span class="text-xs text-[#888]">
-                <span class="text-[#0097FF]">★</span>4.9 · 후기 87개
-              </span>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="text-sm font-medium text-[#444] mb-1.5 block">이름</label>
+              <input type="text" readonly
+                     th:value="${member?.name}"
+                     class="w-full bg-[#F0F0F0] border border-[#CCC] rounded-lg px-4 py-2.5 text-sm text-[#444] cursor-default">
             </div>
-
-            <!-- 플랜 상세 -->
-            <div class="flex flex-col gap-2 pb-4 mb-4 border-b border-[#CCC]">
-              <div class="flex items-center justify-between text-sm">
-                <span class="text-[#888]">⏱ 촬영 시간</span>
-                <span class="font-medium text-[#1A1A1A]">2시간</span>
-              </div>
-              <div class="flex items-center justify-between text-sm">
-                <span class="text-[#888]">🖼 원본 첫</span>
-                <span class="font-medium text-[#1A1A1A]">100장</span>
-              </div>
-              <div class="flex items-center justify-between text-sm">
-                <span class="text-[#888]">✨ 보정 첫</span>
-                <span class="font-medium text-[#1A1A1A]">20장</span>
-              </div>
-              <div class="flex items-center justify-between text-sm">
-                <span class="text-[#888]">📦 납품 기한</span>
-                <span class="font-medium text-[#1A1A1A]">3일 이내</span>
-              </div>
-            </div>
-
-            <!-- 예약 요약 -->
-            <div class="flex flex-col gap-2">
-              <div class="flex items-start justify-between text-sm gap-2">
-                <span class="text-[#888] flex-shrink-0">📅 촬영 날짜</span>
-                <span id="summaryDate" class="font-medium text-[#1A1A1A] text-right">2026.04.20 (일)</span>
-              </div>
-              <div class="flex items-center justify-between text-sm">
-                <span class="text-[#888]">🕐 시작 시간</span>
-                <span id="summaryTime" class="font-medium text-[#1A1A1A]">13:00</span>
-              </div>
-              <div class="flex items-start justify-between text-sm gap-2">
-                <span class="text-[#888] flex-shrink-0">📍 장소</span>
-                <span class="font-medium text-[#1A1A1A] text-right">서울 마포구 홍대입구역</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 결제 금액 명세 -->
-        <div class="bg-white border border-[#CCC] rounded-2xl p-5">
-          <h3 class="text-sm font-semibold text-[#1A1A1A] mb-4">결제 금액 명세</h3>
-
-          <div class="flex flex-col gap-2.5 mb-4">
-            <div class="flex items-center justify-between text-sm">
-              <span class="text-[#444]">기본 패키지</span>
-              <span class="font-medium text-[#1A1A1A]">150,000원</span>
-            </div>
-            <div class="flex items-center justify-between text-sm">
-              <span class="text-[#444]">거리 추가요금 (1.2km)</span>
-              <span class="font-medium text-[#1D3CFF]">+1,200원</span>
+            <div>
+              <label class="text-sm font-medium text-[#444] mb-1.5 block">연락처</label>
+              <input type="tel" readonly
+                     th:value="${member?.phone}"
+                     class="w-full bg-[#F0F0F0] border border-[#CCC] rounded-lg px-4 py-2.5 text-sm text-[#444] cursor-default">
             </div>
           </div>
 
-          <div class="border-t border-[#CCC] pt-4">
-            <div class="flex items-center justify-between mb-1.5">
-              <span class="text-sm font-semibold text-[#1A1A1A]">총 결제금액</span>
-              <span id="totalPrice" class="text-lg font-bold text-[#1A1A1A]">
-                151,200 <span class="text-[#1D3CFF]">C</span>
-              </span>
-            </div>
-            <div class="flex items-center justify-between">
-              <span class="text-xs text-[#888]">결제 후 잔여 캐시</span>
-              <span id="remainingCash" class="text-sm font-medium text-[#888]">78,800 C</span>
-            </div>
+          <div class="mb-4">
+            <label class="text-sm font-medium text-[#444] mb-1.5 block">촬영 인원 <span class="text-red-400">*</span></label>
+            <select name="headCount"
+                    class="w-32 bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF] cursor-pointer">
+              <option value="1">1명</option>
+              <option value="2" selected>2명</option>
+              <option value="3">3명</option>
+              <option value="4">4명</option>
+              <option value="5">5명 이상</option>
+            </select>
           </div>
-        </div>
 
-        <!-- 예약 확정 버튼 -->
-        <button id="reserveBtn" type="button"
-                class="w-full bg-[#1D3CFF] hover:bg-[#1530E0] active:bg-[#1530E0] text-white font-bold py-4 rounded-xl transition-colors flex items-center justify-center gap-2 text-base">
-          <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-          </svg>
-          <span id="reserveBtnLabel">151,200 캐시로 예약 확정</span>
-        </button>
+          <div>
+            <label class="text-sm font-medium text-[#444] mb-1.5 block">작가에게 전달할 요청사항</label>
+            <textarea name="memo" rows="4"
+                      placeholder="원하는 분위기, 특별한 요청사항, 촬영 컨셉 등을 자유롭게 적어주세요."
+                      class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF] resize-none"></textarea>
+          </div>
+        </section>
 
-        <!-- 캐시 차감 안내 -->
-        <p class="text-xs text-[#888] text-center leading-relaxed px-2">
-          예약 확정 후 작가가 수락하면 캐시가 차감됩니다.<br>
-          예약 거절 시 전액 즉시 환불됩니다.
-        </p>
+        <!-- ⑤ 캐시 결제 (더미) -->
+        <section class="bg-white border border-[#CCC] rounded-2xl p-6">
+          <h2 class="text-base font-semibold text-[#1A1A1A] mb-4 flex items-center gap-2">
+            <span>💳</span><span>캐시 결제</span>
+          </h2>
 
-        <!-- 취소·환불 정책 -->
-        <div class="bg-white border border-[#CCC] rounded-xl p-4">
-          <h4 class="text-xs font-semibold text-[#444] mb-2.5">취소 · 환불 정책</h4>
-          <ul class="space-y-1.5">
-            <li class="text-xs text-[#888]">• 촬영 7일 전 취소: 전액 환불</li>
-            <li class="text-xs text-[#888]">• 촬영 3~7일 전 취소: 10% 수수료 차감</li>
-            <li class="text-xs text-[#888]">• 촬영 3일 이하만 취소: 30% 수수료 차감</li>
-            <li class="text-xs text-[#888]">• 작가 사정으로 인한 취소: 전액 즉시 환불</li>
-          </ul>
-        </div>
+          <div class="flex items-center justify-between bg-[#F9FAFC] border border-[#CCC] rounded-xl px-5 py-4 mb-4">
+            <div>
+              <p class="text-xs text-[#888] mb-0.5">보유 캐시</p>
+              <p class="text-xl font-bold text-[#1A1A1A]">
+                <span th:text="${member != null and member.cache != null ? #numbers.formatInteger(member.cache, 0, 'COMMA') : '0'}">0</span>
+                <span class="text-[#1D3CFF]">C</span>
+              </p>
+            </div>
+            <button type="button"
+                    class="text-sm font-semibold border border-[#1D3CFF] text-[#1D3CFF] px-4 py-2 rounded-lg hover:bg-[#1D3CFF] hover:text-white active:bg-[#1530E0] transition-colors">
+              + 캐시 충전
+            </button>
+          </div>
+
+          <div class="border-t border-[#CCC] pt-4 space-y-1.5">
+            <p class="text-xs text-[#888]">• 예약 거절 또는 작가 취소 시 전액 즉시 환불됩니다</p>
+            <p class="text-xs text-[#888]">• 촬영 7일 전 이전 취소: 전액 환불</p>
+            <p class="text-xs text-[#888]">• 캐시는 PICKASSO 플랫폼 내에서만 사용 가능</p>
+          </div>
+        </section>
 
       </div>
-    </div> <!-- end 우측 -->
+      <!-- end 좌측 -->
 
-  </div>
+      <!-- ── 우측 요약 패널 ────────────────────────── -->
+      <div class="w-[340px] flex-shrink-0">
+        <div class="sticky top-[84px] flex flex-col gap-4">
+
+          <!-- 서비스 정보 카드 -->
+          <div class="bg-white border border-[#CCC] rounded-2xl overflow-hidden">
+            <!-- 썸네일 -->
+            <div class="relative w-full h-44 bg-gradient-to-br from-[#C8D8F0] to-[#8CA8D8] flex items-center justify-center">
+              <svg class="w-12 h-12 text-white opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                      d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              <span class="absolute top-3 left-3 bg-[#1D3CFF] text-white text-xs font-semibold px-3 py-1 rounded-full"
+                    th:text="${item.itemType.name() == 'IN' ? '스튜디오 촬영' : '방문 촬영'}">방문 촬영</span>
+            </div>
+
+            <div class="p-5">
+              <!-- 카테고리 + 제목 -->
+              <p class="text-xs font-medium text-[#0097FF] mb-1" th:text="${item.tag.name}">데이트 스냅</p>
+              <h3 class="text-sm font-bold text-[#1A1A1A] mb-3 leading-snug" th:text="${item.name}">서비스명</h3>
+
+              <!-- 작가 정보 -->
+              <div class="flex items-center gap-2 pb-4 mb-4 border-b border-[#CCC]">
+                <div class="w-8 h-8 rounded-full bg-[#D3DEF2] overflow-hidden flex items-center justify-center flex-shrink-0">
+                  <img th:if="${profile.imgUrl != null and !#strings.isEmpty(profile.imgUrl)}"
+                       th:src="${profile.imgUrl}" th:alt="${profile.nickname}"
+                       class="w-full h-full object-cover" loading="lazy">
+                  <span th:unless="${profile.imgUrl != null and !#strings.isEmpty(profile.imgUrl)}"
+                        class="text-sm">📷</span>
+                </div>
+                <span class="text-sm font-medium text-[#444]"
+                      th:text="${profile.nickname != null and !#strings.isEmpty(profile.nickname) ? profile.nickname + ' 작가' : '작가'}">작가</span>
+                <span class="text-xs text-[#888] ml-auto" th:if="${item.reviewCount > 0}">
+                  <span class="text-[#0097FF]">★</span>
+                  <span th:text="${#numbers.formatDecimal(item.avgScore / 100.0, 1, 1)}">4.9</span>
+                </span>
+              </div>
+
+              <!-- 플랜 상세 (선택된 플랜) -->
+              <div th:if="${selectedPlan != null}" class="flex flex-col gap-2 pb-4 mb-4 border-b border-[#CCC]">
+                <div class="text-xs font-semibold text-[#888] mb-1"
+                     th:text="${selectedPlan.name != null and !#strings.isEmpty(selectedPlan.name) ? selectedPlan.name : '기본 패키지'}">기본 패키지</div>
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-[#888]">⏱ 촬영 시간</span>
+                  <span class="font-medium text-[#1A1A1A]" th:text="${selectedPlan.shootingDuration} + '시간'">2시간</span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-[#888]">🖼 원본 컷</span>
+                  <span class="font-medium text-[#1A1A1A]"
+                        th:text="${selectedPlan.originalPhotoCount > 0 ? selectedPlan.originalPhotoCount + '장' : '미제공'}">100장</span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-[#888]">✨ 보정 컷</span>
+                  <span class="font-medium text-[#1A1A1A]" th:text="${selectedPlan.editedPhotoCount} + '장'">20장</span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-[#888]">📦 납품 기한</span>
+                  <span class="font-medium text-[#1A1A1A]" th:text="${selectedPlan.deliveryDays} + '일 이내'">3일 이내</span>
+                </div>
+              </div>
+
+              <!-- 예약 요약 (JS로 업데이트) -->
+              <div class="flex flex-col gap-2">
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-[#888]">📅 촬영 날짜</span>
+                  <span id="summaryDate" class="font-medium text-[#AAA]">날짜 미선택</span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-[#888]">🕐 시작 시간</span>
+                  <span id="summaryTime" class="font-medium text-[#AAA]">시간 미선택</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 결제 금액 명세 -->
+          <div th:if="${selectedPlan != null}" class="bg-white border border-[#CCC] rounded-2xl p-5">
+            <h3 class="text-sm font-semibold text-[#1A1A1A] mb-4">결제 금액 명세</h3>
+
+            <div class="flex flex-col gap-2.5 mb-4">
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-[#444]"
+                      th:text="${selectedPlan.name != null and !#strings.isEmpty(selectedPlan.name) ? selectedPlan.name : '기본 패키지'}">기본 패키지</span>
+                <span class="font-medium text-[#1A1A1A]"
+                      th:text="${#numbers.formatInteger(selectedPlan.price, 1, 'COMMA')} + '원'">0원</span>
+              </div>
+            </div>
+
+            <div class="border-t border-[#CCC] pt-4">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-sm font-semibold text-[#1A1A1A]">총 결제금액</span>
+                <span class="text-lg font-bold text-[#1D3CFF]">
+                  <span th:text="${#numbers.formatInteger(selectedPlan.price, 1, 'COMMA')}">0</span>
+                  <span class="text-base font-medium text-[#888]"> C</span>
+                </span>
+              </div>
+              <div class="flex items-center justify-between" th:if="${member != null and member.cache != null}">
+                <span class="text-xs text-[#888]">결제 후 잔여 캐시</span>
+                <span class="text-sm font-medium text-[#888]"
+                      th:text="${#numbers.formatInteger(member.cache - selectedPlan.price, 1, 'COMMA')} + ' C'">0 C</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 예약 확정 버튼 -->
+          <button type="submit" id="reserveBtn"
+                  onclick="return validateForm()"
+                  class="w-full bg-[#1D3CFF] hover:bg-[#1530E0] active:bg-[#1530E0] text-white font-bold py-4 rounded-xl transition-colors flex items-center justify-center gap-2 text-base">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+            <span th:if="${selectedPlan != null}"
+                  th:text="${#numbers.formatInteger(selectedPlan.price, 1, 'COMMA')} + ' 캐시로 예약 신청'">예약 신청</span>
+            <span th:unless="${selectedPlan != null}">예약 신청하기</span>
+          </button>
+
+          <p class="text-xs text-[#888] text-center leading-relaxed px-2">
+            예약 신청 후 작가가 수락하면 캐시가 차감됩니다.<br>
+            예약 거절 시 전액 즉시 환불됩니다.
+          </p>
+
+          <!-- 취소·환불 정책 -->
+          <div class="bg-white border border-[#CCC] rounded-xl p-4">
+            <h4 class="text-xs font-semibold text-[#444] mb-2.5">취소 · 환불 정책</h4>
+            <div th:if="${item.cancellationPolicy != null and !#strings.isEmpty(item.cancellationPolicy)}"
+                 class="text-xs text-[#888] leading-6 whitespace-pre-line"
+                 th:text="${item.cancellationPolicy}"></div>
+            <ul th:unless="${item.cancellationPolicy != null and !#strings.isEmpty(item.cancellationPolicy)}"
+                class="space-y-1.5">
+              <li class="text-xs text-[#888]">• 촬영 7일 전 취소: 전액 환불</li>
+              <li class="text-xs text-[#888]">• 촬영 3~7일 전 취소: 10% 수수료 차감</li>
+              <li class="text-xs text-[#888]">• 촬영 3일 미만 취소: 30% 수수료 차감</li>
+              <li class="text-xs text-[#888]">• 작가 사정으로 인한 취소: 전액 즉시 환불</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+      <!-- end 우측 -->
+
+    </div>
+  </form>
 </main>
 
-<!-- ══════════════════════════════════════════
-     JavaScript
-══════════════════════════════════════════ -->
-<script>
-  /* ── 상수 ── */
+<!-- ─── JavaScript ─────────────────────────────────────── -->
+<script th:inline="javascript">
+  /* 서버에서 받은 값 */
+  const MIN_LEAD_DAYS    = /*[[${item.minBookingLeadTime}]]*/ 3;
+  const PHOTOGRAPHER_ID  = /*[[${item.photographer.id}]]*/ 0;
+  const PLAN_DURATION    = /*[[${selectedPlan?.shootingDuration ?: 1}]]*/ 1;
+
   const MONTH_KO = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
   const DAY_KO   = ['일','월','화','수','목','금','토'];
 
-  /* ══ 캘린더 ══ */
-  const cal = { year: 2026, month: 3, sel: { y: 2026, m: 3, d: 20 } };
+  /* ── 캘린더 상태 ── */
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const minSelectableDate = new Date(today);
+  minSelectableDate.setDate(minSelectableDate.getDate() + MIN_LEAD_DAYS);
+
+  const cal = {
+    year: today.getFullYear(),
+    month: today.getMonth(),
+    sel: null
+  };
+
+  function isBeforeMinDate(year, month, day) {
+    const d = new Date(year, month, day);
+    return d < minSelectableDate;
+  }
 
   function renderCalendar() {
-    document.getElementById('calendarTitle').textContent = `${cal.year}년 ${MONTH_KO[cal.month]}`;
+    document.getElementById('calendarTitle').textContent =
+      `${cal.year}년 ${MONTH_KO[cal.month]}`;
 
-    const firstDay  = new Date(cal.year, cal.month, 1).getDay();
-    const lastDate  = new Date(cal.year, cal.month + 1, 0).getDate();
-    const prevLast  = new Date(cal.year, cal.month, 0).getDate();
-    const grid      = document.getElementById('calendarGrid');
-    grid.innerHTML  = '';
+    const firstDay = new Date(cal.year, cal.month, 1).getDay();
+    const lastDate = new Date(cal.year, cal.month + 1, 0).getDate();
+    const prevLast = new Date(cal.year, cal.month, 0).getDate();
+    const grid = document.getElementById('calendarGrid');
+    grid.innerHTML = '';
 
     /* 이전 달 잔여 일 */
     for (let i = firstDay - 1; i >= 0; i--) {
@@ -487,9 +472,19 @@
     /* 현재 달 */
     for (let d = 1; d <= lastDate; d++) {
       const dow = new Date(cal.year, cal.month, d).getDay();
-      const isSel = (cal.sel.y === cal.year && cal.sel.m === cal.month && cal.sel.d === d);
-      const cls = isSel ? 'selected' : (dow === 0 ? 'sun' : dow === 6 ? 'sat' : 'normal');
-      appendCell(grid, d, cls, isSel ? null : d);
+      const isSel = cal.sel &&
+        cal.sel.y === cal.year && cal.sel.m === cal.month && cal.sel.d === d;
+
+      let cls;
+      if (isSel) {
+        cls = 'selected';
+      } else if (isBeforeMinDate(cal.year, cal.month, d)) {
+        cls = 'disabled';
+      } else {
+        cls = dow === 0 ? 'sun' : dow === 6 ? 'sat' : 'normal';
+      }
+
+      appendCell(grid, d, cls, (cls === 'disabled' || isSel) ? null : d);
     }
 
     /* 다음 달 채우기 */
@@ -518,11 +513,19 @@
   function selectDate(d) {
     cal.sel = { y: cal.year, m: cal.month, d };
     renderCalendar();
-    const date = new Date(cal.sel.y, cal.sel.m, cal.sel.d);
+
     const mm = String(cal.sel.m + 1).padStart(2, '0');
     const dd = String(cal.sel.d).padStart(2, '0');
+    const dateStr = `${cal.sel.y}-${mm}-${dd}`;
+    document.getElementById('scheduledDate').value = dateStr;
+
+    const date = new Date(cal.sel.y, cal.sel.m, cal.sel.d);
     document.getElementById('summaryDate').textContent =
       `${cal.sel.y}.${mm}.${dd} (${DAY_KO[date.getDay()]})`;
+    document.getElementById('summaryDate').classList.remove('text-[#AAA]');
+    document.getElementById('summaryDate').classList.add('text-[#1A1A1A]');
+
+    fetchAndRenderSlots(dateStr);
   }
 
   document.getElementById('prevMonth').addEventListener('click', () => {
@@ -536,46 +539,93 @@
 
   renderCalendar();
 
-  /* ══ 시간 슬롯 ══ */
-  const TIME_DATA = [
-    { t: '09:00', ok: false },
-    { t: '10:00', ok: true  },
-    { t: '11:00', ok: true  },
-    { t: '12:00', ok: true  },
-    { t: '13:00', ok: true  },
-    { t: '14:00', ok: true  },
-    { t: '15:00', ok: false },
-    { t: '16:00', ok: true  },
-    { t: '17:00', ok: true  },
-    { t: '18:00', ok: true  },
-    { t: '19:00', ok: false },
-    { t: '20:00', ok: true  },
+  /* ── 시간 슬롯 ── */
+  const BASE_SLOTS = [
+    { t: '09:00', h: 9  },
+    { t: '10:00', h: 10 },
+    { t: '11:00', h: 11 },
+    { t: '12:00', h: 12 },
+    { t: '13:00', h: 13 },
+    { t: '14:00', h: 14 },
+    { t: '15:00', h: 15 },
+    { t: '16:00', h: 16 },
+    { t: '17:00', h: 17 },
+    { t: '18:00', h: 18 },
+    { t: '19:00', h: 19 },
+    { t: '20:00', h: 20 },
   ];
 
-  let selectedTime = '13:00';
+  let selectedHour = null;
+  let blockedHours = [];
 
   function renderTimeSlots() {
     const container = document.getElementById('timeSlots');
     container.innerHTML = '';
-    TIME_DATA.forEach(({ t, ok }) => {
+    BASE_SLOTS.forEach(({ t, h }) => {
+      const ok = !blockedHours.includes(h);
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.textContent = t;
-      btn.className = 'time-btn' + (t === selectedTime ? ' time-selected' : '');
+      btn.className = 'time-btn' + (h === selectedHour ? ' time-selected' : '');
       btn.disabled = !ok;
-      if (ok && t !== selectedTime) {
+      if (ok) {
         btn.addEventListener('click', () => {
-          selectedTime = t;
+          selectedHour = h;
+          document.getElementById('scheduledHour').value = h;
+          const summaryTime = document.getElementById('summaryTime');
+          summaryTime.textContent = t;
+          summaryTime.classList.remove('text-[#AAA]');
+          summaryTime.classList.add('text-[#1A1A1A]');
           renderTimeSlots();
-          document.getElementById('summaryTime').textContent = t;
         });
       }
       container.appendChild(btn);
     });
   }
 
+  async function fetchAndRenderSlots(dateStr) {
+    try {
+      const res = await fetch(
+        `/api/reservation/availability?photographerId=${PHOTOGRAPHER_ID}&date=${dateStr}&duration=${PLAN_DURATION}`
+      );
+      const data = await res.json();
+      blockedHours = data.blockedHours || [];
+    } catch (_) {
+      blockedHours = [];
+    }
+    if (selectedHour !== null && blockedHours.includes(selectedHour)) {
+      selectedHour = null;
+      document.getElementById('scheduledHour').value = '';
+      const summaryTime = document.getElementById('summaryTime');
+      summaryTime.textContent = '시간 선택';
+      summaryTime.classList.add('text-[#AAA]');
+      summaryTime.classList.remove('text-[#1A1A1A]');
+    }
+    renderTimeSlots();
+  }
+
   renderTimeSlots();
 
+  /* ── 폼 유효성 검사 ── */
+  function validateForm() {
+    const date = document.getElementById('scheduledDate').value;
+    const hour = document.getElementById('scheduledHour').value;
+    const address = document.getElementById('addressInput').value.trim();
+
+    if (!date) {
+      alert('촬영 날짜를 선택해 주세요.');
+      return false;
+    }
+    if (!hour) {
+      alert('촬영 시작 시간을 선택해 주세요.');
+      return false;
+    }
+    if (!address) {
+      alert('촬영 장소를 입력해 주세요.');
+      return false;
+    }
+    return true;
+  }
 </script>
 
 </body>

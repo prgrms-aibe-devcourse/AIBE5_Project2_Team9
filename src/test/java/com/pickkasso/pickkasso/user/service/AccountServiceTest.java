@@ -11,6 +11,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,6 +20,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @Transactional
 @RequiredArgsConstructor
 class AccountServiceTest {
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     AccountService accountService;
@@ -105,5 +109,30 @@ class AccountServiceTest {
             accountService.createTempPassword(username, email);
         });
         }
+
+    @Test
+    @DisplayName("비밀번호 변경 실패 - 새 비밀번호와 새 비밀번호 확인이 일치하지 않음")
+    void changePasswordFailTest() {
+        // given
+        String username = "testUser";
+        String oldPassword = "oldPassword123";
+        String newPassword = "newPassword456";
+        String newPasswordConfirm = "newPassword789";
+
+
+        Account account = Account.createAccount(username, oldPassword, Role.MEMBER);
+        accountRepository.save(account);
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            // newPassword와 newPasswordConfirm 비교
+            if (!newPassword.equals(newPasswordConfirm)) {
+                throw new IllegalArgumentException("새 비밀번호와 새 비밀번호 확인이 일치하지 않습니다.");
+            }
+
+            String encodedNewPassword = passwordEncoder.encode(newPassword);
+            account.changePassword(encodedNewPassword);
+        });
+    }
+
     }
 

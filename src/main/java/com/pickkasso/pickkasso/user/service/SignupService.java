@@ -10,6 +10,7 @@ import com.pickkasso.pickkasso.user.repository.MemberRepository;
 import com.pickkasso.pickkasso.user.repository.PhotographerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +21,7 @@ public class SignupService {
     private final PhotographerRepository photographerRepository;
 
 
+    @Transactional
     public void signup(SignupDto dto) {
 
         if (!dto.getPassword().matches("^(?=.*[a-z])(?=.*\\d).{8,30}$")) {
