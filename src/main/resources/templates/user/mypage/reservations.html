@@ -4,7 +4,45 @@
       th:replace="~{layouts/default :: layout(~{::title}, ~{::pageStyles}, ~{::main})}">
 <head>
   <title th:fragment="title">예약 내역 | PICKKASSO</title>
-  <th:block th:fragment="pageStyles"></th:block>
+  <th:block th:fragment="pageStyles">
+    <style>
+      .highlight-res {
+        border-color: #1D3CFF !important;
+        box-shadow: 0 0 0 4px rgba(29, 60, 255, 0.1) !important;
+        background-color: #F0F4FF !important;
+      }
+    </style>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const highlightId = urlParams.get('resId');
+        const hash = window.location.hash;
+
+        let targetId = null;
+        if (highlightId) {
+          targetId = 'res-' + highlightId;
+        } else if (hash && hash.startsWith('#res-')) {
+          targetId = hash.substring(1);
+        }
+
+        if (targetId) {
+          const element = document.getElementById(targetId);
+          if (element) {
+            // 약간의 지연 후 스크롤 및 강조 (레이아웃 렌더링 대기)
+            setTimeout(() => {
+              element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              element.classList.add('highlight-res');
+
+              // 3초 후 강조 효과 제거 (선택 사항)
+              setTimeout(() => {
+                element.classList.remove('highlight-res');
+              }, 3000);
+            }, 300);
+          }
+        }
+      });
+    </script>
+  </th:block>
 </head>
 <body>
 
@@ -31,7 +69,8 @@
         <div th:if="${hasReservations}" class="space-y-4">
           <!-- 예약 카드 (반복) - 추후 실제 데이터로 연결 -->
           <div th:each="reservation : ${reservations}"
-               class="bg-white border border-[#CCC] rounded-2xl p-5 hover:shadow-sm transition-shadow">
+               th:id="'res-' + ${reservation.id}"
+               class="bg-white border border-[#CCC] rounded-2xl p-5 hover:shadow-sm transition-all duration-500">
             <div class="flex gap-4">
               <!-- 썸네일 -->
               <div class="w-[88px] h-[88px] rounded-xl bg-[#D3DEF2] flex items-center justify-center flex-shrink-0 text-2xl text-[#888]">

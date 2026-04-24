@@ -40,7 +40,7 @@ public class UserReservationService {
 
         Long photographerId = plan.getItem().getPhotographer().getId();
         LocalDateTime newEnd = scheduledAt.plusHours(plan.getShootingDuration());
-        if (reservationRepository.existsOverlapping(photographerId, scheduledAt, newEnd)) {
+        if (reservationRepository.countOverlapping(photographerId, scheduledAt, newEnd) > 0) {
             throw new IllegalStateException("이미 예약이 차 있는 시간입니다.");
         }
 
