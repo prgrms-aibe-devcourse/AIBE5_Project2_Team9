@@ -34,7 +34,7 @@ public class PhotographerReservationService {
         long pendingCount = reservationRepository.countByPhotographerIdAndStatus(
                 photographerId, ReservationStatus.PENDING);
 
-        return new DashboardSummaryDto(todayCount, pendingCount, 0L);
+        return new DashboardSummaryDto(todayCount, pendingCount, 0L, 0L);
     }
 
     @Transactional(readOnly = true)

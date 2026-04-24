@@ -54,6 +54,20 @@
                 background: #F5F5F5;
                 color: #888;
             }
+            @keyframes floatA {
+                0%   { transform: translate(0px, 0px) scale(1); }
+                33%  { transform: translate(-65px, 35px) scale(1.08); }
+                66%  { transform: translate(-30px, -45px) scale(0.93); }
+                100% { transform: translate(0px, 0px) scale(1); }
+            }
+            @keyframes floatB {
+                0%   { transform: translate(0px, 0px) scale(1); }
+                33%  { transform: translate(30px, -55px) scale(0.92); }
+                66%  { transform: translate(-55px, -25px) scale(1.07); }
+                100% { transform: translate(0px, 0px) scale(1); }
+            }
+            .banner-circle-a { animation: floatA 22s ease-in-out infinite; }
+            .banner-circle-b { animation: floatB 32s ease-in-out infinite; }
         </style>
     </th:block>
 </head>
@@ -69,7 +83,7 @@
         <div class="flex-1 min-w-0 flex flex-col gap-6">
 
             <section class="relative overflow-hidden rounded-2xl border border-[#1D3CFF]/10 bg-gradient-to-br from-[#1D3CFF] to-[#0097FF] px-7 py-7 text-white">
-                <div class="relative z-10 flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+                <div class="relative z-10 flex flex-col gap-6 xl:flex-row xl:gap-12 xl:items-end xl:justify-between">
                     <div class="min-w-0">
                         <p class="text-[13px] font-semibold uppercase tracking-[0.22em] text-white/75 mb-2">Reservation Control</p>
                         <h1 class="text-2xl leading-tight font-extrabold whitespace-nowrap">
@@ -100,8 +114,8 @@
                     </div>
                 </div>
 
-                <div class="absolute -right-12 -top-12 h-44 w-44 rounded-full bg-white/10"></div>
-                <div class="absolute right-28 bottom-[-52px] h-36 w-36 rounded-full bg-white/10"></div>
+                <div class="banner-circle-a absolute -right-12 -top-12 h-44 w-44 rounded-full bg-white/10"></div>
+                <div class="banner-circle-b absolute right-28 bottom-[-52px] h-36 w-36 rounded-full bg-white/10"></div>
             </section>
 
             <section class="bg-white border border-[#CCC] rounded-2xl p-5">
@@ -193,7 +207,7 @@
                 </div>
             </section>
 
-            <section class="grid grid-cols-1 2xl:grid-cols-[minmax(0,1fr)_320px] gap-6">
+            <section>
                 <div class="bg-white border border-[#CCC] rounded-2xl overflow-hidden">
                     <div class="px-5 py-4 border-b border-[#EEE] flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                         <div>

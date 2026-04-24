@@ -1,3 +1,3 @@
 package com.pickkasso.pickkasso.user.dto.photographer;
 
-public record DashboardSummaryDto(long todayCount, long pendingCount, long monthlyRevenue) {}
+public record DashboardSummaryDto(long todayCount, long pendingCount, long monthlyRevenue, long withdrawableAmount) {}

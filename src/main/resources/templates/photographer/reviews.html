@@ -8,6 +8,20 @@
             .star-filled { color: #FBBF24; }
             .star-empty  { color: #E5E7EB; }
             .review-card:hover { background: #FCFCFD; }
+            @keyframes floatA {
+                0%   { transform: translate(0px, 0px) scale(1); }
+                33%  { transform: translate(-65px, 35px) scale(1.08); }
+                66%  { transform: translate(-30px, -45px) scale(0.93); }
+                100% { transform: translate(0px, 0px) scale(1); }
+            }
+            @keyframes floatB {
+                0%   { transform: translate(0px, 0px) scale(1); }
+                33%  { transform: translate(30px, -55px) scale(0.92); }
+                66%  { transform: translate(-55px, -25px) scale(1.07); }
+                100% { transform: translate(0px, 0px) scale(1); }
+            }
+            .banner-circle-a { animation: floatA 22s ease-in-out infinite; }
+            .banner-circle-b { animation: floatB 32s ease-in-out infinite; }
         </style>
     </th:block>
 </head>
@@ -48,8 +62,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="absolute -right-12 -top-12 h-44 w-44 rounded-full bg-white/10"></div>
-                <div class="absolute right-28 bottom-[-52px] h-36 w-36 rounded-full bg-white/10"></div>
+                <div class="banner-circle-a absolute -right-12 -top-12 h-44 w-44 rounded-full bg-white/10"></div>
+                <div class="banner-circle-b absolute right-28 bottom-[-52px] h-36 w-36 rounded-full bg-white/10"></div>
             </section>
 
             <!-- 별점 분포 + 안내 -->

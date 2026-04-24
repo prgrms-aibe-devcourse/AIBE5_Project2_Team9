@@ -72,6 +72,20 @@
                 border: 1px solid #9CA3AF;
                 box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
             }
+            @keyframes floatA {
+                0%   { transform: translate(0px, 0px) scale(1); }
+                33%  { transform: translate(-65px, 35px) scale(1.08); }
+                66%  { transform: translate(-30px, -45px) scale(0.93); }
+                100% { transform: translate(0px, 0px) scale(1); }
+            }
+            @keyframes floatB {
+                0%   { transform: translate(0px, 0px) scale(1); }
+                33%  { transform: translate(30px, -55px) scale(0.92); }
+                66%  { transform: translate(-55px, -25px) scale(1.07); }
+                100% { transform: translate(0px, 0px) scale(1); }
+            }
+            .banner-circle-a { animation: floatA 22s ease-in-out infinite; }
+            .banner-circle-b { animation: floatB 32s ease-in-out infinite; }
         </style>
         <script>
             (() => {
@@ -203,12 +217,12 @@
                     <p class="text-[13px] opacity-70">
                         오늘 예약 <span th:text="${summary.todayCount}">0</span>건 ·
                         승인 대기 <span th:text="${summary.pendingCount}">0</span>건 ·
-                        출금 가능 382,500C
+                        출금 가능 <span th:text="${#numbers.formatInteger(summary.withdrawableAmount, 1, 'COMMA')}">0</span>C
                     </p>
                 </div>
 <!-- 배경 장식 원 -->
-                <div class="absolute -right-10 -top-10 w-52 h-52 bg-white/5 rounded-full"></div>
-                <div class="absolute right-20 -bottom-12 w-40 h-40 bg-white/5 rounded-full"></div>
+                <div class="banner-circle-a absolute -right-10 -top-10 w-44 h-44 bg-white/5 rounded-full"></div>
+                <div class="banner-circle-b absolute right-20 -bottom-12 w-36 h-36 bg-white/5 rounded-full"></div>
             </div>
 
             <!-- KPI Row -->
