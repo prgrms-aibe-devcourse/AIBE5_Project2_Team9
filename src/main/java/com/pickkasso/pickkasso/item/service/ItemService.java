@@ -90,6 +90,52 @@ public class ItemService {
         return itemRepository.save(item).getId();
     }
 
+    public Long updateItem(Long photographerId, Long itemId, ItemRegisterRequest request) {
+        Item item = itemRepository.findByIdWithDetails(itemId)
+            .orElseThrow(() -> new IllegalArgumentException("서비스를 찾을 수 없습니다."));
+        if (!item.getPhotographer().getId().equals(photographerId)) {
+            throw new IllegalArgumentException("본인 서비스만 수정할 수 있습니다.");
+        }
+
+        Tag tag = tagRepository.findTagByName(request.getTagName())
+            .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다: " + request.getTagName()));
+
+        item.updateBasicInfo(
+            tag,
+            request.getName(),
+            request.getDescription(),
+            request.getIncludes(),
+            request.getExcludes(),
+            request.getItemType(),
+            request.getMinBookingLeadTime(),
+            request.getCancellationPolicy(),
+            request.getAddress(),
+            request.getLat(),
+            request.getLng()
+        );
+
+        List<Plan> existingPlans = new ArrayList<>(item.getPlanList());
+        for (Plan plan : existingPlans) {
+            plan.deletePlan();
+        }
+
+        if (request.getPlans() != null) {
+            for (PlanRegisterRequest planReq : request.getPlans()) {
+                Plan.createPlan(
+                    item,
+                    planReq.getPlanName(),
+                    planReq.getPrice() != null ? planReq.getPrice() : 0,
+                    planReq.getShootingDuration() != null ? planReq.getShootingDuration() : 1,
+                    planReq.getOriginalPhotoCount() != null ? planReq.getOriginalPhotoCount() : 0,
+                    planReq.getEditedPhotoCount() != null ? planReq.getEditedPhotoCount() : 0,
+                    planReq.getDeliveryDays() != null ? planReq.getDeliveryDays() : 3
+                );
+            }
+        }
+        item.updateDefaultPrice();
+        return itemRepository.save(item).getId();
+    }
+
     private List<ItemBoxDto> getItemBoxDtoList(List<Item> itemList) {
         List<ItemBoxDto> resList = new ArrayList<>();
         for (Item item : itemList) {

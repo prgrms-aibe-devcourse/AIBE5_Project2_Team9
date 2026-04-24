@@ -172,4 +172,28 @@ public class Item extends Region {
         itemNoticeList.clear();
         itemNoticeList.addAll(newItemNoticeList);
     }
+
+    public void updateBasicInfo(
+        Tag tag,
+        String name,
+        String description,
+        String includes,
+        String excludes,
+        ItemType itemType,
+        Integer minBookingLeadTime,
+        String cancellationPolicy,
+        String address,
+        Double lat,
+        Double lng
+    ) {
+        this.tag = tag;
+        this.name = name;
+        this.description = description != null ? description : "";
+        this.includes = includes;
+        this.excludes = excludes;
+        this.itemType = itemType;
+        this.minBookingLeadTime = minBookingLeadTime != null ? minBookingLeadTime : 1;
+        this.cancellationPolicy = cancellationPolicy;
+        initRegion(address, this.getDetailAddress(), lat, lng);
+    }
 }
