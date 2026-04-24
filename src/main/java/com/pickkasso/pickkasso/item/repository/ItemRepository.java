@@ -62,4 +62,9 @@ public interface ItemRepository extends JpaRepository<Item, Long>, ItemRepositor
         "LEFT JOIN FETCH i.itemImgList " +
         "WHERE i.id = :itemId")
     Optional<Item> findByIdWithImgList(@Param("itemId") Long itemId);
+
+    @Query("SELECT i FROM Item i " +
+        "LEFT JOIN FETCH i.tag " +
+        "WHERE i.photographer.id = :photographerId ")
+    List<Item> findItemByPhotographerId(@Param("photographerId") Long photographerId);
 }

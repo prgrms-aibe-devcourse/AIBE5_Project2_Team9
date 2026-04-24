@@ -213,9 +213,9 @@
         <div class="bg-white border border-[#CCC] rounded-2xl overflow-hidden">
 
           <!-- Tabs -->
-          <div th:if="${item.planList != null and !item.planList.isEmpty()}"
+          <div th:if="${enabledPlans != null and !enabledPlans.isEmpty()}"
                class="flex border-b border-[#CCC]">
-            <button th:each="plan, stat : ${item.planList}"
+            <button th:each="plan, stat : ${enabledPlans}"
                     th:id="'tab-' + ${stat.index}"
                     th:text="${plan.name != null and !#strings.isEmpty(plan.name) ? plan.name : '패키지 ' + (stat.index + 1)}"
                     th:classappend="${stat.first} ? ' border-b-2 border-[#1D3CFF] text-[#1D3CFF]' : ' text-[#888] hover:text-[#444]'"
@@ -225,13 +225,13 @@
             </button>
           </div>
 
-          <div th:if="${item.planList == null or item.planList.isEmpty()}"
+          <div th:if="${enabledPlans == null or enabledPlans.isEmpty()}"
                class="px-5 pt-4 pb-2">
             <p class="text-sm text-[#888]">등록된 패키지가 없습니다.</p>
           </div>
 
           <!-- Plan Panels -->
-          <div th:each="plan, stat : ${item.planList}"
+          <div th:each="plan, stat : ${enabledPlans}"
                th:id="'panel-' + ${stat.index}"
                th:classappend="${!stat.first} ? ' hidden'"
                class="plan-panel p-5">

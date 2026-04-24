@@ -27,7 +27,7 @@ public class PhotographerProfileController {
     public String profilePage(@PathVariable Long photographerId, Model model, Authentication authentication) {
         PhotographerProfileResponse response = photographerProfileService.getProfileForm(photographerId);
         model.addAttribute("profile", response);
-        model.addAttribute("items", itemService.getItemsByPhotographerId(photographerId));
+        model.addAttribute("items", itemService.getItemBoxDtoById(photographerId));
 
         boolean isOwner = false;
         if (authentication != null && authentication.isAuthenticated()) {

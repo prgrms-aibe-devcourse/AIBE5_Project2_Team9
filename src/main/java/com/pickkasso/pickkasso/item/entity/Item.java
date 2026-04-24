@@ -49,6 +49,9 @@ public class Item extends Region {
     @Enumerated(EnumType.STRING)
     private ItemType itemType;
 
+    @Column(name = "thumbnail_img_url", length = 500)
+    private String thumbnailImgUrl;
+
     // review와 연계해서 자동으로 계산해야 합니다.
     @Column(name = "review_count", nullable = false)
     private Integer reviewCount;
@@ -164,6 +167,7 @@ public class Item extends Region {
 
     public void updateDefaultPrice() {
         defaultPrice = planList.stream()
+            .filter(p -> p.getEnabled() == true)
             .mapToInt(Plan::getPrice)
             .min()
             .orElse(0);
@@ -179,6 +183,11 @@ public class Item extends Region {
     public void updateItemImgList(List<ItemImg> newItemImgList) {
         itemImgList.clear();
         itemImgList.addAll(newItemImgList);
+        this.thumbnailImgUrl = newItemImgList.stream()
+            .filter(img -> img.getImgOrder() == 0)
+            .map(ItemImg::getImgUrl)
+            .findFirst()
+            .orElse(null);
     }
 
     // item notice

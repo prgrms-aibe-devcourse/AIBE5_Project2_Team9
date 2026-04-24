@@ -7,6 +7,7 @@ import com.pickkasso.pickkasso.item.dto.ItemSearchFormDto;
 import com.pickkasso.pickkasso.item.entity.ItemType;
 import com.pickkasso.pickkasso.item.entity.Item;
 import com.pickkasso.pickkasso.item.service.ItemService;
+import com.pickkasso.pickkasso.item.service.PlanService;
 import com.pickkasso.pickkasso.user.service.PhotographerProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,6 +25,7 @@ public class ItemController {
     private final TagService tagService;
     private final ItemService itemService;
     private final PhotographerProfileService photographerProfileService;
+    private final PlanService planService;
     private static final int PAGE_VIEW_COUNT = 20;
 
     private ItemSearchCondition toCondition(ItemSearchFormDto dto) {
@@ -83,6 +85,7 @@ public class ItemController {
         Item item = itemService.getItemById(id);
         Long photographerId = item.getPhotographer().getId();
         model.addAttribute("item", item);
+        model.addAttribute("enabledPlans", planService.getEnabledPlans(id));
         model.addAttribute("profile", photographerProfileService.getProfileForm(photographerId));
         return "photographer/service-detail";
     }

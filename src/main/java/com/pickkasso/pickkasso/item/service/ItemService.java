@@ -2,8 +2,10 @@ package com.pickkasso.pickkasso.item.service;
 
 import com.pickkasso.pickkasso.global.city.City;
 import com.pickkasso.pickkasso.global.img.DefaultImgDto;
+import com.pickkasso.pickkasso.global.region.RegionDto;
 import com.pickkasso.pickkasso.global.service.DefaultImgService;
 import com.pickkasso.pickkasso.global.tag.Tag;
+import com.pickkasso.pickkasso.global.tag.TagReference;
 import com.pickkasso.pickkasso.global.tag.TagRepository;
 import com.pickkasso.pickkasso.item.dto.ItemBoxDto;
 import com.pickkasso.pickkasso.item.dto.ItemRegisterRequest;
@@ -16,6 +18,7 @@ import com.pickkasso.pickkasso.item.repository.ItemRepository;
 import com.pickkasso.pickkasso.user.entity.Photographer;
 import com.pickkasso.pickkasso.user.repository.PhotographerRepository;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,6 +36,7 @@ public class ItemService {
     private final PhotographerRepository photographerRepository;
     private final TagRepository tagRepository;
     private final DefaultImgService defaultImgService;
+    private final PlanService planService;
 
     @Transactional(readOnly = true)
     public List<ItemBoxDto> getScoreItemList(Integer count) {
@@ -83,6 +87,8 @@ public class ItemService {
         for (Plan plan : item.getPlanList()) {
             planRegisterRequestList.add(new PlanRegisterRequest(
                 plan.getName(),
+                plan.getPlanType(),
+                plan.getEnabled(),
                 plan.getShootingDuration(),
                 plan.getOriginalPhotoCount(),
                 plan.getEditedPhotoCount(),
@@ -119,6 +125,7 @@ public class ItemService {
         String dirName = "photographer/user_" + photographerId + "/service";
         List<DefaultImgDto> imgDtoList = defaultImgService.uploadImages(newFiles, newFileOrders, dirName);
 
+
         Item item = Item.createItem(
             photographer,
             tag,
@@ -134,17 +141,12 @@ public class ItemService {
             request.getLng()
         );
 
+        System.out.println("complete create item");
+        System.out.println();
         if (request.getPlans() != null) {
             for (PlanRegisterRequest planReq : request.getPlans()) {
-                Plan.createPlan(
-                    item,
-                    planReq.getPlanName(),
-                    planReq.getPrice() != null ? planReq.getPrice() : 0,
-                    planReq.getShootingDuration() != null ? planReq.getShootingDuration() : 1,
-                    planReq.getOriginalPhotoCount() != null ? planReq.getOriginalPhotoCount() : 0,
-                    planReq.getEditedPhotoCount() != null ? planReq.getEditedPhotoCount() : 0,
-                    planReq.getDeliveryDays() != null ? planReq.getDeliveryDays() : 3
-                );
+                Plan plan = planService.savePlan(item, planReq);
+                System.out.println("complete create plan " + plan.getPlanType());
             }
         }
 
@@ -182,7 +184,9 @@ public class ItemService {
             request.getLng()
         );
 
-
+        for (PlanRegisterRequest plan : request.getPlans()) {
+            planService.savePlan(item, plan);
+        }
 
         item.updateItemImgList(toItemImgList(item, imgDtoList));
         item.updateDefaultPrice();
@@ -237,6 +241,27 @@ public class ItemService {
             .limit(3)
             .map(Map.Entry::getKey)
             .forEach(resList::add);
+        return resList;
+    }
+
+    public List<ItemBoxDto> getItemBoxDtoById(Long photographerId) {
+        List<Item> items = itemRepository.findItemByPhotographerId(photographerId);
+        tagRepository.findAllTagReference();
+        List<ItemBoxDto> resList = new ArrayList<>();
+        for (Item item : items) {
+            ItemBoxDto dto = ItemBoxDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .imgUrl(item.getThumbnailImgUrl())
+                .tag(TagReference.from(item.getTag()))
+                .region(RegionDto.from(item))
+                .avgScore(item.getAvgScore())
+                .defaultPrice(item.getDefaultPrice())
+                .itemType(item.getItemType())
+                .reviewCount(item.getReviewCount())
+                .build();
+            resList.add(dto);
+        }
         return resList;
     }
 }
