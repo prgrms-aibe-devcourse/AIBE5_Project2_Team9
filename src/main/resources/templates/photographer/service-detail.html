@@ -294,10 +294,10 @@
             </ul>
 
             <!-- CTA buttons -->
-            <button class="w-full bg-white border border-[#1D3CFF] text-[#1D3CFF] hover:bg-[#1D3CFF] hover:text-white active:bg-[#1530E0] font-semibold py-3 rounded-lg transition-colors text-sm"
-                    type="button">
+            <a th:href="@{/items/{id}/reserve(id=${item.id}, planId=${plan.id})}"
+               class="block w-full bg-white border border-[#1D3CFF] text-[#1D3CFF] hover:bg-[#1D3CFF] hover:text-white active:bg-[#1530E0] font-semibold py-3 rounded-lg transition-colors text-sm text-center">
               예약하기
-            </button>
+            </a>
           </div>
 
         </div>

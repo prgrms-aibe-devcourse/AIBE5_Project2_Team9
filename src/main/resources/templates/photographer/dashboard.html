@@ -65,7 +65,137 @@
             .cal-event.green { background: #EEFBF3; color: #22C55E; border-left-color: #22C55E; }
             .cal-event.sky { background: #E6F7FF; color: #0097FF; border-left-color: #0097FF; }
             .cal-event.purple { background: #F3EEFB; color: #7C3AED; border-left-color: #7C3AED; }
+            .cal-event.gray {
+                background: #F3F4F6;
+                color: #4B5563;
+                border-left-color: #6B7280;
+                border: 1px solid #9CA3AF;
+                box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+            }
+            @keyframes floatA {
+                0%   { transform: translate(0px, 0px) scale(1); }
+                33%  { transform: translate(-65px, 35px) scale(1.08); }
+                66%  { transform: translate(-30px, -45px) scale(0.93); }
+                100% { transform: translate(0px, 0px) scale(1); }
+            }
+            @keyframes floatB {
+                0%   { transform: translate(0px, 0px) scale(1); }
+                33%  { transform: translate(30px, -55px) scale(0.92); }
+                66%  { transform: translate(-55px, -25px) scale(1.07); }
+                100% { transform: translate(0px, 0px) scale(1); }
+            }
+            .banner-circle-a { animation: floatA 22s ease-in-out infinite; }
+            .banner-circle-b { animation: floatB 32s ease-in-out infinite; }
         </style>
+        <script>
+            (() => {
+                function buildFragmentUrl(baseUrl, weekStart) {
+                    const url = new URL(baseUrl, window.location.origin);
+                    if (weekStart) {
+                        url.searchParams.set('weekStart', weekStart);
+                    } else {
+                        url.searchParams.delete('weekStart');
+                    }
+                    return url.toString();
+                }
+
+                function syncCurrentWeekInputs(weekStart) {
+                    document.querySelectorAll('.js-current-week-start').forEach((input) => {
+                        input.value = weekStart || '';
+                    });
+                }
+
+                async function loadWeeklyCalendar(fragmentUrl, pageUrl, pushState) {
+                    const currentCard = document.getElementById('weekly-calendar-card');
+                    if (!currentCard) return;
+
+                    currentCard.classList.add('opacity-60', 'pointer-events-none');
+
+                    try {
+                        const response = await fetch(fragmentUrl, {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('failed to load weekly calendar');
+                        }
+
+                        const html = (await response.text()).trim();
+                        const template = document.createElement('template');
+                        template.innerHTML = html;
+                        const nextCard = template.content.firstElementChild;
+
+                        if (!nextCard) {
+                            throw new Error('empty weekly calendar fragment');
+                        }
+
+                        currentCard.replaceWith(nextCard);
+                        syncCurrentWeekInputs(nextCard.dataset.weekStart || '');
+
+                        if (pushState) {
+                            history.pushState({ pageUrl, fragmentUrl }, '', pageUrl);
+                        }
+                    } catch (error) {
+                        window.location.href = pageUrl;
+                    }
+                }
+
+                function getCurrentCard() {
+                    return document.getElementById('weekly-calendar-card');
+                }
+
+                function replaceStateFromDom() {
+                    const currentCard = getCurrentCard();
+                    if (!currentCard) return;
+
+                    const currentUrl = new URL(window.location.href);
+                    const weekStart = currentUrl.searchParams.get('weekStart');
+                    history.replaceState({
+                        pageUrl: currentUrl.toString(),
+                        fragmentUrl: buildFragmentUrl(currentCard.dataset.fragmentUrl, weekStart)
+                    }, '', currentUrl.toString());
+                    syncCurrentWeekInputs(currentCard.dataset.weekStart || '');
+                }
+
+                document.addEventListener('click', (event) => {
+                    const link = event.target.closest('[data-weekly-calendar-nav]');
+                    if (!link) return;
+
+                    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || link.target === '_blank') {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    loadWeeklyCalendar(link.dataset.fragmentHref, link.href, true);
+                });
+
+                window.addEventListener('popstate', (event) => {
+                    const currentCard = getCurrentCard();
+                    if (!currentCard) return;
+
+                    if (event.state?.fragmentUrl && event.state?.pageUrl) {
+                        loadWeeklyCalendar(event.state.fragmentUrl, event.state.pageUrl, false);
+                        return;
+                    }
+
+                    const currentUrl = new URL(window.location.href);
+                    const weekStart = currentUrl.searchParams.get('weekStart');
+                    loadWeeklyCalendar(
+                        buildFragmentUrl(currentCard.dataset.fragmentUrl, weekStart),
+                        currentUrl.toString(),
+                        false
+                    );
+                });
+
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', replaceStateFromDom, { once: true });
+                } else {
+                    replaceStateFromDom();
+                }
+            })();
+        </script>
     </th:block>
 </head>
 <body>
@@ -84,11 +214,15 @@
                 <div class="relative z-10">
                     <p class="text-[13px] opacity-80 mb-1.5" th:text="${#calendars.format(#calendars.createNow(), 'M월 d일 EEEE')} + ' ☀️ 오늘도 좋은 하루 되세요!'">4월 10일 목요일 ☀️ 오늘도 좋은 하루 되세요!</p>
                     <h2 class="text-2xl font-extrabold mb-1">안녕하세요, <span th:text="${photographer.name}">김민준</span> 작가님 👋</h2>
-                    <p class="text-[13px] opacity-70">오늘 예약 2건 · 승인 대기 2건 · 출금 가능 382,500C</p>
+                    <p class="text-[13px] opacity-70">
+                        오늘 예약 <span th:text="${summary.todayCount}">0</span>건 ·
+                        승인 대기 <span th:text="${summary.pendingCount}">0</span>건 ·
+                        출금 가능 <span th:text="${#numbers.formatInteger(summary.withdrawableAmount, 1, 'COMMA')}">0</span>C
+                    </p>
                 </div>
 <!-- 배경 장식 원 -->
-                <div class="absolute -right-10 -top-10 w-52 h-52 bg-white/5 rounded-full"></div>
-                <div class="absolute right-20 -bottom-12 w-40 h-40 bg-white/5 rounded-full"></div>
+                <div class="banner-circle-a absolute -right-10 -top-10 w-44 h-44 bg-white/5 rounded-full"></div>
+                <div class="banner-circle-b absolute right-20 -bottom-12 w-36 h-36 bg-white/5 rounded-full"></div>
             </div>
 
             <!-- KPI Row -->
@@ -100,7 +234,7 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                         </div>
                     </div>
-                    <div class="text-2xl font-extrabold text-[#1A1A1A]">2<span class="text-sm font-medium ml-0.5">건</span></div>
+                    <div class="text-2xl font-extrabold text-[#1A1A1A]"><span th:text="${summary.todayCount}">0</span><span class="text-sm font-medium ml-0.5">건</span></div>
                     <div class="mt-2 text-[11px] text-[#888] flex items-center gap-1.5">
                         <span class="inline-flex items-center gap-0.5 bg-[#EAF7EE] text-[#1A8E40] font-bold rounded px-1.5 py-0.5">▲ 1</span> 전일 대비
                     </div>
@@ -112,8 +246,9 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         </div>
                     </div>
-                    <div class="text-2xl font-extrabold text-[#1A1A1A]">2<span class="text-sm font-medium ml-0.5">건</span></div>
-                    <div class="mt-2 text-[11px] text-[#FF6B2B] font-bold">즉시 처리 필요</div>
+                    <div class="text-2xl font-extrabold text-[#1A1A1A]"><span th:text="${summary.pendingCount}">0</span><span class="text-sm font-medium ml-0.5">건</span></div>
+                    <div th:if="${summary.pendingCount > 0}" class="mt-2 text-[11px] text-[#FF6B2B] font-bold">즉시 처리 필요</div>
+                    <div th:unless="${summary.pendingCount > 0}" class="mt-2 text-[11px] text-[#888]">대기 중인 요청 없음</div>
                 </div>
                 <div class="bg-white border border-[#CCC] rounded-2xl p-5">
                     <div class="flex items-center justify-between mb-2.5">
@@ -122,10 +257,8 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         </div>
                     </div>
-                    <div class="text-xl font-extrabold text-[#1A1A1A]">520,000<span class="text-sm font-medium ml-0.5">C</span></div>
-                    <div class="mt-2 text-[11px] text-[#888] flex items-center gap-1.5">
-                        <span class="inline-flex items-center gap-0.5 bg-[#EAF7EE] text-[#1A8E40] font-bold rounded px-1.5 py-0.5">▲ 18%</span> 전월 대비
-                    </div>
+                    <div class="text-xl font-extrabold text-[#1A1A1A]"><span th:text="${#numbers.formatInteger(summary.monthlyRevenue, 1, 'COMMA')}">0</span><span class="text-sm font-medium ml-0.5">C</span></div>
+                    <div class="mt-2 text-[11px] text-[#888]">이번 달 누적</div>
                 </div>
                 <div class="bg-white border border-[#CCC] rounded-2xl p-5">
                     <div class="flex items-center justify-between mb-2.5">
@@ -143,26 +276,42 @@
             <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
                 
                 <!-- 주간 예약 현황 -->
-                <div class="xl:col-span-2 bg-white border border-[#CCC] rounded-2xl overflow-hidden flex flex-col">
+                <div id="weekly-calendar-card"
+                     th:fragment="weeklyCalendarCard"
+                     class="xl:col-span-2 bg-white border border-[#CCC] rounded-2xl overflow-hidden flex flex-col"
+                     th:attr="data-week-start=${weekly.weekStartIso},
+                              data-dashboard-url=@{/photographer/{pid}/dashboard(pid=${photographer.id})},
+                              data-fragment-url=@{/photographer/{pid}/dashboard/weekly-calendar(pid=${photographer.id})}">
                     <div class="p-5 border-b border-[#EEE] flex items-center justify-between">
                         <div class="flex items-center gap-2 font-bold text-[#1A1A1A]">
                             <svg class="w-4 h-4 text-[#1D3CFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                             주간 예약 현황
                         </div>
-                        <a href="#" class="text-[11px] font-bold text-[#0097FF] hover:opacity-70 transition-opacity no-underline flex items-center gap-0.5">
+                        <a th:href="@{/photographer/{pid}/reservations(pid=${photographer.id})}"
+                           class="text-[11px] font-bold text-[#0097FF] hover:opacity-70 transition-opacity no-underline flex items-center gap-0.5">
                             전체 보기
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                         </a>
                     </div>
                     
                     <div class="p-4 bg-[#F9FAFC] flex items-center justify-between border-b border-[#EEE]">
-                        <span class="text-xs font-bold text-[#444]">2026년 4월 6일 – 12일</span>
+                        <span class="text-xs font-bold text-[#444]" th:text="${weekly.rangeLabel}">2026년 4월 6일 – 12일</span>
                         <div class="flex items-center gap-2">
-                            <button class="bg-white border border-[#CCC] rounded-lg px-2.5 py-1 text-[11px] font-bold text-[#444] hover:border-[#1D3CFF] transition-colors">오늘</button>
+                            <a th:href="@{/photographer/{pid}/dashboard(pid=${photographer.id}, weekStart=${weekly.todayWeekStartIso})}"
+                               th:attr="data-fragment-href=@{/photographer/{pid}/dashboard/weekly-calendar(pid=${photographer.id}, weekStart=${weekly.todayWeekStartIso})}"
+                               data-weekly-calendar-nav
+                               class="bg-white border rounded-lg px-2.5 py-1 text-[11px] font-bold transition-colors no-underline"
+                               th:classappend="${weekly.currentWeek()} ? ' border-[#1D3CFF] text-[#1D3CFF] bg-[#EEF2FB] pointer-events-none' : ' border-[#CCC] text-[#444] hover:border-[#1D3CFF]'">오늘</a>
                             <div class="flex items-center border border-[#CCC] bg-white rounded-lg">
-                                <button class="p-1 px-1.5 hover:text-[#1D3CFF] transition-colors"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
+                                <a th:href="@{/photographer/{pid}/dashboard(pid=${photographer.id}, weekStart=${weekly.prevWeekStartIso})}"
+                                   th:attr="data-fragment-href=@{/photographer/{pid}/dashboard/weekly-calendar(pid=${photographer.id}, weekStart=${weekly.prevWeekStartIso})}"
+                                   data-weekly-calendar-nav
+                                   class="p-1 px-1.5 text-[#444] hover:text-[#1D3CFF] transition-colors no-underline"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></a>
                                 <div class="w-[1px] h-3 bg-[#CCC]"></div>
-                                <button class="p-1 px-1.5 hover:text-[#1D3CFF] transition-colors"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
+                                <a th:href="@{/photographer/{pid}/dashboard(pid=${photographer.id}, weekStart=${weekly.nextWeekStartIso})}"
+                                   th:attr="data-fragment-href=@{/photographer/{pid}/dashboard/weekly-calendar(pid=${photographer.id}, weekStart=${weekly.nextWeekStartIso})}"
+                                   data-weekly-calendar-nav
+                                   class="p-1 px-1.5 text-[#444] hover:text-[#1D3CFF] transition-colors no-underline"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></a>
                             </div>
                         </div>
                     </div>
@@ -170,169 +319,34 @@
                     <div class="w-full flex-1 min-h-0 overflow-y-auto">
                     <div class="cal-grid">
                         <div class="cal-corner"></div>
+                        <th:block th:each="day : ${weekly.dayHeaders}">
                         <div class="cal-day-header">
-                            <div class="text-[10px] font-semibold text-[#888] mb-1 tracking-wide">일</div>
-                            <div class="text-[18px] font-extrabold text-[#E03535] w-[34px] h-[34px] flex items-center justify-center mx-auto">6</div>
+                            <div class="text-[10px] font-semibold mb-1 tracking-wide"
+                                 th:classappend="${day.isToday()} ? 'text-[#1D3CFF]' : (${day.isSunday()} ? 'text-[#E03535]' : (${day.isSaturday()} ? 'text-[#0097FF]' : 'text-[#888]'))"
+                                 th:text="${day.labelKor}">일</div>
+                            <div class="text-[18px] font-extrabold w-[34px] h-[34px] flex items-center justify-center mx-auto"
+                                 th:classappend="${day.isToday()} ? 'text-white bg-[#1D3CFF] rounded-full' : (${day.isSunday()} ? 'text-[#E03535]' : (${day.isSaturday()} ? 'text-[#0097FF]' : 'text-[#1A1A1A]'))"
+                                 th:text="${day.dayOfMonth}">6</div>
                         </div>
-                        <div class="cal-day-header">
-                            <div class="text-[10px] font-semibold text-[#888] mb-1 tracking-wide">월</div>
-                            <div class="text-[18px] font-extrabold text-[#1A1A1A] w-[34px] h-[34px] flex items-center justify-center mx-auto">7</div>
-                        </div>
-                        <div class="cal-day-header">
-                            <div class="text-[10px] font-semibold text-[#888] mb-1 tracking-wide">화</div>
-                            <div class="text-[18px] font-extrabold text-[#1A1A1A] w-[34px] h-[34px] flex items-center justify-center mx-auto">8</div>
-                        </div>
-                        <div class="cal-day-header">
-                            <div class="text-[10px] font-semibold text-[#888] mb-1 tracking-wide">수</div>
-                            <div class="text-[18px] font-extrabold text-[#1A1A1A] w-[34px] h-[34px] flex items-center justify-center mx-auto">9</div>
-                        </div>
-                        <div class="cal-day-header">
-                            <div class="text-[10px] font-semibold text-[#1D3CFF] mb-1 tracking-wide">목</div>
-                            <div class="text-[18px] font-extrabold text-white bg-[#1D3CFF] w-[34px] h-[34px] rounded-full flex items-center justify-center mx-auto">10</div>
-                        </div>
-                        <div class="cal-day-header">
-                            <div class="text-[10px] font-semibold text-[#888] mb-1 tracking-wide">금</div>
-                            <div class="text-[18px] font-extrabold text-[#1A1A1A] w-[34px] h-[34px] flex items-center justify-center mx-auto">11</div>
-                        </div>
-                        <div class="cal-day-header">
-                            <div class="text-[10px] font-semibold text-[#888] mb-1 tracking-wide">토</div>
-                            <div class="text-[18px] font-extrabold text-[#0097FF] w-[34px] h-[34px] flex items-center justify-center mx-auto">12</div>
-                        </div>
+                        </th:block>
 
-                        <!-- 09:00 -->
-                        <div class="cal-time-col">09:00</div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell">
-                            <div class="cal-event blue top-1 h-14">
-                                <div class="font-bold truncate">데이트 스냅</div>
-                                <div class="opacity-80 truncate">이수빈 · 09:00</div>
-                            </div>
-                        </div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell bg-[#FAFBFF]"></div>
-                        <div class="cal-cell">
-                            <div class="cal-event orange top-1 h-14">
-                                <div class="font-bold truncate">증명사진</div>
-                                <div class="opacity-80 truncate">정우진 · 09:00</div>
-                            </div>
-                        </div>
-                        <div class="cal-cell"></div>
-
-                        <!-- 10:00 -->
-                        <div class="cal-time-col">10:00</div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell">
-                            <div class="cal-event green top-1 h-28">
-                                <div class="font-bold truncate">졸업사진</div>
-                                <div class="opacity-80 truncate">김하늘 · 10:00–12:00</div>
-                            </div>
-                        </div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell bg-[#FAFBFF]">
-                            <div class="cal-event blue top-1 h-14">
-                                <div class="font-bold truncate">프로필 촬영</div>
-                                <div class="opacity-80 truncate">박준서 · 10:00</div>
-                            </div>
-                        </div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-
-                        <!-- 11:00 -->
-                        <div class="cal-time-col">11:00</div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell bg-[#FAFBFF]"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell">
-                            <div class="cal-event sky top-1 h-14">
-                                <div class="font-bold truncate">가족사진</div>
-                                <div class="opacity-80 truncate">최민영 · 11:00</div>
-                            </div>
-                        </div>
-
-                        <!-- 12:00 -->
-                        <div class="cal-time-col">12:00</div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell bg-[#FAFBFF]"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-
-                        <!-- 13:00 -->
-                        <div class="cal-time-col">13:00</div>
-                        <div class="cal-cell">
-                            <div class="cal-event purple top-1 h-14">
-                                <div class="font-bold truncate">웨딩 스냅</div>
-                                <div class="opacity-80 truncate">강지우 · 13:00</div>
-                            </div>
-                        </div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell bg-[#FAFBFF]">
-                            <div class="cal-event green top-1 h-[122px]">
-                                <div class="font-bold truncate">데이트 스냅</div>
-                                <div class="opacity-80 truncate">이수빈 · 13:00–15:00</div>
-                            </div>
-                        </div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-
-                        <!-- 14:00 -->
-                        <div class="cal-time-col">14:00</div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell bg-[#FAFBFF]"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-
-                        <!-- 15:00 -->
-                        <div class="cal-time-col">15:00</div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell bg-[#FAFBFF]"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-
-                        <!-- 16:00 -->
-                        <div class="cal-time-col">16:00</div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell bg-[#FAFBFF]"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-
-                        <!-- 17:00 -->
-                        <div class="cal-time-col">17:00</div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell bg-[#FAFBFF]"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-
-                        <!-- 18:00 -->
-                        <div class="cal-time-col">18:00</div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell bg-[#FAFBFF]"></div>
-                        <div class="cal-cell"></div>
-                        <div class="cal-cell"></div>
+                        <!-- 시간 그리드 (동적) -->
+                        <th:block th:each="hour : ${weekly.hourSlots}">
+                            <div class="cal-time-col" th:text="${#numbers.formatInteger(hour, 2) + ':00'}">09:00</div>
+                            <th:block th:each="dayIdx : ${#numbers.sequence(0, 6)}">
+                                <th:block th:with="key=|${dayIdx}-${hour}|, event=${weekly.eventByCellKey.get(key)}">
+                                    <div th:class="${dayIdx == 6} ? 'cal-cell bg-[#FAFBFF]' : 'cal-cell'">
+                                        <div th:if="${event != null}"
+                                             th:class="'cal-event ' + ${event.colorClass} + ' top-1'"
+                                             th:style="'height:' + (${event.rowSpanHours} * 64 - 6) + 'px'">
+                                            <div class="font-bold leading-tight break-all" th:text="${event.title}">제목</div>
+                                            <div class="opacity-80 leading-tight break-all" th:text="${event.subtitle}">고객</div>
+                                            <div class="opacity-60 leading-tight" th:text="${event.timeLabel}">시간</div>
+                                        </div>
+                                    </div>
+                                </th:block>
+                            </th:block>
+                        </th:block>
                     </div>
                     </div>
                 </div>
@@ -349,35 +363,26 @@
                             </div>
                             <span class="text-[11px] font-bold text-[#888]" th:text="${#calendars.format(#calendars.createNow(), 'M월 d일 (E)')}">4월 10일 (목)</span>
                         </div>
-                        <div class="space-y-6">
-                            <div class="flex gap-4">
+                        <div th:if="${todaySchedule != null and !#lists.isEmpty(todaySchedule)}" class="space-y-6">
+                            <div class="flex gap-4" th:each="s, st : ${todaySchedule}">
                                 <div class="flex flex-col items-center">
-                                    <span class="text-xs font-bold text-[#1A1A1A]">10:00</span>
-                                    <span class="text-[10px] text-[#888]">AM</span>
+                                    <span class="text-xs font-bold text-[#1A1A1A]" th:text="${s.timeLabel}">10:00</span>
+                                    <span class="text-[10px] text-[#888]" th:text="${s.ampm}">AM</span>
                                 </div>
                                 <div class="flex flex-col items-center pt-1.5">
-                                    <div class="w-2 h-2 rounded-full bg-[#1D3CFF] mb-1"></div>
-                                    <div class="w-[1.5px] h-10 bg-[#EEE]"></div>
+                                    <div class="w-2 h-2 rounded-full mb-1" th:style="'background:' + ${s.dotColorHex}"></div>
+                                    <div th:unless="${st.last}" class="w-[1.5px] h-10 bg-[#EEE]"></div>
                                 </div>
                                 <div class="flex-1">
-                                    <div class="text-sm font-bold text-[#1A1A1A]">프로필 촬영 (개인)</div>
-                                    <div class="text-[11px] text-[#888] mt-0.5">📍 서울 스튜디오 · 박준서 고객</div>
-                                </div>
-                            </div>
-                            <div class="flex gap-4">
-                                <div class="flex flex-col items-center">
-                                    <span class="text-xs font-bold text-[#1A1A1A]">13:00</span>
-                                    <span class="text-[10px] text-[#888]">PM</span>
-                                </div>
-                                <div class="flex flex-col items-center pt-1.5">
-                                    <div class="w-2 h-2 rounded-full bg-[#22C55E]"></div>
-                                </div>
-                                <div class="flex-1">
-                                    <div class="text-sm font-bold text-[#1A1A1A]">데이트 스냅 (2인)</div>
-                                    <div class="text-[11px] text-[#888] mt-0.5">📍 홍대 / 연남동 · 이수빈 고객</div>
+                                    <div class="text-sm font-bold text-[#1A1A1A]" th:text="${s.itemName}">서비스명</div>
+                                    <div class="text-[11px] text-[#888] mt-0.5">
+                                        📍 <span th:text="${s.address}">장소</span> · <span th:text="${s.memberName}">고객</span> 고객
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        <div th:unless="${todaySchedule != null and !#lists.isEmpty(todaySchedule)}"
+                             class="text-sm text-[#888] py-6 text-center">오늘 예정된 촬영이 없습니다.</div>
                     </div>
 
                     <!-- 승인 대기 -->
@@ -386,33 +391,38 @@
                             <div class="flex items-center gap-2 font-bold text-[#1A1A1A]">
                                 <svg class="w-4 h-4 text-[#FF6B2B]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                 승인 대기
-                                <span class="bg-[#FF6B2B] text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center">2</span>
+                                <span class="bg-[#FF6B2B] text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center"
+                                      th:text="${summary.pendingCount}">0</span>
                             </div>
                         </div>
-                        <div class="space-y-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-full bg-[#D3DEF2] text-[#888] flex items-center justify-center text-sm font-semibold">정</div>
+                        <div th:if="${pendingList != null and !#lists.isEmpty(pendingList)}" class="space-y-4">
+                            <div class="flex items-center gap-3" th:each="p : ${pendingList}">
+                                <div class="w-9 h-9 rounded-full bg-[#D3DEF2] text-[#888] flex items-center justify-center text-sm font-semibold"
+                                     th:text="${p.memberInitial}">정</div>
                                 <div class="flex-1 min-w-0">
-                                    <div class="text-xs font-bold text-[#1A1A1A] truncate">정우진</div>
-                                    <div class="text-[10px] text-[#888] truncate">증명사진 · 4/11(금) 09:00</div>
+                                    <div class="text-xs font-bold text-[#1A1A1A] truncate" th:text="${p.memberName}">이름</div>
+                                    <div class="text-[10px] text-[#888] truncate">
+                                        <span th:text="${p.itemName}">서비스</span> · <span th:text="${p.scheduledLabel}">날짜</span>
+                                    </div>
                                 </div>
                                 <div class="flex gap-1 shrink-0">
-                                    <button class="bg-white border border-[#1D3CFF] text-[#1D3CFF] text-[10px] font-bold px-2 py-1 rounded-md hover:bg-[#1D3CFF] hover:text-white transition-colors">수락</button>
-                                    <button class="bg-white border border-[#CCC] text-[#888] text-[10px] font-bold px-2 py-1 rounded-md hover:border-[#888] hover:text-[#444] transition-colors">거절</button>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-full bg-[#D3DEF2] text-[#888] flex items-center justify-center text-sm font-semibold">강</div>
-                                <div class="flex-1 min-w-0">
-                                    <div class="text-xs font-bold text-[#1A1A1A] truncate">강지우</div>
-                                    <div class="text-[10px] text-[#888] truncate">웨딩 스냅 · 4/12(토) 14:00</div>
-                                </div>
-                                <div class="flex gap-1 shrink-0">
-                                    <button class="bg-white border border-[#1D3CFF] text-[#1D3CFF] text-[10px] font-bold px-2 py-1 rounded-md hover:bg-[#1D3CFF] hover:text-white transition-colors">수락</button>
-                                    <button class="bg-white border border-[#CCC] text-[#888] text-[10px] font-bold px-2 py-1 rounded-md hover:border-[#888] hover:text-[#444] transition-colors">거절</button>
+                                    <form th:action="@{/photographer/{pid}/reservations/{rid}/accept(pid=${photographer.id},rid=${p.reservationId})}"
+                                          method="post" class="inline">
+                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                        <input type="hidden" name="weekStart" th:value="${weekly.weekStartIso}" class="js-current-week-start" />
+                                        <button type="submit" class="bg-white border border-[#1D3CFF] text-[#1D3CFF] text-[10px] font-bold px-2 py-1 rounded-md hover:bg-[#1D3CFF] hover:text-white transition-colors">수락</button>
+                                    </form>
+                                    <form th:action="@{/photographer/{pid}/reservations/{rid}/reject(pid=${photographer.id},rid=${p.reservationId})}"
+                                          method="post" class="inline">
+                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                        <input type="hidden" name="weekStart" th:value="${weekly.weekStartIso}" class="js-current-week-start" />
+                                        <button type="submit" class="bg-white border border-[#CCC] text-[#888] text-[10px] font-bold px-2 py-1 rounded-md hover:border-[#888] hover:text-[#444] transition-colors">거절</button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
+                        <div th:unless="${pendingList != null and !#lists.isEmpty(pendingList)}"
+                             class="text-sm text-[#888] py-4 text-center">승인 대기 중인 예약이 없습니다.</div>
                     </div>
 
                     <!-- 프로필 완성도 -->

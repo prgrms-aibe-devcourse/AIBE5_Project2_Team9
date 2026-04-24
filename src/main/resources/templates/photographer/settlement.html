@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/default :: layout(~{::title}, ~{::headExtra}, ~{::content})}">
+<head>
+    <title>수익 정산 - PICKASSO</title>
+    <th:block th:fragment="headExtra"></th:block>
+</head>
+<body>
+
+<main th:fragment="content" class="max-w-[1216px] mx-auto px-6 py-8">
+    <div class="flex flex-col lg:flex-row gap-8 items-start">
+
+        <th:block th:replace="~{fragments/photographer-sidebar :: sidebar}" />
+
+        <div class="flex-1 min-w-0 flex flex-col gap-6">
+
+            <!-- 페이지 타이틀 -->
+            <div>
+                <h1 class="text-2xl font-bold text-[#1A1A1A]">수익 정산</h1>
+                <p class="text-sm text-[#888] mt-1">서비스 제공 수익을 확인하고 계좌로 출금하세요.</p>
+            </div>
+
+            <!-- 통계 카드 -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <!-- 출금 가능 캐시 -->
+                <div class="bg-white border border-[#1D3CFF] rounded-2xl p-[22px] relative overflow-hidden">
+                    <div class="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#1D3CFF] to-[#0097FF] rounded-t-2xl"></div>
+                    <div class="flex items-center gap-1.5 text-xs font-semibold text-[#888] tracking-wide mb-2.5">
+                        <svg class="w-3.5 h-3.5 text-[#AAA]" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v1H0V4zm0 3h16v5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V7zm3 2a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1H3zm2.5 0a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5z"/>
+                        </svg>
+                        출금 가능 캐시
+                    </div>
+                    <div class="text-[28px] font-extrabold text-[#1D3CFF] leading-none tracking-tight mb-1.5">0<span class="text-base font-semibold text-[#888] ml-0.5">C</span></div>
+                    <div class="text-xs text-[#888]">즉시 출금 신청 가능</div>
+                    <div class="inline-flex items-center gap-1 text-[11px] font-semibold text-[#0097FF] bg-[#EEF6FF] rounded-md px-2 py-0.5 mt-1.5">
+                        <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 16 16"><path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/></svg>
+                        수수료 정산 완료
+                    </div>
+                </div>
+
+                <!-- 이번 달 총 수익 -->
+                <div class="bg-white border border-[#CCC] rounded-2xl p-[22px]">
+                    <div class="flex items-center gap-1.5 text-xs font-semibold text-[#888] tracking-wide mb-2.5">
+                        <svg class="w-3.5 h-3.5 text-[#AAA]" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z"/><path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H2zm13 2v6a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1z"/>
+                        </svg>
+                        이번 달 총 수익
+                    </div>
+                    <div class="text-[28px] font-extrabold text-[#1A1A1A] leading-none tracking-tight mb-1.5">0<span class="text-base font-semibold text-[#888] ml-0.5">C</span></div>
+                    <div class="text-xs text-[#888]" th:text="${#temporals.format(#temporals.createNow(), 'M월 1일')} + ' ~ ' + ${#temporals.format(#temporals.createNow(), 'M월 d일')}">이번 달</div>
+                </div>
+
+                <!-- 누적 총 정산액 -->
+                <div class="bg-white border border-[#CCC] rounded-2xl p-[22px]">
+                    <div class="flex items-center gap-1.5 text-xs font-semibold text-[#888] tracking-wide mb-2.5">
+                        <svg class="w-3.5 h-3.5 text-[#AAA]" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.07-1.718H4z"/>
+                        </svg>
+                        누적 총 정산액
+                    </div>
+                    <div class="text-[28px] font-extrabold text-[#1A1A1A] leading-none tracking-tight mb-1.5">0<span class="text-base font-semibold text-[#888] ml-0.5">C</span></div>
+                    <div class="text-xs text-[#888]">활동 시작 이후 누적</div>
+                    <div class="inline-flex items-center text-[11px] font-semibold text-[#888] bg-[#F9FAFC] border border-[#CCC] rounded-md px-2 py-0.5 mt-1.5">
+                        총 0건 정산 완료
+                    </div>
+                </div>
+            </div>
+
+            <!-- 정산 신청 카드 -->
+            <div class="bg-white border border-[#CCC] rounded-2xl p-7">
+                <h2 class="flex items-center gap-2 text-[17px] font-bold text-[#1A1A1A] mb-5">
+                    <svg class="w-5 h-5 text-[#1D3CFF]" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.07-1.718H4z"/>
+                    </svg>
+                    정산 신청
+                </h2>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6">
+                    <div class="flex flex-col gap-1.5">
+                        <span class="text-xs font-semibold text-[#888]">출금 가능 캐시</span>
+                        <span class="text-xl font-extrabold text-[#1D3CFF]">0 C</span>
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <span class="text-xs font-semibold text-[#888]">최소 출금 금액</span>
+                        <span class="text-[15px] font-semibold text-[#1A1A1A]">10,000 C</span>
+                    </div>
+                    <div class="flex flex-col gap-1.5 sm:col-span-2">
+                        <span class="text-xs font-semibold text-[#888]">정산 받을 계좌</span>
+                        <div class="bg-[#F9FAFC] border border-[#CCC] rounded-[10px] px-4 py-3 text-sm text-[#444] flex items-center justify-between">
+                            <span>계좌 정보를 등록해주세요</span>
+                            <a href="#" class="text-xs text-[#0097FF] font-medium hover:underline">등록</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 items-end mb-4">
+                    <div class="flex-1 relative">
+                        <label class="block text-xs font-semibold text-[#888] mb-1.5">출금 금액 입력</label>
+                        <input type="text" id="amountInput" value="" placeholder="0"
+                               class="w-full bg-[#F9FAFC] border-[1.5px] border-[#CCC] rounded-[10px] px-4 pr-12 py-3 text-xl font-bold text-[#1A1A1A] font-sans focus:outline-none focus:border-[#0097FF] focus:shadow-[0_0_0_3px_rgba(0,151,255,0.08)] transition-all" />
+                        <span class="absolute right-4 bottom-3.5 text-sm font-semibold text-[#888] pointer-events-none">C</span>
+                    </div>
+                    <button onclick="setMaxAmount()" class="text-[13px] font-bold text-[#0097FF] bg-[#EEF6FF] border border-[#0097FF] rounded-lg px-4 h-12 whitespace-nowrap hover:bg-[#D8EDFF] transition-colors">전액</button>
+                </div>
+
+                <div class="text-xs text-[#888] leading-7 bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-3 mb-5">
+                    <strong class="text-[#1A1A1A]">수수료 안내</strong><br>
+                    출금 시 플랫폼 수수료 <strong class="text-[#1A1A1A]">5%</strong>가 차감됩니다. 영업일 기준 <strong class="text-[#1A1A1A]">1~3일</strong> 이내 등록 계좌로 이체됩니다.<br>
+                    출금 가능 캐시는 촬영 완료 후 <strong class="text-[#1A1A1A]">3일 경과분</strong>부터 적용됩니다.
+                </div>
+
+                <div class="flex items-center justify-between pt-5 border-t border-[#EEE]">
+                    <div class="flex flex-col gap-0.5">
+                        <span class="text-xs text-[#888] font-medium">실 수령액 (수수료 5% 차감)</span>
+                        <strong id="netAmountDisplay" class="text-[22px] font-extrabold text-[#1D3CFF] tracking-tight">0 C</strong>
+                    </div>
+                    <button onclick="openConfirmModal()"
+                            class="flex items-center gap-2 text-[15px] font-bold text-[#1D3CFF] bg-white border-[1.5px] border-[#1D3CFF] rounded-[10px] px-8 py-3.5 hover:bg-[#1D3CFF] hover:text-white transition-colors">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v1H0V4zm0 3h16v5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V7zm3 2a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1H3zm2.5 0a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5z"/>
+                        </svg>
+                        정산 신청하기
+                    </button>
+                </div>
+            </div>
+
+            <!-- 수익 내역 / 정산 내역 카드 -->
+            <div class="bg-white border border-[#CCC] rounded-2xl overflow-hidden">
+                <div class="flex items-center justify-between px-6 py-5 border-b border-[#EEE]">
+                    <h2 class="flex items-center gap-2 text-[17px] font-bold text-[#1A1A1A]">
+                        <svg class="w-5 h-5 text-[#1D3CFF]" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M0 1.5A1.5 1.5 0 0 1 1.5 0h13A1.5 1.5 0 0 1 16 1.5v13a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13zm1.5-.5a.5.5 0 0 0-.5.5V5h14V1.5a.5.5 0 0 0-.5-.5h-13zM16 6H0v8.5a.5.5 0 0 0 .5.5h15a.5.5 0 0 0 .5-.5V6z"/>
+                        </svg>
+                        수익 내역
+                    </h2>
+                    <div class="flex gap-1 bg-[#F9FAFC] border border-[#CCC] rounded-lg p-[3px]">
+                        <button id="tab-btn-earnings" onclick="switchTab('earnings')"
+                                class="tab-btn text-[13px] font-semibold text-[#1D3CFF] bg-white rounded-md px-3.5 py-1.5 shadow-[0_1px_4px_rgba(0,0,0,0.08)] transition-all">수익 내역</button>
+                        <button id="tab-btn-history" onclick="switchTab('history')"
+                                class="tab-btn text-[13px] font-semibold text-[#888] bg-transparent rounded-md px-3.5 py-1.5 transition-all">정산 내역</button>
+                    </div>
+                </div>
+
+                <!-- 필터 -->
+                <div class="flex items-center gap-2.5 px-6 py-3.5 bg-[#F9FAFC] border-b border-[#EEE]">
+                    <select class="text-[13px] text-[#444] bg-white border border-[#CCC] rounded-lg px-3 pr-7 py-1.5 appearance-none focus:outline-none focus:border-[#0097FF] cursor-pointer font-sans">
+                        <option th:text="${#temporals.format(#temporals.createNow(), 'yyyy년 M월')}">2026년 4월</option>
+                    </select>
+                    <select id="statusFilter" onchange="filterEarnings()" class="text-[13px] text-[#444] bg-white border border-[#CCC] rounded-lg px-3 pr-7 py-1.5 appearance-none focus:outline-none focus:border-[#0097FF] cursor-pointer font-sans">
+                        <option value="">전체 상태</option>
+                        <option value="available">출금 가능</option>
+                        <option value="hold">정산 대기</option>
+                        <option value="completed">출금 완료</option>
+                    </select>
+                </div>
+
+                <!-- 수익 내역 탭 -->
+                <div id="tab-earnings">
+                    <div class="text-center py-16 text-[#888]">
+                        <svg class="w-12 h-12 text-[#CCC] mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        <p class="text-sm font-medium">아직 수익 내역이 없습니다.</p>
+                        <p class="text-xs text-[#AAA] mt-1">촬영 완료 후 수익이 반영됩니다.</p>
+                    </div>
+                </div>
+
+                <!-- 정산 내역 탭 -->
+                <div id="tab-history" class="hidden">
+                    <div class="text-center py-16 text-[#888]">
+                        <svg class="w-12 h-12 text-[#CCC] mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                        </svg>
+                        <p class="text-sm font-medium">아직 정산 내역이 없습니다.</p>
+                        <p class="text-xs text-[#AAA] mt-1">정산 신청 후 내역이 표시됩니다.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 안내 박스 -->
+            <div class="flex gap-2.5 bg-[#EEF2FB] border border-[#BFD0F5] rounded-[10px] px-4 py-3.5 text-[13px] text-[#444] leading-7">
+                <svg class="w-4 h-4 text-[#1D3CFF] shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                </svg>
+                <div>
+                    <strong class="text-[#1A1A1A]">정산 안내사항</strong><br>
+                    · 출금 가능 캐시는 촬영 완료 후 고객 승인(또는 3일 자동 완료) 시 반영됩니다.<br>
+                    · 정산 신청은 영업일 기준 처리되며, 주말·공휴일 신청 건은 다음 영업일에 처리됩니다.<br>
+                    · 부정 거래 또는 분쟁이 발생한 예약의 수익은 해결 완료 전까지 보류될 수 있습니다.
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 정산 확인 모달 -->
+    <div id="confirmModal" class="hidden fixed inset-0 bg-black/45 z-[200] flex items-center justify-center">
+        <div class="bg-white rounded-2xl w-[440px] max-w-[90vw] p-8 relative shadow-[0_20px_60px_rgba(0,0,0,0.15)]">
+            <button onclick="closeConfirmModal()" class="absolute top-5 right-5 text-[22px] text-[#888] hover:bg-[#F0F0F0] rounded-md px-1 leading-none transition-colors">✕</button>
+            <div class="text-xl font-bold text-[#1A1A1A] mb-1.5">정산 신청 확인</div>
+            <div class="text-[13px] text-[#888] mb-6">아래 내용을 확인 후 신청하세요.</div>
+
+            <div class="flex justify-between items-center py-2.5">
+                <span class="text-sm text-[#888]">신청 금액</span>
+                <span id="modal-amount" class="text-sm font-semibold text-[#1A1A1A]">0 C</span>
+            </div>
+            <div class="flex justify-between items-center py-2.5">
+                <span class="text-sm text-[#888]">플랫폼 수수료 (5%)</span>
+                <span id="modal-fee" class="text-sm font-semibold text-[#888]">−0 C</span>
+            </div>
+            <div class="flex justify-between items-center py-2.5">
+                <span class="text-sm text-[#888]">입금 계좌</span>
+                <span class="text-[13px] font-semibold text-[#1A1A1A]">—</span>
+            </div>
+            <div class="h-px bg-[#EEE] my-5"></div>
+            <div class="flex justify-between items-center py-3.5 border-t-2 border-[#1A1A1A] mt-1">
+                <span class="text-[15px] font-bold text-[#1A1A1A]">실 수령액</span>
+                <strong id="modal-net" class="text-[22px] font-extrabold text-[#1D3CFF] tracking-tight">0 C</strong>
+            </div>
+
+            <div class="flex gap-2.5 mt-6">
+                <button onclick="closeConfirmModal()" class="flex-1 text-sm font-semibold text-[#444] bg-white border border-[#CCC] rounded-[10px] py-3.5 hover:border-[#888] transition-colors">취소</button>
+                <button onclick="submitSettlement()" class="flex-[2] text-[15px] font-bold text-[#1D3CFF] bg-white border-[1.5px] border-[#1D3CFF] rounded-[10px] py-3.5 hover:bg-[#1D3CFF] hover:text-white transition-colors">신청 확정</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 신청 완료 모달 -->
+    <div id="successModal" class="hidden fixed inset-0 bg-black/45 z-[300] flex items-center justify-center">
+        <div class="bg-white rounded-2xl w-[380px] max-w-[90vw] px-8 py-10 text-center shadow-[0_20px_60px_rgba(0,0,0,0.15)]">
+            <div class="w-16 h-16 bg-[#EEF2FB] rounded-full flex items-center justify-center mx-auto mb-5">
+                <svg class="w-8 h-8 text-[#1D3CFF]" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+                </svg>
+            </div>
+            <div class="text-xl font-bold text-[#1A1A1A] mb-2">정산 신청 완료!</div>
+            <div class="text-sm text-[#888] leading-7 mb-7">
+                정산 신청이 접수되었습니다.<br>
+                영업일 기준 1~3일 이내<br>
+                등록된 계좌로 입금됩니다.
+            </div>
+            <button onclick="closeSuccessModal()" class="w-full text-[15px] font-bold text-[#1D3CFF] bg-white border-[1.5px] border-[#1D3CFF] rounded-[10px] py-3.5 hover:bg-[#1D3CFF] hover:text-white transition-colors">확인</button>
+        </div>
+    </div>
+</main>
+
+<script th:inline="javascript">
+    const MAX_AMOUNT = 0;
+    const FEE_RATE = 0.05;
+
+    function formatNum(n) {
+        return n.toLocaleString('ko-KR');
+    }
+
+    function parseAmount(str) {
+        return parseInt(str.replace(/,/g, ''), 10) || 0;
+    }
+
+    const amountInput = document.getElementById('amountInput');
+    const netAmountDisplay = document.getElementById('netAmountDisplay');
+
+    function updateNetAmount() {
+        const raw = parseAmount(amountInput.value);
+        const net = Math.floor(raw * (1 - FEE_RATE));
+        netAmountDisplay.textContent = formatNum(net) + ' C';
+    }
+
+    amountInput.addEventListener('input', function () {
+        const raw = parseAmount(this.value);
+        const clamped = Math.min(raw, MAX_AMOUNT);
+        this.value = clamped > 0 ? formatNum(clamped) : '';
+        updateNetAmount();
+    });
+
+    function setMaxAmount() {
+        amountInput.value = MAX_AMOUNT > 0 ? formatNum(MAX_AMOUNT) : '';
+        updateNetAmount();
+    }
+
+    function switchTab(tabId) {
+        ['earnings', 'history'].forEach(id => {
+            const panel = document.getElementById('tab-' + id);
+            const btn = document.getElementById('tab-btn-' + id);
+            if (id === tabId) {
+                panel.classList.remove('hidden');
+                btn.classList.add('text-[#1D3CFF]', 'bg-white', 'shadow-[0_1px_4px_rgba(0,0,0,0.08)]');
+                btn.classList.remove('text-[#888]', 'bg-transparent');
+            } else {
+                panel.classList.add('hidden');
+                btn.classList.remove('text-[#1D3CFF]', 'bg-white', 'shadow-[0_1px_4px_rgba(0,0,0,0.08)]');
+                btn.classList.add('text-[#888]', 'bg-transparent');
+            }
+        });
+    }
+
+    function openConfirmModal() {
+        const raw = parseAmount(amountInput.value);
+        if (raw < 10000) {
+            alert('최소 출금 금액은 10,000 C 입니다.');
+            return;
+        }
+        const fee = Math.ceil(raw * FEE_RATE);
+        const net = raw - fee;
+        document.getElementById('modal-amount').textContent = formatNum(raw) + ' C';
+        document.getElementById('modal-fee').textContent = '−' + formatNum(fee) + ' C';
+        document.getElementById('modal-net').textContent = formatNum(net) + ' C';
+        document.getElementById('confirmModal').classList.remove('hidden');
+    }
+
+    function closeConfirmModal() {
+        document.getElementById('confirmModal').classList.add('hidden');
+    }
+
+    function submitSettlement() {
+        closeConfirmModal();
+        document.getElementById('successModal').classList.remove('hidden');
+    }
+
+    function closeSuccessModal() {
+        document.getElementById('successModal').classList.add('hidden');
+    }
+
+    document.getElementById('confirmModal').addEventListener('click', function (e) {
+        if (e.target === this) closeConfirmModal();
+    });
+    document.getElementById('successModal').addEventListener('click', function (e) {
+        if (e.target === this) closeSuccessModal();
+    });
+</script>
+
+</body>
+</html>

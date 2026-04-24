@@ -27,17 +27,18 @@
       대시보드
     </a>
     <!-- 예약 관리 (Mockup) -->
-    <a th:href="@{'/photographer/' + ${userId} + '/dashboard'}"
+    <a th:href="@{'/photographer/' + ${userId} + '/reservations'}"
        th:classappend="${activeTab == 'reservations'} ? 'bg-[#EEF2FB] text-[#1D3CFF] font-semibold' : 'text-[#444] hover:bg-[#EEF2FB] hover:text-[#1D3CFF]'"
        class="flex items-center gap-2.5 text-sm px-3 py-2.5 rounded-lg transition-colors no-underline">
       <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
       </svg>
       예약 관리
-      <span class="ml-auto bg-[#1D3CFF] text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center">2</span>
+      <span class="ml-auto bg-[#1D3CFF] text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center"
+            th:text="${summary != null ? summary.pendingCount : 0}">2</span>
     </a>
     <!-- 후기 관리 (Mockup) -->
-    <a th:href="@{'/photographer/' + ${userId} + '/dashboard'}"
+    <a th:href="@{'/photographer/' + ${userId} + '/reviews'}"
        th:classappend="${activeTab == 'reviews'} ? 'bg-[#EEF2FB] text-[#1D3CFF] font-semibold' : 'text-[#444] hover:bg-[#EEF2FB] hover:text-[#1D3CFF]'"
        class="flex items-center gap-2.5 text-sm px-3 py-2.5 rounded-lg transition-colors no-underline">
       <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -45,8 +46,8 @@
       </svg>
       후기 관리
     </a>
-    <!-- 수익 정산 (Mockup) -->
-    <a th:href="@{'/photographer/' + ${userId} + '/dashboard'}"
+    <!-- 수익 정산 -->
+    <a th:href="@{'/photographer/' + ${userId} + '/settlement'}"
        th:classappend="${activeTab == 'settlement'} ? 'bg-[#EEF2FB] text-[#1D3CFF] font-semibold' : 'text-[#444] hover:bg-[#EEF2FB] hover:text-[#1D3CFF]'"
        class="flex items-center gap-2.5 text-sm px-3 py-2.5 rounded-lg transition-colors no-underline">
       <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
