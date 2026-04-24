@@ -7,6 +7,9 @@ import com.pickkasso.pickkasso.global.dto.ChatMessageDto;
 import com.pickkasso.pickkasso.item.entity.Item;
 import com.pickkasso.pickkasso.item.repository.AiItemQuerySpec;
 import com.pickkasso.pickkasso.item.repository.ItemRepository;
+import com.pickkasso.pickkasso.user.entity.Reservation;
+import com.pickkasso.pickkasso.user.entity.ReservationStatus;
+import com.pickkasso.pickkasso.user.repository.ReservationRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +23,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -45,6 +50,8 @@ public class AiPickRecommendationService {
     private static final Pattern MONTH_DAY_KO_PATTERN = Pattern.compile("(\\d{1,2})\\s*월\\s*(\\d{1,2})\\s*일");
     private static final Pattern MONTH_DAY_SLASH_PATTERN = Pattern.compile("(\\d{1,2})\\s*/\\s*(\\d{1,2})(?:\\s*일)?");
     private static final Pattern MONTH_DAY_DASH_PATTERN = Pattern.compile("(\\d{1,2})\\s*-\\s*(\\d{1,2})(?:\\s*일)?");
+    private static final Pattern HOUR_PATTERN = Pattern.compile("(오전|오후)?\\s*(\\d{1,2})\\s*시");
+    private static final Pattern HOUR_COLON_PATTERN = Pattern.compile("\\b(\\d{1,2})\\s*:\\s*([0-5]\\d)\\b");
     private static final Map<String, List<String>> NEARBY_REGIONS = Map.ofEntries(
         Map.entry("홍대", List.of("홍대", "홍대입구", "연남", "연남동", "합정", "합정동", "상수", "상수동", "망원", "망원동", "서교동", "동교동", "마포")),
         Map.entry("강남", List.of("강남", "강남역", "신논현", "역삼", "역삼동", "선릉", "삼성", "삼성동", "논현", "논현동", "신사", "신사동", "압구정")),
@@ -60,8 +67,13 @@ public class AiPickRecommendationService {
             "강서", "구로", "금천", "영등포", "동작", "관악"
         ))
     );
+    private static final Set<ReservationStatus> BLOCKING_RESERVATION_STATUSES = Set.of(
+        ReservationStatus.PENDING,
+        ReservationStatus.CONFIRMED
+    );
 
     private final ItemRepository itemRepository;
+    private final ReservationRepository reservationRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final HttpClient httpClient = HttpClient.newHttpClient();
 
@@ -81,7 +93,9 @@ public class AiPickRecommendationService {
     public AiPickResultDto recommend(String rawQuery, boolean expandNearby, Set<Long> excludedItemIds) {
         AiPickQueryDto parsed = parseQueryWithGeminiOrRule(rawQuery);
         List<Item> candidates = loadCandidatesFromDb(parsed, expandNearby);
+        candidates = filterUnavailableByRequestedDateTime(candidates, parsed);
         candidates = enrichCandidatesToTarget(candidates, parsed);
+        candidates = filterUnavailableByRequestedDateTime(candidates, parsed);
         candidates = excludeItems(candidates, excludedItemIds);
         List<ScoredItem> ranked = rankCandidates(candidates, parsed);
         List<AiRecommendationDto> recommendations = mapRecommendations(ranked, parsed);
@@ -101,6 +115,114 @@ public class AiPickRecommendationService {
             .filter(item -> item != null && item.getId() != null)
             .filter(item -> !excludedItemIds.contains(item.getId()))
             .toList();
+    }
+
+    private List<Item> filterUnavailableByRequestedDateTime(List<Item> candidates, AiPickQueryDto parsed) {
+        if (candidates == null || candidates.isEmpty() || !hasText(parsed.requestedDate())) {
+            return candidates == null ? List.of() : candidates;
+        }
+        LocalDate requestedDate;
+        try {
+            requestedDate = LocalDate.parse(parsed.requestedDate());
+        } catch (Exception ignored) {
+            return candidates;
+        }
+
+        List<Long> photographerIds = candidates.stream()
+            .map(item -> item.getPhotographer() == null ? null : item.getPhotographer().getId())
+            .filter(id -> id != null)
+            .distinct()
+            .toList();
+        if (photographerIds.isEmpty()) {
+            return candidates;
+        }
+
+        // DB 시간대(UTC 저장)와 사용자 시간대(Asia/Seoul) 차이를 흡수하기 위해
+        // 조회 범위를 넉넉히 잡고, 이후 KST 기준 날짜/시간으로 한 번 더 필터링한다.
+        LocalDateTime dayStart = requestedDate.minusDays(1).atStartOfDay();
+        LocalDateTime dayEnd = requestedDate.plusDays(2).atStartOfDay();
+        List<Reservation> dayReservations = reservationRepository.findByPhotographerIdsInRange(
+            photographerIds, dayStart, dayEnd, BLOCKING_RESERVATION_STATUSES
+        );
+        if (dayReservations.isEmpty()) {
+            return candidates;
+        }
+        List<Reservation> sameDayReservations = dayReservations.stream()
+            .filter(reservation -> reservation.getScheduledAt().toLocalDate().equals(requestedDate))
+            .toList();
+        if (sameDayReservations.isEmpty()) {
+            return candidates;
+        }
+
+        Integer requestedHour = parseRequestedHour(parsed.rawQuery());
+        if (requestedHour == null) {
+            // 시간 미입력 시에는 작가/상품을 통째로 제외하지 않는다.
+            // (같은 날짜라도 다른 시간 슬롯이 비어 있을 수 있음)
+            return candidates;
+        }
+
+        LocalDateTime requestedStart = requestedDate.atTime(LocalTime.of(requestedHour, 0));
+        LocalDateTime requestedEnd = requestedStart.plusHours(1);
+        Set<Long> blockedPhotographerIds = new HashSet<>();
+        for (Reservation reservation : sameDayReservations) {
+            LocalDateTime reservationStart = reservation.getScheduledAt();
+            int durationMinutes = reservation.getDurationMinutes() == null ? 60 : reservation.getDurationMinutes();
+            LocalDateTime reservationEnd = reservationStart.plusMinutes(durationMinutes);
+            if (requestedStart.isBefore(reservationEnd) && requestedEnd.isAfter(reservationStart)) {
+                blockedPhotographerIds.add(reservation.getPhotographer().getId());
+            }
+        }
+
+        if (blockedPhotographerIds.isEmpty()) {
+            return candidates;
+        }
+        return candidates.stream()
+            .filter(item -> item != null && item.getPhotographer() != null && item.getPhotographer().getId() != null)
+            .filter(item -> !blockedPhotographerIds.contains(item.getPhotographer().getId()))
+            .toList();
+    }
+
+    private Integer parseRequestedHour(String rawQuery) {
+        if (!hasText(rawQuery)) {
+            return null;
+        }
+        Matcher colonMatcher = HOUR_COLON_PATTERN.matcher(rawQuery);
+        if (colonMatcher.find()) {
+            int hour;
+            try {
+                hour = Integer.parseInt(colonMatcher.group(1));
+            } catch (NumberFormatException ignored) {
+                return null;
+            }
+            if (hour < 0 || hour > 23) {
+                return null;
+            }
+            return hour;
+        }
+        Matcher matcher = HOUR_PATTERN.matcher(rawQuery);
+        if (!matcher.find()) {
+            return null;
+        }
+        int hour;
+        try {
+            hour = Integer.parseInt(matcher.group(2));
+        } catch (NumberFormatException ignored) {
+            return null;
+        }
+        if (hour < 0 || hour > 24) {
+            return null;
+        }
+        String meridiem = matcher.group(1);
+        if ("오전".equals(meridiem)) {
+            return hour == 12 ? 0 : hour;
+        }
+        if ("오후".equals(meridiem)) {
+            return hour == 12 ? 12 : hour + 12;
+        }
+        if (hour == 24) {
+            return 0;
+        }
+        return hour;
     }
 
     private AiPickQueryDto parseQueryWithGeminiOrRule(String rawQuery) {

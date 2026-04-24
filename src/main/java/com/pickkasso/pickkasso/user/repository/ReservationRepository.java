@@ -43,6 +43,34 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     @Query("""
             select r from Reservation r
+              join fetch r.item i
+            where i.id in :itemIds
+              and r.scheduledAt >= :from
+              and r.scheduledAt < :to
+              and r.status in :statuses
+            """)
+    List<Reservation> findByItemIdsInRange(
+            @Param("itemIds") Collection<Long> itemIds,
+            @Param("from") LocalDateTime from,
+            @Param("to") LocalDateTime to,
+            @Param("statuses") Collection<ReservationStatus> statuses);
+
+    @Query("""
+            select r from Reservation r
+              join fetch r.photographer p
+            where p.id in :photographerIds
+              and r.scheduledAt >= :from
+              and r.scheduledAt < :to
+              and r.status in :statuses
+            """)
+    List<Reservation> findByPhotographerIdsInRange(
+            @Param("photographerIds") Collection<Long> photographerIds,
+            @Param("from") LocalDateTime from,
+            @Param("to") LocalDateTime to,
+            @Param("statuses") Collection<ReservationStatus> statuses);
+
+    @Query("""
+            select r from Reservation r
               join fetch r.member m
               join fetch r.item i
             where r.photographer.id = :photographerId
