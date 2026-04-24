@@ -73,7 +73,7 @@
 
             <!-- 버튼 영역 -->
             <div class="flex gap-2 mt-4">
-              <a href="#"
+              <a th:href="@{/item/{id}(id=${reservation.itemId})}"
                  class="bg-white border border-[#1D3CFF] text-[#1D3CFF] hover:bg-[#1D3CFF] hover:text-white font-semibold px-4 py-2 rounded-lg text-sm transition-colors">
                 상세보기
               </a>
@@ -87,10 +87,15 @@
                   예약 취소
                 </button>
               </form>
-              <button th:if="${reservation.status.name() == 'COMPLETED'}"
-                      class="bg-[#F9FAFC] border border-[#CCC] text-[#444] hover:border-[#0097FF] hover:text-[#0097FF] font-semibold px-4 py-2 rounded-lg text-sm transition-colors">
+              <a th:if="${reservation.status.name() == 'COMPLETED' and !reservation.hasReview}"
+                 th:href="@{/reservations/{id}/review(id=${reservation.id})}"
+                 class="bg-[#F9FAFC] border border-[#CCC] text-[#444] hover:border-[#0097FF] hover:text-[#0097FF] font-semibold px-4 py-2 rounded-lg text-sm transition-colors">
                 리뷰 작성
-              </button>
+              </a>
+              <span th:if="${reservation.status.name() == 'COMPLETED' and reservation.hasReview}"
+                    class="bg-[#F9FAFC] border border-[#CCC] text-[#888] font-semibold px-4 py-2 rounded-lg text-sm cursor-default">
+                리뷰 완료
+              </span>
             </div>
           </div>
         </div>

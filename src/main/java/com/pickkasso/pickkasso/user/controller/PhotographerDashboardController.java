@@ -1,5 +1,9 @@
 package com.pickkasso.pickkasso.user.controller;
 
+import com.pickkasso.pickkasso.review.dto.ReviewDto;
+import com.pickkasso.pickkasso.review.dto.StarDistributionEntry;
+import com.pickkasso.pickkasso.review.entity.Review;
+import com.pickkasso.pickkasso.review.repository.ReviewRepository;
 import com.pickkasso.pickkasso.user.dto.photographer.ProfileCompletionDto;
 import com.pickkasso.pickkasso.user.entity.Photographer;
 import com.pickkasso.pickkasso.user.repository.PhotographerRepository;
@@ -19,6 +23,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -28,6 +35,7 @@ public class PhotographerDashboardController {
     private final PhotographerRepository photographerRepository;
     private final PhotographerProfileService photographerProfileService;
     private final PhotographerReservationService reservationService;
+    private final ReviewRepository reviewRepository;
 
     @GetMapping("/{photographerId}/dashboard")
     public String dashboard(@PathVariable Long photographerId,
@@ -87,10 +95,33 @@ public class PhotographerDashboardController {
         Photographer photographer = resolveAuthorizedPhotographer(photographerId, auth);
         if (photographer == null) return auth == null || !auth.isAuthenticated() ? "redirect:/login" : "redirect:/";
 
+        List<Review> rawReviews = reviewRepository.findByPhotographerIdWithDetails(photographerId);
+        List<ReviewDto> reviews = rawReviews.stream().map(ReviewDto::new).toList();
+
+        int total = rawReviews.size();
+        double avg = rawReviews.stream().mapToInt(Review::getRating).average().orElse(0.0);
+        YearMonth now = YearMonth.now();
+        long thisMonthCount = rawReviews.stream()
+                .filter(r -> YearMonth.from(r.getCreatedAt()).equals(now))
+                .count();
+
+        List<StarDistributionEntry> starDistribution = new ArrayList<>();
+        for (int i = 5; i >= 1; i--) {
+            final int star = i;
+            int c = (int) rawReviews.stream().filter(r -> r.getRating() == star).count();
+            int percent = total > 0 ? c * 100 / total : 0;
+            starDistribution.add(new StarDistributionEntry(star, c, percent));
+        }
+
         model.addAttribute("photographer", photographer);
         model.addAttribute("userId", photographerId);
         model.addAttribute("activeTab", "reviews");
         model.addAttribute("summary", reservationService.getSummary(photographerId));
+        model.addAttribute("reviews", reviews);
+        model.addAttribute("reviewCount", total);
+        model.addAttribute("avgRating", String.format("%.1f", avg));
+        model.addAttribute("thisMonthCount", thisMonthCount);
+        model.addAttribute("starDistribution", starDistribution);
 
         return "photographer/reviews";
     }

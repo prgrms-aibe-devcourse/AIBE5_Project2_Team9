@@ -1,10 +1,12 @@
 package com.pickkasso.pickkasso.user.controller;
 
+import com.pickkasso.pickkasso.review.repository.ReviewRepository;
 import com.pickkasso.pickkasso.user.dto.PasswordChangeDto;
 import com.pickkasso.pickkasso.user.dto.UserReservationDto;
 import com.pickkasso.pickkasso.user.entity.Account;
 import com.pickkasso.pickkasso.user.entity.Member;
 import com.pickkasso.pickkasso.user.entity.Photographer;
+import com.pickkasso.pickkasso.user.entity.Reservation;
 import com.pickkasso.pickkasso.user.entity.Role;
 import com.pickkasso.pickkasso.user.repository.AccountRepository;
 import com.pickkasso.pickkasso.user.repository.MemberRepository;
@@ -18,6 +20,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/member/mypage")
@@ -27,6 +31,7 @@ public class MyPageController {
     private final MemberRepository memberRepository;
     private final AccountRepository accountRepository;
     private final ReservationRepository reservationRepository;
+    private final ReviewRepository reviewRepository;
     private final PasswordEncoder passwordEncoder;
 
     private Member getCurrentMember(Authentication auth) {
@@ -42,11 +47,13 @@ public class MyPageController {
     @GetMapping("/reservations")
     public String reservations(Authentication auth, Model model) {
         Member member = getCurrentMember(auth);
+        List<Reservation> rawList = reservationRepository.findByMemberIdWithDetails(member.getId());
+        List<UserReservationDto> reservations = rawList.stream()
+                .map(r -> new UserReservationDto(r, reviewRepository.existsByReservationId(r.getId())))
+                .toList();
         model.addAttribute("member", member);
+        model.addAttribute("reservations", reservations);
         model.addAttribute("activeTab", "reservations");
-        model.addAttribute("reservations",
-                reservationRepository.findByMemberIdWithDetails(member.getId())
-                        .stream().map(UserReservationDto::new).toList());
         return "user/mypage/reservations";
     }
 

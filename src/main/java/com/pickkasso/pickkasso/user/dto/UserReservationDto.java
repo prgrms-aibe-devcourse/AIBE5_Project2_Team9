@@ -9,8 +9,7 @@ import java.time.format.DateTimeFormatter;
 @Getter
 public class UserReservationDto {
 
-    private static final DateTimeFormatter FORMATTER =
-            DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm");
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm");
 
     private final Long id;
     private final Long itemId;
@@ -20,8 +19,9 @@ public class UserReservationDto {
     private final String address;
     private final ReservationStatus status;
     private final String statusLabel;
+    private final boolean hasReview;
 
-    public UserReservationDto(Reservation r) {
+    public UserReservationDto(Reservation r, boolean hasReview) {
         this.id = r.getId();
         this.itemId = r.getItem().getId();
         this.itemName = r.getItem().getName();
@@ -29,16 +29,7 @@ public class UserReservationDto {
         this.scheduledAt = r.getScheduledAt().format(FORMATTER);
         this.address = r.getAddress();
         this.status = r.getStatus();
-        this.statusLabel = toLabel(r.getStatus());
-    }
-
-    private static String toLabel(ReservationStatus status) {
-        return switch (status) {
-            case PENDING -> "예약 대기";
-            case CONFIRMED -> "예약 확정";
-            case COMPLETED -> "촬영 완료";
-            case REJECTED -> "예약 거절";
-            case CANCELED -> "예약 취소";
-        };
+        this.statusLabel = r.getStatus().label();
+        this.hasReview = hasReview;
     }
 }
