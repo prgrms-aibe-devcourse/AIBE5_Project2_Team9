@@ -65,7 +65,7 @@ class PhotographerProfileServiceTest {
         );
 
         // when
-        photographerProfileService.createOrUpdateProfile(photographer.getId(), request);
+        photographerProfileService.createOrUpdateProfile(photographer.getId(), request, null);
 
         // then
         Photographer savedPhotographer = photographerRepository.findById(photographer.getId()).orElseThrow();
@@ -97,7 +97,7 @@ class PhotographerProfileServiceTest {
                 List.of()
         );
 
-        photographerProfileService.createOrUpdateProfile(photographer.getId(), firstRequest);
+        photographerProfileService.createOrUpdateProfile(photographer.getId(), firstRequest, null);
 
         PhotographerProfileEditRequest updateRequest = new PhotographerProfileEditRequest(
                 "updated.jpg",
@@ -112,7 +112,7 @@ class PhotographerProfileServiceTest {
         );
 
         // when
-        photographerProfileService.createOrUpdateProfile(photographer.getId(), updateRequest);
+        photographerProfileService.createOrUpdateProfile(photographer.getId(), updateRequest, null);
 
         // then
         Photographer savedPhotographer = photographerRepository.findById(photographer.getId()).orElseThrow();

@@ -6,6 +6,7 @@ import com.pickkasso.pickkasso.review.repository.ReviewRepository;
 import com.pickkasso.pickkasso.user.dto.photographer.PhotographerProfileEditRequest;
 import com.pickkasso.pickkasso.user.dto.photographer.PhotographerProfileResponse;
 import com.pickkasso.pickkasso.user.entity.Account;
+import com.pickkasso.pickkasso.user.entity.ResponseTime;
 import com.pickkasso.pickkasso.user.repository.AccountRepository;
 import com.pickkasso.pickkasso.user.service.PhotographerProfileService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -45,6 +47,7 @@ public class PhotographerProfileController {
             isOwner = account != null && account.getId().equals(photographerId);
         }
         model.addAttribute("isOwner", isOwner);
+        model.addAttribute("topCityList", itemService.getTop3CityByPhotographerId(photographerId));
 
         return "photographer/profile";
     }
@@ -54,6 +57,7 @@ public class PhotographerProfileController {
         PhotographerProfileResponse response = photographerProfileService.getProfileForm(photographerId);
 
         model.addAttribute("profile", response);
+        model.addAttribute("responseTimes", ResponseTime.values());
         return "photographer/editProfileForm";
     }
 
@@ -61,10 +65,11 @@ public class PhotographerProfileController {
     public String editProfile(
             @PathVariable Long photographerId,
             @ModelAttribute("profile") PhotographerProfileEditRequest request,
+            @RequestParam(value = "profileImg", required = false) MultipartFile profileImg,
             Model model
     ) {
         try {
-            photographerProfileService.createOrUpdateProfile(photographerId, request);
+            photographerProfileService.createOrUpdateProfile(photographerId, request, profileImg);
             return "redirect:/photographer/" + photographerId + "/profile";
         } catch (IllegalArgumentException e) {
             model.addAttribute("errorMessage", e.getMessage());

@@ -88,14 +88,16 @@
           <!-- 총 작업 수 & 평균 별점 -->
           <div class="grid grid-cols-2 gap-3 mb-6">
             <div class="rounded-xl border border-[#CCC] bg-[#F9FAFC] px-3 py-4 text-center">
-              <p class="text-[11px] text-[#888] mb-1">총 후기 수</p>
-              <p class="text-2xl font-bold text-[#1A1A1A]"><span th:text="${reviewCount}">0</span>건</p>
+              <p class="text-[11px] text-[#888] mb-1">총 작업 수</p>
+              <p class="text-2xl font-bold text-[#1A1A1A]"
+                 th:text="${profile.purchaseCount != null} ? ${profile.purchaseCount + '건'} : '0건'"></p>
             </div>
             <div class="rounded-xl border border-[#CCC] bg-[#F9FAFC] px-3 py-4 text-center">
               <p class="text-[11px] text-[#888] mb-1">평균 별점</p>
               <div class="flex items-center justify-center gap-1">
                 <span class="text-xl text-[#FFB800]">★</span>
-                <span class="text-2xl font-bold text-[#1A1A1A]" th:text="${avgRating}">0.0</span>
+                <span class="text-2xl font-bold text-[#1A1A1A]"
+                      th:text="${profile.reviewCount != null and profile.reviewCount > 0} ? ${#numbers.formatDecimal(profile.reviewScore / profile.reviewCount, 1, 1)} : '0.0'"></span>
               </div>
             </div>
           </div>
@@ -104,19 +106,21 @@
           <div class="space-y-4 text-sm">
             <div class="flex items-center justify-between">
               <span class="text-[#888]">주 활동 지역</span>
-              <span class="font-medium text-[#1A1A1A]">등록 전</span>
+              <span class="font-medium text-[#1A1A1A]"
+                    th:text="${topCityList == null or topCityList.isEmpty()} ? '아직 없어요' : ${#strings.listJoin(topCityList, ' · ')}">
+              </span>
             </div>
             <div class="flex items-center justify-between">
               <span class="text-[#888]">연락 가능 시간</span>
-              <span class="font-medium text-[#1A1A1A]">등록 전</span>
+              <span class="font-medium text-[#1A1A1A]"
+                    th:text="${profile.contactableStartTime == null} ? '아직 없어요' : ${profile.contactableStartTime + '시 ~ ' + profile.contactableEndTime + '시'}">
+              </span>
             </div>
             <div class="flex items-center justify-between">
-              <span class="text-[#888]">방문 촬영</span>
-              <span class="font-medium text-[#888]">등록 전</span>
-            </div>
-            <div class="flex items-center justify-between">
-              <span class="text-[#888]">스튜디오 촬영</span>
-              <span class="font-medium text-[#888]">등록 전</span>
+              <span class="text-[#888]">평균 응답 시간</span>
+              <span class="font-medium text-[#1A1A1A]"
+                    th:text="${profile.responseTime == null} ? '아직 없어요' : ${profile.responseTime.toString()}">
+              </span>
             </div>
           </div>
         </div>
@@ -176,7 +180,7 @@
           </div>
 
           <div th:if="${profile.intro != null and !#strings.isEmpty(profile.intro)}"
-               class="text-base leading-8 text-[#444] whitespace-pre-line"
+               class="text-base leading-8 text-[#444] whitespace-pre-line break-words"
                th:text="${profile.intro}">작가 소개글</div>
 
           <div th:unless="${profile.intro != null and !#strings.isEmpty(profile.intro)}"
