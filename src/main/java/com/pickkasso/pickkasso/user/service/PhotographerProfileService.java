@@ -6,15 +6,8 @@ import com.pickkasso.pickkasso.user.dto.photographer.PhotographerProfileEditRequ
 import com.pickkasso.pickkasso.user.dto.photographer.PhotographerPortfolioSummaryDto;
 import com.pickkasso.pickkasso.user.dto.photographer.PhotographerProfileResponse;
 import com.pickkasso.pickkasso.user.dto.photographer.ProfileCompletionDto;
-import com.pickkasso.pickkasso.user.entity.Career;
-import com.pickkasso.pickkasso.user.entity.Education;
-import com.pickkasso.pickkasso.user.entity.Photographer;
-import com.pickkasso.pickkasso.user.entity.PhotographerProfile;
-import com.pickkasso.pickkasso.user.repository.CareerRepository;
-import com.pickkasso.pickkasso.user.repository.EducationRepository;
-import com.pickkasso.pickkasso.user.repository.PhotographerProfileRepository;
-import com.pickkasso.pickkasso.user.repository.PhotographerRepository;
-import com.pickkasso.pickkasso.user.repository.PortfolioRepository;
+import com.pickkasso.pickkasso.user.entity.*;
+import com.pickkasso.pickkasso.user.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +16,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +25,7 @@ public class PhotographerProfileService {
 
     private final PhotographerRepository photographerRepository;
     private final PhotographerProfileRepository photographerProfileRepository;
+    private final PortfolioImgRepository portfolioImgRepository;
     private final CareerRepository careerRepository;
     private final EducationRepository educationRepository;
     private final PortfolioRepository portfolioRepository;
@@ -59,12 +54,21 @@ public class PhotographerProfileService {
                 ))
                 .toList();
 
+        Map<Long, String> imgUrlMap = portfolioImgRepository
+            .findRepresentativeImgsByPhotographerId(photographerId)
+            .stream()
+            .collect(Collectors.toMap(
+                img -> img.getPortfolio().getId(),
+                PortfolioImg::getImgUrl
+            ));
+
         List<PhotographerPortfolioSummaryDto> portfolios = portfolioRepository.findByPhotographerIdOrderByIdDesc(photographerId)
                 .stream()
                 .map(portfolio -> new PhotographerPortfolioSummaryDto(
                         portfolio.getId(),
                         portfolio.getName(),
-                        portfolio.getDescription()
+                        portfolio.getDescription(),
+                        imgUrlMap.get(portfolio.getId())
                 ))
                 .toList();
 

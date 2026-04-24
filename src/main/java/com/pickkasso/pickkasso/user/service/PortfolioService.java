@@ -1,17 +1,23 @@
 package com.pickkasso.pickkasso.user.service;
 
+import com.pickkasso.pickkasso.global.img.DefaultImgDto;
+import com.pickkasso.pickkasso.global.service.DefaultImgService;
 import com.pickkasso.pickkasso.global.tag.Tag;
+import com.pickkasso.pickkasso.global.tag.TagReference;
 import com.pickkasso.pickkasso.global.tag.TagRepository;
+import com.pickkasso.pickkasso.global.tag.TagService;
 import com.pickkasso.pickkasso.user.dto.portfolio.PortfolioDto;
-import com.pickkasso.pickkasso.user.entity.Photographer;
-import com.pickkasso.pickkasso.user.entity.Portfolio;
-import com.pickkasso.pickkasso.user.entity.PortfolioProjectType;
+import com.pickkasso.pickkasso.user.dto.portfolio.PortfolioImgDto;
+import com.pickkasso.pickkasso.user.entity.*;
 import com.pickkasso.pickkasso.user.repository.PhotographerRepository;
 import com.pickkasso.pickkasso.user.repository.PortfolioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -23,6 +29,9 @@ public class PortfolioService {
     private final PortfolioRepository portfolioRepository;
     private final TagRepository tagRepository;
 
+    private final TagService tagService;
+    private final DefaultImgService defaultImgService;
+
     @Transactional(readOnly = true)
     public PortfolioDto getEmptyPortfolioDto(Long photographerId) {
         validatePhotographerExists(photographerId);
@@ -32,28 +41,45 @@ public class PortfolioService {
                 "",
                 null,
                 null,
-                null,
-                null,
+                new ArrayList<>(),
+                new ArrayList<>(),
                 PortfolioProjectType.PERSONAL
         );
     }
 
-    public Long createPortfolio(Long photographerId, PortfolioDto dto) {
+    private List<PortfolioImg> toPortfolioImgList(Portfolio portfolio, List<DefaultImgDto> imgDtoList) {
+        if (imgDtoList == null || imgDtoList.isEmpty()) return new ArrayList<>();
+        return imgDtoList.stream()
+            .map(dto -> PortfolioImg.createPortfolioImg(
+                portfolio,
+                dto.getImgUrl(),
+                dto.getImgOrder()
+            ))
+            .toList();
+    }
+
+    public Long createPortfolio(Long photographerId, PortfolioDto dto, List<MultipartFile> newFiles, List<Integer> newFileOrders) {
         Photographer photographer = photographerRepository.findById(photographerId)
                 .orElseThrow(() -> new IllegalArgumentException("작가를 찾을 수 없습니다."));
 
         validatePortfolio(dto);
+        // 이미지 업로드 후 저장
+        String dirName = "photographer/user_" + photographerId + "/portfolio";
+        List<DefaultImgDto> imgDtoList = defaultImgService.uploadImages(newFiles, newFileOrders, dirName);
 
         // 현재 Portfolio 엔티티 필드에 맞춰 최소 저장
         Portfolio portfolio = Portfolio.createPortfolio(
                 photographer,
                 dto.name(),
                 dto.description(),
-                resolveProjectType(dto)
+                resolveProjectType(dto),
+                dto.startTime(),
+                dto.endTime()
         );
-        portfolio.updateTags(getTags(dto.tagIdList()));
-
+        portfolio.updateTags(tagService.toTagList(dto.tagIdList()));
+        portfolio.updateImgs(toPortfolioImgList(portfolio, imgDtoList));
         Portfolio savedPortfolio = portfolioRepository.save(portfolio);
+
         return savedPortfolio.getId();
     }
 
@@ -64,23 +90,40 @@ public class PortfolioService {
     }
 
     @Transactional(readOnly = true)
-    public List<String> getPortfolioTagNames(Long photographerId, Long portfolioId) {
+    public List<TagReference> getPortfolioTagReference(Long photographerId, Long portfolioId) {
         Portfolio portfolio = getOwnedPortfolio(photographerId, portfolioId);
-        return portfolio.getTags().stream()
-                .map(Tag::getName)
-                .toList();
+        return portfolio.getPortfolioTagList().stream()
+            .map(PortfolioTag::getTag)
+            .map(TagReference::from)
+            .toList();
     }
 
-    public void updatePortfolio(Long photographerId, Long portfolioId, PortfolioDto dto) {
+    @Transactional(readOnly = true)
+    public List<DefaultImgDto> getPortfolioImage(Long photographerId, Long portfolioId) {
+        Portfolio portfolio = getOwnedPortfolio(photographerId, portfolioId);
+        return portfolio.getPortfolioImgList().stream()
+            .map(DefaultImgDto::from)
+            .toList();
+    }
+
+    public void updatePortfolio(Long photographerId, Long portfolioId, PortfolioDto dto,
+        List<String> keptImgUrls, List<Integer> keptImgOrders, List<MultipartFile> newFiles, List<Integer> newFileOrders) {
         validatePortfolio(dto);
 
         Portfolio portfolio = getOwnedPortfolio(photographerId, portfolioId);
+        // 이미지 업로드 후 저장
+        String dirName = "photographer/user_" + photographerId + "/portfolio";
+        List<DefaultImgDto> imgDtoList = defaultImgService.updateImages(portfolio.getPortfolioImgList(), keptImgUrls, keptImgOrders, newFiles, newFileOrders, dirName);
+
         portfolio.updatePortfolio(dto.name(), dto.description(), resolveProjectType(dto));
-        portfolio.updateTags(getTags(dto.tagIdList()));
+        portfolio.updateTags(tagService.toTagList(dto.tagIdList()));
+        portfolio.updateImgs(toPortfolioImgList(portfolio, imgDtoList));
     }
 
     public void deletePortfolio(Long photographerId, Long portfolioId) {
         Portfolio portfolio = getOwnedPortfolio(photographerId, portfolioId);
+        String dirName = "photographer/user_" + photographerId + "/portfolio";
+        defaultImgService.updateImages(portfolio.getPortfolioImgList(), null, null, null, null, dirName);
         portfolio.updateTags(List.of());
         portfolioRepository.delete(portfolio);
     }
@@ -91,13 +134,17 @@ public class PortfolioService {
     }
 
     private PortfolioDto toDto(Portfolio portfolio) {
+        List<Long> tagIdList = portfolio.getPortfolioTagList().stream()
+            .map(pt -> pt.getTag().getId())
+            .toList();
+
         return new PortfolioDto(
                 portfolio.getName(),
                 portfolio.getDescription(),
-                null,
-                null,
-                null,
-                portfolio.getTags().stream().map(Tag::getId).toList(),
+                portfolio.getStartDate(),
+                portfolio.getEndDate(),
+                new ArrayList<>(),
+                tagIdList,
                 portfolio.getProjectType()
         );
     }
@@ -126,7 +173,9 @@ public class PortfolioService {
         if (dto.name() == null || dto.name().isBlank()) {
             throw new IllegalArgumentException("포트폴리오 이름은 필수입니다.");
         }
-
+        if (dto.tagIdList() == null || dto.tagIdList().isEmpty()) {
+            throw new IllegalArgumentException("태그를 반드시 1개 이상 설정하셔야 합니다.");
+        }
         if (dto.description() == null || dto.description().isBlank()) {
             throw new IllegalArgumentException("포트폴리오 설명은 필수입니다.");
         }

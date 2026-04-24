@@ -3,12 +3,15 @@ package com.pickkasso.pickkasso.global.service;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.pickkasso.pickkasso.global.img.DefaultImg;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -20,8 +23,8 @@ public class S3Service {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    public String upload(MultipartFile file, String dirName) throws IOException {
-        String fileName = dirName + "/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
+    public String upload(MultipartFile file, String dirName, String imgName) throws IOException {
+        String fileName = dirName + "/" + imgName;
 
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(file.getSize());
@@ -33,7 +36,7 @@ public class S3Service {
     }
 
     public void delete(String fileUrl) {
-        String fileName = fileUrl.substring(fileUrl.indexOf(bucket) + bucket.length() + 1);
+        String fileName = fileUrl.substring(fileUrl.indexOf(".amazonaws.com/") + ".amazonaws.com/".length());
         amazonS3.deleteObject(bucket, fileName);
     }
 }

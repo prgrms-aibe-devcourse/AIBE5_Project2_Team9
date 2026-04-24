@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,24 +36,32 @@ public class Portfolio {
     @Column(name = "project_type")
     private PortfolioProjectType projectType;
 
-    @ManyToMany
-    @JoinTable(
-            name = "t_portfolio_tag",
-            joinColumns = @JoinColumn(name = "portfolio_id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id")
-    )
-    private List<Tag> tags = new ArrayList<>();
+    @Column(name = "start_date")
+    private LocalDate startDate;
+    @Column(name = "end_date")
+    private LocalDate endDate;
+
+
+    @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PortfolioTag> portfolioTagList = new ArrayList<>();
+    // 지금의 이미지 관리는, 이미지 삭제를 서비스에서 호출한 다음 update시켜야 함
+    @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PortfolioImg> portfolioImgList = new ArrayList<>();
 
 
     private Portfolio(
         Photographer photographer,
         String name,
         String description,
-        PortfolioProjectType projectType) {
+        PortfolioProjectType projectType,
+        LocalDate startDate,
+        LocalDate endDate) {
         this.photographer = photographer;
         this.name = name;
         this.description = description;
         this.projectType = projectType;
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
 
     //== 생성 method ==//
@@ -60,8 +69,10 @@ public class Portfolio {
         Photographer photographer,
         String name,
         String description,
-        PortfolioProjectType projectType) {
-        return new Portfolio(photographer, name, description, projectType);
+        PortfolioProjectType projectType,
+        LocalDate startDate,
+        LocalDate endDate) {
+        return new Portfolio(photographer, name, description, projectType, startDate, endDate);
     }
 
     public void updatePortfolio(String name, String description, PortfolioProjectType projectType) {
@@ -70,11 +81,16 @@ public class Portfolio {
         this.projectType = projectType;
     }
 
-    public void updateTags(List<Tag> tags) {
-        this.tags.clear();
-        if (tags == null || tags.isEmpty()) {
-            return;
-        }
-        this.tags.addAll(tags);
+    public void updateTags(List<Tag> tagList) {
+        this.portfolioTagList.clear();
+        tagList.forEach(tag ->
+            this.portfolioTagList.add(PortfolioTag.createPortfolioTag(this, tag))
+        );
+    }
+
+    // 최대 list 길이 20 이하로 가정
+    public void updateImgs(List<PortfolioImg> imgList) {
+        this.portfolioImgList.clear();
+        this.portfolioImgList.addAll(imgList);
     }
 }
