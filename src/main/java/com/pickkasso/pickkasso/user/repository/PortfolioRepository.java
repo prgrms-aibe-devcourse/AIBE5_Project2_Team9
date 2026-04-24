@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface PortfolioRepository extends JpaRepository<Portfolio,Long> {
     Optional<Portfolio> findByIdAndPhotographerId(Long portfolioId, Long photographerId);
     List<Portfolio> findByPhotographerIdOrderByIdDesc(Long photographerId);
+    boolean existsByPhotographerId(Long photographerId);
 }

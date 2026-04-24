@@ -1,23 +1,32 @@
 package com.pickkasso.pickkasso.user.controller;
 
 import com.pickkasso.pickkasso.user.dto.SignupDto;
+import com.pickkasso.pickkasso.user.entity.Account;
 import com.pickkasso.pickkasso.user.entity.Role;
 
+import com.pickkasso.pickkasso.user.repository.AccountRepository;
+import com.pickkasso.pickkasso.user.service.AccountService;
 import com.pickkasso.pickkasso.user.service.SignupService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.springframework.boot.context.properties.source.ConfigurationPropertyName.isValid;
 
 @Controller
 @RequiredArgsConstructor
 public class SignupController {
 
     private final SignupService signupService;
+    private final AccountRepository accountRepository;
+    private final AccountService accountService;
 
     @GetMapping("/signup")
     public String signupIndex() {
@@ -68,5 +77,13 @@ public class SignupController {
             model.addAttribute("errorMessage", e.getMessage());
             return "common/signup-photographer";
         }
+    }
+
+    @GetMapping("/api/check-username")
+    public ResponseEntity<Map<String, Object>> checkUsername(@RequestParam String username) {
+        Map<String, Object> result = new HashMap<>();
+        boolean available = accountService.isUsernameAvailable(username);
+        result.put("available", available);  // true/false만
+        return ResponseEntity.ok(result);
     }
 }

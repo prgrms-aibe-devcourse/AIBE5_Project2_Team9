@@ -73,18 +73,29 @@
 
             <!-- 버튼 영역 -->
             <div class="flex gap-2 mt-4">
-              <a href="#"
+              <a th:href="@{/item/{id}(id=${reservation.itemId})}"
                  class="bg-white border border-[#1D3CFF] text-[#1D3CFF] hover:bg-[#1D3CFF] hover:text-white font-semibold px-4 py-2 rounded-lg text-sm transition-colors">
                 상세보기
               </a>
-              <button th:if="${reservation.status.name() == 'CONFIRMED' or reservation.status.name() == 'PENDING'}"
-                      class="bg-[#F9FAFC] border border-[#CCC] text-[#444] hover:border-[#CCC] hover:text-[#888] font-semibold px-4 py-2 rounded-lg text-sm transition-colors">
-                예약 취소
-              </button>
-              <button th:if="${reservation.status.name() == 'COMPLETED'}"
-                      class="bg-[#F9FAFC] border border-[#CCC] text-[#444] hover:border-[#0097FF] hover:text-[#0097FF] font-semibold px-4 py-2 rounded-lg text-sm transition-colors">
+              <form th:if="${reservation.status.name() == 'CONFIRMED' or reservation.status.name() == 'PENDING'}"
+                    th:action="@{/reservations/{id}/cancel(id=${reservation.id})}"
+                    method="post"
+                    onsubmit="return confirm('정말 취소하시겠습니까? 결제하신 캐시는 즉시 환불됩니다.')">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button type="submit"
+                        class="bg-[#F9FAFC] border border-[#CCC] text-[#444] hover:border-[#CCC] hover:text-[#888] font-semibold px-4 py-2 rounded-lg text-sm transition-colors">
+                  예약 취소
+                </button>
+              </form>
+              <a th:if="${reservation.status.name() == 'COMPLETED' and !reservation.hasReview}"
+                 th:href="@{/reservations/{id}/review(id=${reservation.id})}"
+                 class="bg-[#F9FAFC] border border-[#CCC] text-[#444] hover:border-[#0097FF] hover:text-[#0097FF] font-semibold px-4 py-2 rounded-lg text-sm transition-colors">
                 리뷰 작성
-              </button>
+              </a>
+              <span th:if="${reservation.status.name() == 'COMPLETED' and reservation.hasReview}"
+                    class="bg-[#F9FAFC] border border-[#CCC] text-[#888] font-semibold px-4 py-2 rounded-lg text-sm cursor-default">
+                리뷰 완료
+              </span>
             </div>
           </div>
         </div>
