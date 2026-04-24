@@ -87,6 +87,7 @@ public class ItemController {
         model.addAttribute("item", item);
         model.addAttribute("enabledPlans", planService.getEnabledPlans(id));
         model.addAttribute("profile", photographerProfileService.getProfileForm(photographerId));
+        model.addAttribute("itemImgList", itemService.getItemImage(photographerId, id));
         return "photographer/service-detail";
     }
 }

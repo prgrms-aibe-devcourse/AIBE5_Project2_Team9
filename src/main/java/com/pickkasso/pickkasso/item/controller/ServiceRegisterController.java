@@ -36,6 +36,7 @@ public class ServiceRegisterController {
         model.addAttribute("item", item);
         model.addAttribute("profile", photographerProfileService.getProfileForm(photographerId));
         model.addAttribute("enabledPlans", planService.getEnabledPlans(itemId));
+        model.addAttribute("itemImgList", itemService.getItemImage(photographerId, itemId));
         return "photographer/service-detail";
     }
 

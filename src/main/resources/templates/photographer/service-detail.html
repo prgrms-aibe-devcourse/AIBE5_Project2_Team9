@@ -32,6 +32,35 @@
     </div>
   </section>
 
+  <!-- ── Item Images ─────────────────────────────────────── -->
+  <section th:if="${itemImgList != null and !itemImgList.isEmpty()}"
+           class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-5">
+    <div class="flex gap-3 h-[420px]">
+
+      <!-- 메인 이미지 -->
+      <div class="flex-1 rounded-2xl overflow-hidden bg-[#D3DEF2]">
+        <img id="main-img"
+             th:src="${itemImgList[0].imgUrl}"
+             alt="대표 이미지"
+             class="w-full h-full object-cover transition-opacity duration-200">
+      </div>
+
+      <!-- 썸네일 목록 (이미지 2장 이상일 때만) -->
+      <div th:if="${#lists.size(itemImgList) > 1}"
+           class="flex flex-col gap-2 w-24 overflow-y-auto">
+        <div th:each="img, stat : ${itemImgList}"
+             class="thumbnail-item flex-shrink-0 h-24 rounded-xl overflow-hidden cursor-pointer border-2 transition-all"
+             th:classappend="${stat.first} ? ' border-[#1D3CFF]' : ' border-transparent hover:border-[#1D3CFF]'"
+             th:attr="data-src=${img.imgUrl}"
+             onclick="selectImg(this)">
+          <img th:src="${img.imgUrl}" alt="썸네일"
+               class="w-full h-full object-cover">
+        </div>
+      </div>
+
+    </div>
+  </section>
+
   <!-- ── Photographer Card ─────────────────────────────── -->
   <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-5">
     <div class="bg-white border border-[#CCC] rounded-2xl p-5 sm:p-6">
@@ -370,6 +399,15 @@
         });
       });
     })();
+    function selectImg(el) {
+        document.getElementById('main-img').src = el.dataset.src;
+        document.querySelectorAll('.thumbnail-item').forEach(t => {
+            t.classList.remove('border-[#1D3CFF]');
+            t.classList.add('border-transparent');
+        });
+        el.classList.add('border-[#1D3CFF]');
+        el.classList.remove('border-transparent');
+    }
   </script>
 
 </main>
