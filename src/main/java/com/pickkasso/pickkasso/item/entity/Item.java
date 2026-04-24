@@ -157,6 +157,12 @@ public class Item extends Region {
         itemImgList.addAll(newItemImgList);
     }
 
+    public void addReview(int rating) {
+        int newCount = this.reviewCount + 1;
+        this.avgScore = (this.avgScore * this.reviewCount + rating * 100) / newCount;
+        this.reviewCount = newCount;
+    }
+
     // item notice
     public void addItemNotice(ItemNotice itemNotice) {
         itemNoticeList.add(itemNotice);
