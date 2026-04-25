@@ -22,7 +22,7 @@ public class ItemNotice {
     private Integer noticeOrder;
 
     @Lob
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
     private ItemNotice(

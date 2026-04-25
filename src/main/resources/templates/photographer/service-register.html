@@ -18,6 +18,10 @@
       }
     }
   </script>
+
+  <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+  <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=66fd58e49ef902c79dbaa2577ceb31d2&libraries=services"></script>
+
 </head>
 <body class="bg-[#F9FAFC] font-sans text-[#1A1A1A]">
 
@@ -29,7 +33,8 @@
       <span class="font-angelica text-[22px] text-[#1D3CFF] tracking-wide">PICKASSO</span>
     </a>
     <div class="flex items-center gap-3">
-      <span class="text-[15px] font-semibold text-[#444]">서비스 등록</span>
+    <span class="text-[15px] font-semibold text-[#444]"
+          th:text="${itemRegisterRequest.name == null} ? '서비스 등록' : '서비스 수정'">서비스 등록</span>
       <button type="button"
               class="flex items-center gap-1.5 text-sm font-semibold text-[#444] bg-white border border-[#CCC] rounded-lg px-4 py-2 hover:border-[#1D3CFF] hover:text-[#1D3CFF] transition-colors">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -144,8 +149,9 @@
       <span th:text="${errorMessage}"></span>
     </div>
 
-    <form th:action="@{/photographer/{id}/service/new(id=${photographerId})}"
+    <form th:action="${formAction}"
           method="post" id="service-form"
+          enctype="multipart/form-data"
           class="flex flex-col gap-5">
 
       <!-- ①── 서비스 기본 정보 ──────────────────── -->
@@ -170,44 +176,10 @@
             <div class="grid grid-cols-4 gap-2.5" id="category-grid">
               <th:block th:each="tag : ${tagList}">
                 <label class="category-option relative flex flex-col items-center justify-center gap-2 py-4 px-2.5 bg-[#F9FAFC] border-[1.5px] border-[#CCC] rounded-xl cursor-pointer text-[13px] font-medium text-[#444] text-center leading-snug transition-all hover:border-[#1D3CFF] hover:bg-[#EEF1FF]">
-                  <input type="radio" name="tagName" th:value="${tag.name}" class="absolute opacity-0 w-0 h-0">
-                  <span class="cat-emoji text-2xl" th:text="${categoryEmojis[tag.name] ?: '📷'}">📷</span>
+                  <input type="radio" name="tagName" th:value="${tag.name}" class="absolute opacity-0 w-0 h-0"
+                         th:checked="${itemRegisterRequest.tagName == tag.name}">
+                  <span class="cat-emoji text-2xl" th:text="${tag.emoji ?: '📷'}">📷</span>
                   <span th:text="${tag.name}">카테고리</span>
-                </label>
-              </th:block>
-              <!-- Fallback if no tags from DB -->
-              <th:block th:if="${#lists.isEmpty(tagList)}">
-                <label class="category-option relative flex flex-col items-center justify-center gap-2 py-4 px-2.5 bg-[#F9FAFC] border-[1.5px] border-[#CCC] rounded-xl cursor-pointer text-[13px] font-medium text-[#444] text-center leading-snug transition-all hover:border-[#1D3CFF] hover:bg-[#EEF1FF]">
-                  <input type="radio" name="tagName" value="데이트 스냅" class="absolute opacity-0 w-0 h-0">
-                  <span class="text-2xl">🌸</span>데이트 스냅
-                </label>
-                <label class="category-option relative flex flex-col items-center justify-center gap-2 py-4 px-2.5 bg-[#F9FAFC] border-[1.5px] border-[#CCC] rounded-xl cursor-pointer text-[13px] font-medium text-[#444] text-center leading-snug transition-all hover:border-[#1D3CFF] hover:bg-[#EEF1FF]">
-                  <input type="radio" name="tagName" value="프로필" class="absolute opacity-0 w-0 h-0">
-                  <span class="text-2xl">🤳</span>프로필
-                </label>
-                <label class="category-option relative flex flex-col items-center justify-center gap-2 py-4 px-2.5 bg-[#F9FAFC] border-[1.5px] border-[#CCC] rounded-xl cursor-pointer text-[13px] font-medium text-[#444] text-center leading-snug transition-all hover:border-[#1D3CFF] hover:bg-[#EEF1FF]">
-                  <input type="radio" name="tagName" value="졸업사진" class="absolute opacity-0 w-0 h-0">
-                  <span class="text-2xl">🎓</span>졸업사진
-                </label>
-                <label class="category-option relative flex flex-col items-center justify-center gap-2 py-4 px-2.5 bg-[#F9FAFC] border-[1.5px] border-[#CCC] rounded-xl cursor-pointer text-[13px] font-medium text-[#444] text-center leading-snug transition-all hover:border-[#1D3CFF] hover:bg-[#EEF1FF]">
-                  <input type="radio" name="tagName" value="웨딩 스냅" class="absolute opacity-0 w-0 h-0">
-                  <span class="text-2xl">💒</span>웨딩 스냅
-                </label>
-                <label class="category-option relative flex flex-col items-center justify-center gap-2 py-4 px-2.5 bg-[#F9FAFC] border-[1.5px] border-[#CCC] rounded-xl cursor-pointer text-[13px] font-medium text-[#444] text-center leading-snug transition-all hover:border-[#1D3CFF] hover:bg-[#EEF1FF]">
-                  <input type="radio" name="tagName" value="가족사진" class="absolute opacity-0 w-0 h-0">
-                  <span class="text-2xl">👨‍👩‍👧</span>가족사진
-                </label>
-                <label class="category-option relative flex flex-col items-center justify-center gap-2 py-4 px-2.5 bg-[#F9FAFC] border-[1.5px] border-[#CCC] rounded-xl cursor-pointer text-[13px] font-medium text-[#444] text-center leading-snug transition-all hover:border-[#1D3CFF] hover:bg-[#EEF1FF]">
-                  <input type="radio" name="tagName" value="증명사진" class="absolute opacity-0 w-0 h-0">
-                  <span class="text-2xl">🪪</span>증명사진
-                </label>
-                <label class="category-option relative flex flex-col items-center justify-center gap-2 py-4 px-2.5 bg-[#F9FAFC] border-[1.5px] border-[#CCC] rounded-xl cursor-pointer text-[13px] font-medium text-[#444] text-center leading-snug transition-all hover:border-[#1D3CFF] hover:bg-[#EEF1FF]">
-                  <input type="radio" name="tagName" value="반려동물" class="absolute opacity-0 w-0 h-0">
-                  <span class="text-2xl">🐾</span>반려동물
-                </label>
-                <label class="category-option relative flex flex-col items-center justify-center gap-2 py-4 px-2.5 bg-[#F9FAFC] border-[1.5px] border-[#CCC] rounded-xl cursor-pointer text-[13px] font-medium text-[#444] text-center leading-snug transition-all hover:border-[#1D3CFF] hover:bg-[#EEF1FF]">
-                  <input type="radio" name="tagName" value="제품 촬영" class="absolute opacity-0 w-0 h-0">
-                  <span class="text-2xl">🛍️</span>제품 촬영
                 </label>
               </th:block>
             </div>
@@ -219,7 +191,8 @@
               촬영 방식            </label>
             <div class="flex gap-3">
               <label class="shoot-type-option flex-1 relative flex items-center gap-3.5 px-5 py-4 bg-[#F9FAFC] border-[1.5px] border-[#CCC] rounded-xl cursor-pointer transition-all hover:border-[#1D3CFF]">
-                <input type="radio" name="itemType" value="OUT" class="absolute opacity-0 w-0 h-0" checked>
+                <input type="radio" name="itemType" value="OUT" class="absolute opacity-0 w-0 h-0"
+                       th:checked="${itemRegisterRequest.itemType == null or itemRegisterRequest.itemType.name() == 'OUT'}">
                 <div class="w-10 h-10 rounded-[10px] bg-[#D3DEF2] flex items-center justify-center text-xl flex-shrink-0">📍</div>
                 <div>
                   <div class="text-sm font-bold text-[#1A1A1A]">방문 촬영</div>
@@ -227,7 +200,8 @@
                 </div>
               </label>
               <label class="shoot-type-option flex-1 relative flex items-center gap-3.5 px-5 py-4 bg-[#F9FAFC] border-[1.5px] border-[#CCC] rounded-xl cursor-pointer transition-all hover:border-[#1D3CFF]">
-                <input type="radio" name="itemType" value="IN" class="absolute opacity-0 w-0 h-0">
+                <input type="radio" name="itemType" value="IN" class="absolute opacity-0 w-0 h-0"
+                       th:checked="${itemRegisterRequest.itemType != null and itemRegisterRequest.itemType.name() == 'IN'}">
                 <div class="w-10 h-10 rounded-[10px] bg-[#D3DEF2] flex items-center justify-center text-xl flex-shrink-0">🏢</div>
                 <div>
                   <div class="text-sm font-bold text-[#1A1A1A]">스튜디오 촬영</div>
@@ -242,6 +216,7 @@
             <label for="service-name" class="text-[13px] font-bold text-[#1A1A1A] flex items-center gap-1">
               서비스명            </label>
             <input id="service-name" type="text" name="name" maxlength="60"
+                   th:value="${itemRegisterRequest.name}"
                    placeholder="예: 감성 데이트 스냅 2시간 패키지"
                    class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-[10px] px-3.5 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] outline-none focus:border-[#1D3CFF] focus:ring-[3px] focus:ring-[#1D3CFF]/[0.08] transition-all">
           </div>
@@ -266,66 +241,98 @@
 
           <!-- 패키지 테이블 -->
           <div class="border border-[#CCC] rounded-xl overflow-hidden">
-            <!-- 테이블 헤더 -->
-            <div class="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1.5fr_36px] bg-[#F9FAFC] border-b border-[#CCC] px-4 py-2.5">
+            <div class="grid grid-cols-[auto_2fr_1fr_1fr_1fr_1fr_1.5fr] bg-[#F9FAFC] border-b border-[#CCC] px-4 py-2.5">
+              <div class="text-xs font-bold text-[#888] w-20">플랜</div>
               <div class="text-xs font-bold text-[#888]">패키지명</div>
               <div class="text-xs font-bold text-[#888] text-center">촬영 시간</div>
               <div class="text-xs font-bold text-[#888] text-center">원본 컷</div>
               <div class="text-xs font-bold text-[#888] text-center">보정 컷</div>
               <div class="text-xs font-bold text-[#888] text-center">납품 기간</div>
               <div class="text-xs font-bold text-[#888] text-center">가격</div>
-              <div></div>
             </div>
-            <!-- 패키지 행 목록 -->
-            <div id="plan-list">
-              <!-- Plan Row Template (index 0) -->
-              <div class="plan-row grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1.5fr_36px] items-center px-4 py-3.5 border-b border-[#CCC] last:border-b-0 gap-2">
-                <div class="flex items-center gap-2">
-                  <span class="text-base leading-none flex-shrink-0">📸</span>
-                  <input type="text" name="plans[0].planName" value="기본 패키지"
-                         placeholder="패키지명"
-                         class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-2.5 py-1.5 text-[13px] text-[#1A1A1A] placeholder-[#AAA] outline-none focus:border-[#1D3CFF] transition-colors">
+
+            <th:block th:each="planType, stat : ${planTypes}">
+              <div class="plan-row grid grid-cols-[auto_2fr_1fr_1fr_1fr_1fr_1.5fr] items-center px-4 py-3.5 border-b border-[#CCC] last:border-b-0 gap-2"
+                   th:classappend="${!stat.last} ? 'border-b' : ''">
+
+                <!-- planType hidden -->
+                <input type="hidden" th:name="'plans[' + ${stat.index} + '].planType'" th:value="${planType}">
+
+                <!-- 활성화 토글 + 플랜명 -->
+                <div class="flex flex-col items-center gap-1 w-20">
+                <span class="text-[11px] font-bold"
+                      th:classappend="${planType == 'STANDARD'} ? 'text-[#888]' : (${planType == 'DELUXE'} ? 'text-[#0097FF]' : 'text-[#1D3CFF]')"
+                      th:text="${planType}"></span>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox"
+                           th:name="'plans[' + ${stat.index} + '].enabled'"
+                           th:id="'enabled-' + ${planType}"
+                           value="true"
+                           class="sr-only peer plan-toggle"
+                           th:checked="${itemRegisterRequest.plans != null and itemRegisterRequest.plans.size() > stat.index and itemRegisterRequest.plans[stat.index].enabled}">
+                    <div class="w-9 h-5 bg-[#CCC] rounded-full peer peer-checked:bg-[#1D3CFF] transition-colors"></div>
+                    <div class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4"></div>
+                  </label>
                 </div>
+
+                <!-- 패키지명 -->
+                <input type="text"
+                       th:name="'plans[' + ${stat.index} + '].planName'"
+                       th:value="${itemRegisterRequest.plans != null and itemRegisterRequest.plans.size() > stat.index} ? ${itemRegisterRequest.plans[stat.index].planName} : ''"
+                       placeholder="패키지명"
+                       class="plan-field w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-2.5 py-1.5 text-[13px] text-[#1A1A1A] placeholder-[#AAA] outline-none focus:border-[#1D3CFF] transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+
+                <!-- 촬영 시간 -->
                 <div class="flex items-center justify-center gap-1">
-                  <input type="number" name="plans[0].shootingDuration" value="2" min="1" max="12"
-                         class="w-14 text-center bg-[#F9FAFC] border border-[#CCC] rounded-lg px-1.5 py-1.5 text-[13px] text-[#1A1A1A] outline-none focus:border-[#1D3CFF] transition-colors">
+                  <input type="number"
+                         th:name="'plans[' + ${stat.index} + '].shootingDuration'"
+                         th:value="${itemRegisterRequest.plans != null and itemRegisterRequest.plans.size() > stat.index} ? ${itemRegisterRequest.plans[stat.index].shootingDuration} : 2"
+                         min="1" max="12"
+                         class="plan-field w-14 text-center bg-[#F9FAFC] border border-[#CCC] rounded-lg px-1.5 py-1.5 text-[13px] text-[#1A1A1A] outline-none focus:border-[#1D3CFF] transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                   <span class="text-xs text-[#888] flex-shrink-0">시간</span>
                 </div>
+
+                <!-- 원본 컷 -->
                 <div class="flex items-center justify-center gap-1">
-                  <input type="number" name="plans[0].originalPhotoCount" value="100" min="0"
-                         class="w-14 text-center bg-[#F9FAFC] border border-[#CCC] rounded-lg px-1.5 py-1.5 text-[13px] text-[#1A1A1A] outline-none focus:border-[#1D3CFF] transition-colors">
+                  <input type="number"
+                         th:name="'plans[' + ${stat.index} + '].originalPhotoCount'"
+                         th:value="${itemRegisterRequest.plans != null and itemRegisterRequest.plans.size() > stat.index} ? ${itemRegisterRequest.plans[stat.index].originalPhotoCount} : 100"
+                         min="0"
+                         class="plan-field w-14 text-center bg-[#F9FAFC] border border-[#CCC] rounded-lg px-1.5 py-1.5 text-[13px] text-[#1A1A1A] outline-none focus:border-[#1D3CFF] transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                   <span class="text-xs text-[#888] flex-shrink-0">장</span>
                 </div>
+
+                <!-- 보정 컷 -->
                 <div class="flex items-center justify-center gap-1">
-                  <input type="number" name="plans[0].editedPhotoCount" value="20" min="0"
-                         class="w-14 text-center bg-[#F9FAFC] border border-[#CCC] rounded-lg px-1.5 py-1.5 text-[13px] text-[#1A1A1A] outline-none focus:border-[#1D3CFF] transition-colors">
+                  <input type="number"
+                         th:name="'plans[' + ${stat.index} + '].editedPhotoCount'"
+                         th:value="${itemRegisterRequest.plans != null and itemRegisterRequest.plans.size() > stat.index} ? ${itemRegisterRequest.plans[stat.index].editedPhotoCount} : 20"
+                         min="0"
+                         class="plan-field w-14 text-center bg-[#F9FAFC] border border-[#CCC] rounded-lg px-1.5 py-1.5 text-[13px] text-[#1A1A1A] outline-none focus:border-[#1D3CFF] transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                   <span class="text-xs text-[#888] flex-shrink-0">장</span>
                 </div>
+
+                <!-- 납품 기간 -->
                 <div class="flex items-center justify-center gap-1">
-                  <input type="number" name="plans[0].deliveryDays" value="3" min="1"
-                         class="w-14 text-center bg-[#F9FAFC] border border-[#CCC] rounded-lg px-1.5 py-1.5 text-[13px] text-[#1A1A1A] outline-none focus:border-[#1D3CFF] transition-colors">
+                  <input type="number"
+                         th:name="'plans[' + ${stat.index} + '].deliveryDays'"
+                         th:value="${itemRegisterRequest.plans != null and itemRegisterRequest.plans.size() > stat.index} ? ${itemRegisterRequest.plans[stat.index].deliveryDays} : 3"
+                         min="1"
+                         class="plan-field w-14 text-center bg-[#F9FAFC] border border-[#CCC] rounded-lg px-1.5 py-1.5 text-[13px] text-[#1A1A1A] outline-none focus:border-[#1D3CFF] transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                   <span class="text-xs text-[#888] flex-shrink-0">일</span>
                 </div>
+
+                <!-- 가격 -->
                 <div class="relative flex items-center">
-                  <input type="number" name="plans[0].price" placeholder="0" min="0"
-                         class="plan-price w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-2.5 pr-7 py-1.5 text-[13px] text-[#1A1A1A] placeholder-[#AAA] outline-none focus:border-[#1D3CFF] transition-colors">
+                  <input type="number"
+                         th:name="'plans[' + ${stat.index} + '].price'"
+                         th:value="${itemRegisterRequest.plans != null and itemRegisterRequest.plans.size() > stat.index} ? ${itemRegisterRequest.plans[stat.index].price} : ''"
+                         placeholder="0" min="0"
+                         class="plan-field plan-price w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-2.5 pr-7 py-1.5 text-[13px] text-[#1A1A1A] placeholder-[#AAA] outline-none focus:border-[#1D3CFF] transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                   <span class="absolute right-2.5 text-xs text-[#888] pointer-events-none">원</span>
                 </div>
-                <div class="flex items-center justify-center">
-                  <button type="button" class="btn-remove-plan w-7 h-7 bg-white border border-[#CCC] rounded-lg flex items-center justify-center text-[#888] hover:border-[#FF4D4D] hover:text-[#FF4D4D] transition-colors flex-shrink-0 invisible">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                  </button>
-                </div>
               </div>
-            </div>
-            <!-- 패키지 추가 버튼 -->
-            <div class="px-4 py-3 border-t border-[#CCC]">
-              <button type="button" id="btn-add-plan"
-                      class="w-full py-2.5 bg-white border-[1.5px] border-dashed border-[#CCC] rounded-xl text-[13px] font-semibold text-[#888] flex items-center justify-center gap-1.5 hover:border-[#1D3CFF] hover:text-[#1D3CFF] transition-colors">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                패키지 추가
-              </button>
-            </div>
+            </th:block>
           </div>
 
           <!-- 최저가 안내 배너 -->
@@ -338,10 +345,28 @@
           <div class="flex flex-col gap-1.5">
             <label class="text-[13px] font-bold text-[#1A1A1A]">기준 지점 (출발지)</label>
             <p class="text-xs text-[#888]">방문 촬영 시 이동 거리 계산의 기준이 됩니다</p>
-            <input type="text" name="address" placeholder="예: 서울 마포구 합정동"
-                   class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-[10px] px-3.5 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] outline-none focus:border-[#1D3CFF] focus:ring-[3px] focus:ring-[#1D3CFF]/[0.08] transition-all">
-            <input type="hidden" name="lat" value="0.0">
-            <input type="hidden" name="lng" value="0.0">
+            <input type="hidden" id="h-region" name="address" th:value="${itemRegisterRequest.address}">
+            <input type="hidden" id="h-lat"    name="lat"     th:value="${itemRegisterRequest.lat}">
+            <input type="hidden" id="h-lng"    name="lng"     th:value="${itemRegisterRequest.lng}">
+
+            <div class="flex items-center gap-2">
+              <div class="flex-1 bg-[#F9FAFC] border border-[#CCC] rounded-[10px] px-3.5 py-2.5 text-sm min-h-[42px] flex items-center">
+                <span id="display-region"
+                      th:classappend="${itemRegisterRequest.address != null and !#strings.isEmpty(itemRegisterRequest.address)} ? ' text-[#1A1A1A]' : ' text-[#AAA]'"
+                      th:text="${itemRegisterRequest.address != null and !#strings.isEmpty(itemRegisterRequest.address)} ? ${itemRegisterRequest.address} : '지도에서 위치를 선택해주세요'">
+                </span>
+              </div>
+              <button type="button" id="btn-open-location-modal"
+                      class="flex-shrink-0 text-sm font-semibold border border-[#1D3CFF] text-[#1D3CFF] bg-white rounded-[10px] px-4 py-2.5 hover:bg-[#1D3CFF] hover:text-white transition-colors">
+                지도 선택
+              </button>
+              <button type="button" id="clear-region-btn"
+                      th:classappend="${itemRegisterRequest.address == null or #strings.isEmpty(itemRegisterRequest.address)} ? ' hidden' : ''"
+                      onclick="clearRegion()"
+                      class="flex-shrink-0 text-sm font-semibold border border-[#CCC] text-[#888] bg-white rounded-[10px] px-4 py-2.5 hover:border-red-300 hover:text-red-400 transition-colors">
+                초기화
+              </button>
+            </div>
           </div>
 
           <!-- 추가 옵션 -->
@@ -398,7 +423,7 @@
           <div class="flex flex-col gap-1.5">
             <label class="text-[13px] font-bold text-[#1A1A1A] flex items-center gap-1">
               서비스 소개            </label>
-            <textarea name="description" rows="6" maxlength="1000"
+            <textarea name="description" th:text="${itemRegisterRequest.description}" rows="6" maxlength="1000"
                       placeholder="이 서비스가 어떤 고객에게 적합한지, 촬영 과정은 어떻게 진행되는지 자세히 설명해 주세요."
                       class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-[10px] px-3.5 py-3 text-sm text-[#1A1A1A] placeholder-[#AAA] outline-none focus:border-[#1D3CFF] focus:ring-[3px] focus:ring-[#1D3CFF]/[0.08] resize-y leading-7 transition-all"
                       id="desc-textarea"></textarea>
@@ -426,24 +451,188 @@
           <span>첫 번째 이미지가 검색 목록의 대표 썸네일로 사용됩니다. JPG, PNG, WebP · 이미지당 최대 10MB · 최대 5장</span>
         </div>
 
-        <div class="grid grid-cols-4 gap-3">
-          <!-- 첫 번째 = 대표 이미지 -->
-          <div class="aspect-[4/3] rounded-xl border-2 border-dashed border-[#1D3CFF] bg-[#EEF1FF] flex flex-col items-center justify-center gap-1.5 cursor-pointer hover:bg-[#dce3ff] transition-all" id="main-thumb-slot">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1D3CFF" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            <span class="text-xs font-semibold text-[#1D3CFF]">대표 이미지</span>
-            <span class="text-[10px] text-[#888]">첫 번째 = 썸네일</span>
-          </div>
-          <!-- 나머지 3장 -->
-          <div class="aspect-[4/3] rounded-xl border-2 border-dashed border-[#CCC] flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-[#1D3CFF] hover:bg-[#EEF1FF] transition-all text-[11px] text-[#AAA] font-medium">
-            <span class="text-xl text-[#CCC]">＋</span>추가
-          </div>
-          <div class="aspect-[4/3] rounded-xl border-2 border-dashed border-[#CCC] flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-[#1D3CFF] hover:bg-[#EEF1FF] transition-all text-[11px] text-[#AAA] font-medium">
-            <span class="text-xl text-[#CCC]">＋</span>추가
-          </div>
-          <div class="aspect-[4/3] rounded-xl border-2 border-dashed border-[#CCC] flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-[#1D3CFF] hover:bg-[#EEF1FF] transition-all text-[11px] text-[#AAA] font-medium">
-            <span class="text-xl text-[#CCC]">＋</span>추가
-          </div>
+        <!-- 숨김 file input -->
+        <input type="file" id="item-img-input" multiple accept="image/jpeg,image/png,image/webp" class="hidden">
+
+        <div class="grid grid-cols-4 gap-3" id="img-slots">
+          <!-- 슬롯 0 ~ 3 은 JS로 렌더링 -->
         </div>
+
+        <script>
+            function clearRegion() {
+                document.getElementById('h-region').value = '';
+                document.getElementById('h-lat').value = '';
+                document.getElementById('h-lng').value = '';
+                const displayEl = document.getElementById('display-region');
+                displayEl.textContent = '지도에서 위치를 선택해주세요';
+                displayEl.classList.remove('text-[#1A1A1A]');
+                displayEl.classList.add('text-[#AAA]');
+                document.getElementById('clear-region-btn').classList.add('hidden');
+            }
+
+            (function () {
+                const MAX = 5;
+                const input = document.getElementById('item-img-input');
+                const slotsEl = document.getElementById('img-slots');
+                let dragSrcIdx = null;
+
+                // {type: 'kept', url, order} | {type: 'new', file, url, order}
+                let items = [];
+
+                // 수정 시 기존 이미지 초기화 (Thymeleaf로 주입)
+                // items = [ {type:'kept', url:'https://...', order:0}, ... ]
+
+                function render() {
+                    slotsEl.innerHTML = '';
+
+                    items.forEach((item, idx) => {
+                        const div = document.createElement('div');
+                        div.className = 'relative aspect-[4/3] rounded-xl overflow-hidden border-2 border-[#1D3CFF] bg-[#EEF1FF] cursor-grab';
+                        div.draggable = true;
+                        div.dataset.idx = idx;
+                        div.innerHTML = `
+        <img src="${item.url}" class="w-full h-full object-cover pointer-events-none">
+        ${idx === 0 ? '<span class="absolute top-1.5 left-1.5 text-[10px] font-bold bg-[#1D3CFF] text-white px-2 py-0.5 rounded-full">대표</span>' : ''}
+        <button type="button" onclick="removeImg(${idx})"
+                class="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-black/50 text-white text-xs flex items-center justify-center hover:bg-black/80">✕</button>
+      `;
+
+                        div.addEventListener('dragstart', e => {
+                            dragSrcIdx = idx;
+                            e.dataTransfer.effectAllowed = 'move';
+                            setTimeout(() => div.classList.add('opacity-40'), 0);
+                        });
+                        div.addEventListener('dragend', () => {
+                            div.classList.remove('opacity-40');
+                            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over', 'scale-105'));
+                        });
+                        div.addEventListener('dragover', e => {
+                            e.preventDefault();
+                            div.classList.add('drag-over', 'scale-105');
+                        });
+                        div.addEventListener('dragleave', () => {
+                            div.classList.remove('drag-over', 'scale-105');
+                        });
+                        div.addEventListener('drop', e => {
+                            e.preventDefault();
+                            div.classList.remove('drag-over', 'scale-105');
+                            if (dragSrcIdx === null || dragSrcIdx === idx) return;
+                            const moved = items.splice(dragSrcIdx, 1)[0];
+                            items.splice(idx, 0, moved);
+                            dragSrcIdx = null;
+                            render();
+                        });
+
+                        slotsEl.appendChild(div);
+                    });
+
+                    // 빈 슬롯
+                    const emptyCount = Math.min(4, MAX - items.length);
+                    for (let i = 0; i < emptyCount; i++) {
+                        const div = document.createElement('div');
+                        const isFirst = items.length === 0 && i === 0;
+                        div.className = `aspect-[4/3] rounded-xl border-2 border-dashed ${isFirst ? 'border-[#1D3CFF] bg-[#EEF1FF]' : 'border-[#CCC]'} flex flex-col items-center justify-center gap-1.5 cursor-pointer hover:border-[#1D3CFF] hover:bg-[#EEF1FF] transition-all`;
+                        div.innerHTML = isFirst
+                            ? `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1D3CFF" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+           <span class="text-xs font-semibold text-[#1D3CFF]">대표 이미지</span>
+           <span class="text-[10px] text-[#888]">첫 번째 = 썸네일</span>`
+                            : `<span class="text-xl text-[#CCC]">＋</span><span class="text-[11px] text-[#AAA] font-medium">추가</span>`;
+                        div.addEventListener('click', () => input.click());
+                        slotsEl.appendChild(div);
+                    }
+
+                    syncInputs();
+                }
+                function syncInputs() {
+                    // 기존 hidden input 및 동적 file input 제거
+                    document.querySelectorAll('#service-form .img-hidden-input').forEach(el => el.remove());
+
+                    const keptItems = items.filter(i => i.type === 'kept');
+                    const newItems  = items.filter(i => i.type === 'new');
+
+                    // keptImgUrls, keptImgOrders
+                    keptItems.forEach(item => {
+                        appendHidden('keptImgUrls', item.url);
+                        appendHidden('keptImgOrders', items.indexOf(item));
+                    });
+
+                    // newFileOrders
+                    newItems.forEach(item => {
+                        appendHidden('newFileOrders', items.indexOf(item));
+                    });
+
+                    // 신규 파일 → DataTransfer로 file input 동적 생성
+                    const dt = new DataTransfer();
+                    newItems.forEach(item => dt.items.add(item.file));
+
+                    if (dt.files.length > 0) {
+                        const fileInput = document.createElement('input');
+                        fileInput.type = 'file';
+                        fileInput.name = 'newFiles';
+                        fileInput.style.display = 'none';
+                        fileInput.className = 'img-hidden-input';
+                        fileInput.files = dt.files;
+                        document.getElementById('service-form').appendChild(fileInput);
+                    }
+                }
+
+                function appendHidden(name, value) {
+                    const el = document.createElement('input');
+                    el.type = 'hidden';
+                    el.name = name;
+                    el.value = value;
+                    el.className = 'img-hidden-input';
+                    document.getElementById('service-form').appendChild(el);
+                }
+
+                window.removeImg = function (idx) {
+                    if (items[idx].type === 'new') URL.revokeObjectURL(items[idx].url);
+                    items.splice(idx, 1);
+                    render();
+                };
+
+                // 수정 시 기존 이미지 주입용 (Thymeleaf 인라인)
+                window.initKeptImages = function (imgList) {
+                    items = imgList
+                        .sort((a, b) => a.imgOrder - b.imgOrder)
+                        .map(img => ({ type: 'kept', url: img.imgUrl, order: img.imgOrder }));
+                    render();
+                };;
+
+                input.addEventListener('change', function () {
+                    Array.from(this.files).forEach(f => {
+                        if (items.length < MAX) items.push({ type: 'new', file: f, url: URL.createObjectURL(f) });
+                    });
+                    this.value = '';
+                    render();
+                });
+
+                render();
+
+                document.getElementById('service-form').addEventListener('submit', function() {
+                    syncInputs();
+                });
+            })();
+
+            document.querySelectorAll('.plan-toggle').forEach(toggle => {
+                const row = toggle.closest('.plan-row');
+                const fields = row.querySelectorAll('.plan-field');
+
+                function syncDisabled() {
+                    fields.forEach(f => f.disabled = !toggle.checked);
+                }
+
+                toggle.addEventListener('change', () => {
+                    syncDisabled();
+                    updatePreview();
+                });
+                syncDisabled();
+            });
+        </script>
+        <script th:if="${itemImgList != null and !itemImgList.isEmpty()}"
+                th:inline="javascript">
+            window.initKeptImages(/*[[${itemImgList}]]*/ []);
+        </script>
       </div>
 
       <!-- ⑤── 예약 설정 ──────────────────────────── -->
@@ -467,6 +656,7 @@
             <p class="text-xs text-[#888]">촬영일 기준 최소 며칠 전에 예약해야 하는지 설정합니다</p>
             <div class="relative mt-1 max-w-[200px]">
               <input id="lead-time" type="number" name="minBookingLeadTime" placeholder="3" min="1" max="90"
+                     th:value="${itemRegisterRequest.minBookingLeadTime}"
                      class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-[10px] px-3.5 py-2.5 pr-14 text-sm text-[#1A1A1A] placeholder-[#AAA] outline-none focus:border-[#1D3CFF] focus:ring-[3px] focus:ring-[#1D3CFF]/[0.08] transition-all">
               <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-[13px] text-[#888] font-medium pointer-events-none">일 전</span>
             </div>
@@ -483,7 +673,9 @@
                 <span class="text-[#888] text-xs">플랫폼 규정에 따라 일부 조건은 수정이 제한될 수 있습니다.</span>
               </div>
             </div>
-            <textarea name="cancellationPolicy" rows="3"
+            <textarea name="cancellationPolicy"
+                      th:text="${itemRegisterRequest.cancellationPolicy}"
+                      rows="3"
                       placeholder="추가 취소/환불 안내 사항이 있으면 작성해 주세요."
                       class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-[10px] px-3.5 py-3 text-sm text-[#1A1A1A] placeholder-[#AAA] outline-none focus:border-[#1D3CFF] focus:ring-[3px] focus:ring-[#1D3CFF]/[0.08] resize-y leading-7 transition-all mt-1"></textarea>
           </div>
@@ -555,6 +747,10 @@
       updatePreview();
     });
   });
+  const initialCategory = document.querySelector('.category-option input:checked');
+  if (initialCategory) {
+    initialCategory.dispatchEvent(new Event('change'));
+  }
 
   /* ─── 촬영 방식 선택 ─── */
   document.querySelectorAll('.shoot-type-option').forEach(label => {
@@ -575,89 +771,19 @@
       updatePreview();
     });
   });
-  // 초기 방문촬영 선택 상태 표시
-  document.querySelector('.shoot-type-option input[value="OUT"]').dispatchEvent(new Event('change'));
 
-  /* ─── 패키지 추가/삭제 ─── */
-  let planIndex = 1;
-
-  function createPlanRow(idx) {
-    const row = document.createElement('div');
-    row.className = 'plan-row grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1.5fr_36px] items-center px-4 py-3.5 border-b border-[#CCC] last:border-b-0 gap-2';
-    row.innerHTML = `
-      <div class="flex items-center gap-2">
-        <span class="text-base leading-none flex-shrink-0">📸</span>
-        <input type="text" name="plans[${idx}].planName" placeholder="패키지명"
-               class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-2.5 py-1.5 text-[13px] text-[#1A1A1A] placeholder-[#AAA] outline-none focus:border-[#1D3CFF] transition-colors">
-      </div>
-      <div class="flex items-center justify-center gap-1">
-        <input type="number" name="plans[${idx}].shootingDuration" value="2" min="1" max="12"
-               class="w-14 text-center bg-[#F9FAFC] border border-[#CCC] rounded-lg px-1.5 py-1.5 text-[13px] text-[#1A1A1A] outline-none focus:border-[#1D3CFF] transition-colors">
-        <span class="text-xs text-[#888] flex-shrink-0">시간</span>
-      </div>
-      <div class="flex items-center justify-center gap-1">
-        <input type="number" name="plans[${idx}].originalPhotoCount" value="100" min="0"
-               class="w-14 text-center bg-[#F9FAFC] border border-[#CCC] rounded-lg px-1.5 py-1.5 text-[13px] text-[#1A1A1A] outline-none focus:border-[#1D3CFF] transition-colors">
-        <span class="text-xs text-[#888] flex-shrink-0">장</span>
-      </div>
-      <div class="flex items-center justify-center gap-1">
-        <input type="number" name="plans[${idx}].editedPhotoCount" value="20" min="0"
-               class="w-14 text-center bg-[#F9FAFC] border border-[#CCC] rounded-lg px-1.5 py-1.5 text-[13px] text-[#1A1A1A] outline-none focus:border-[#1D3CFF] transition-colors">
-        <span class="text-xs text-[#888] flex-shrink-0">장</span>
-      </div>
-      <div class="flex items-center justify-center gap-1">
-        <input type="number" name="plans[${idx}].deliveryDays" value="3" min="1"
-               class="w-14 text-center bg-[#F9FAFC] border border-[#CCC] rounded-lg px-1.5 py-1.5 text-[13px] text-[#1A1A1A] outline-none focus:border-[#1D3CFF] transition-colors">
-        <span class="text-xs text-[#888] flex-shrink-0">일</span>
-      </div>
-      <div class="relative flex items-center">
-        <input type="number" name="plans[${idx}].price" placeholder="0" min="0"
-               class="plan-price w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-2.5 pr-7 py-1.5 text-[13px] text-[#1A1A1A] placeholder-[#AAA] outline-none focus:border-[#1D3CFF] transition-colors">
-        <span class="absolute right-2.5 text-xs text-[#888] pointer-events-none">원</span>
-      </div>
-      <div class="flex items-center justify-center">
-        <button type="button" class="btn-remove-plan w-7 h-7 bg-white border border-[#CCC] rounded-lg flex items-center justify-center text-[#888] hover:border-[#FF4D4D] hover:text-[#FF4D4D] transition-colors flex-shrink-0"
-                onclick="removePlan(this)">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </div>`;
-    row.querySelector('.plan-price').addEventListener('input', updatePreview);
-    return row;
+  // 카테고리 초기 선택 UI 반영
+  const initialCheckedCat = document.querySelector('.category-option input:checked');
+  if (initialCheckedCat) {
+      initialCheckedCat.closest('label').classList.add('bg-[#EEF1FF]', 'border-[#1D3CFF]', 'text-[#1D3CFF]', 'font-bold');
+      initialCheckedCat.closest('label').classList.remove('bg-[#F9FAFC]', 'border-[#CCC]', 'text-[#444]', 'font-medium');
   }
 
-  function reindexPlans() {
-    document.querySelectorAll('#plan-list .plan-row').forEach((row, idx) => {
-      row.querySelectorAll('input').forEach(input => {
-        if (input.name) {
-          input.name = input.name.replace(/plans\[\d+\]/, `plans[${idx}]`);
-        }
-      });
-    });
-    updateRemoveButtons();
+  // 촬영방식 초기 선택 UI 반영
+  const initialCheckedType = document.querySelector('.shoot-type-option input:checked');
+  if (initialCheckedType) {
+      initialCheckedType.dispatchEvent(new Event('change'));
   }
-
-  function removePlan(btn) {
-    const rows = document.querySelectorAll('#plan-list .plan-row');
-    if (rows.length <= 1) return;
-    btn.closest('.plan-row').remove();
-    reindexPlans();
-    updatePreview();
-  }
-
-  function updateRemoveButtons() {
-    const rows = document.querySelectorAll('#plan-list .plan-row');
-    rows.forEach(row => {
-      const btn = row.querySelector('.btn-remove-plan');
-      if (rows.length > 1) btn.classList.remove('invisible');
-      else btn.classList.add('invisible');
-    });
-  }
-
-  document.getElementById('btn-add-plan').addEventListener('click', () => {
-    const row = createPlanRow(planIndex++);
-    document.getElementById('plan-list').appendChild(row);
-    reindexPlans();
-  });
 
   /* ─── 추가 옵션 추가/삭제 ─── */
   document.getElementById('btn-add-option').addEventListener('click', () => {
@@ -759,7 +885,7 @@
     }
     if (step === 2) {
       const hasPrice = Array.from(document.querySelectorAll('.plan-price')).some(i => parseInt(i.value) > 0);
-      const hasAddress = (document.querySelector('input[name="address"]').value || '').trim().length > 0;
+      const hasAddress = (document.getElementById('h-region').value || '').trim().length > 0;
       return hasPrice && hasAddress;
     }
     if (step === 3) {
@@ -860,12 +986,21 @@
   });
   document.getElementById('desc-textarea').addEventListener('input', updateProgressSidebar);
   document.querySelectorAll('.plan-price').forEach(i => i.addEventListener('input', updateProgressSidebar));
-  document.querySelector('input[name="address"]').addEventListener('input', updateProgressSidebar);
   document.getElementById('lead-time').addEventListener('input', updateProgressSidebar);
   document.querySelector('textarea[name="cancellationPolicy"]').addEventListener('input', updateProgressSidebar);
 
   setActiveStep(1);
+
+  document.getElementById('btn-open-location-modal')
+      .addEventListener('click', () => locationModal.open());
 </script>
 
+<th:block th:replace="~{fragments/modal/location-modal-for-item :: locationModal(
+                  'h-region',
+                  'h-lat',
+                  'h-lng',
+                  'display-region',
+                  'clear-region-btn'
+              )}"/>
 </body>
 </html>

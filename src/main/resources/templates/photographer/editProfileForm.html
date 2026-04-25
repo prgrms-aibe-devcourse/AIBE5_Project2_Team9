@@ -99,7 +99,7 @@
       <!-- Main Form -->
       <div class="flex-1 min-w-0">
         <form th:action="@{/photographer/{id}/profile/edit(id=${photographerId})}"
-              method="post" id="profile-form" class="space-y-5">
+              method="post" id="profile-form" class="space-y-5" enctype="multipart/form-data">
 
           <!-- Hidden: imgUrl 보존 (파일 업로드 미연동) -->
           <input type="hidden" name="imgUrl" th:value="${profile.imgUrl}">
@@ -117,28 +117,37 @@
 
             <!-- Profile Image (visual only) -->
             <div class="flex items-center gap-5 mb-6 pb-6 border-b border-[#EEE]">
-              <div class="w-20 h-20 rounded-full bg-[#D3DEF2] border-2 border-[#CCC] flex items-center justify-center overflow-hidden flex-shrink-0">
+              <div class="w-20 h-20 rounded-full bg-[#D3DEF2] border-2 border-[#CCC] flex items-center justify-center overflow-hidden flex-shrink-0 cursor-pointer"
+                   onclick="document.getElementById('profileImg').click()">
                 <img th:if="${profile.imgUrl != null and !#strings.isEmpty(profile.imgUrl)}"
-                     th:src="${profile.imgUrl}" alt="프로필 사진"
+                     th:src="${profile.imgUrl}" id="img-preview" alt="프로필 사진"
                      class="w-full h-full object-cover" loading="lazy">
                 <svg th:unless="${profile.imgUrl != null and !#strings.isEmpty(profile.imgUrl)}"
+                     id="img-placeholder"
                      xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-[#AAA]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z"/>
                   <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Z"/>
                 </svg>
               </div>
+
               <div>
                 <p class="text-sm font-semibold text-[#1A1A1A] mb-1">프로필 사진</p>
-                <p class="text-xs text-[#888] mb-3">정사각형 이미지 권장 (최소 400×400px)<br>JPG, PNG, WebP · 최대 5MB</p>
-                <!-- 파일 업로드 미연동 — S3 연동 후 활성화 예정 -->
-                <button type="button" disabled
-                        class="text-xs font-semibold border border-[#CCC] text-[#AAA] bg-[#F9FAFC] rounded-lg px-4 py-2 cursor-not-allowed">
-                  사진 변경 (준비 중)
+                <p class="text-xs text-[#888] mb-3">
+                  정사각형 이미지 권장 (최소 400×400px)<br>
+                  JPG, PNG, WebP · 최대 5MB
+                </p>
+                <input type="file" id="profileImg" name="profileImg"
+                       accept="image/jpeg,image/png,image/webp"
+                       class="hidden">
+                <button type="button" onclick="document.getElementById('profileImg').click()"
+                        class="text-xs font-semibold border border-[#0097FF] text-[#0097FF] bg-white rounded-lg px-4 py-2 hover:bg-[#0097FF] hover:text-white transition-colors">
+                  사진 변경
                 </button>
+                <span id="img-filename" class="ml-2 text-xs text-[#888]"></span>
               </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
               <div>
                 <label class="block text-sm font-medium text-[#444] mb-1.5">활동명 <span class="text-[#1D3CFF]">*</span></label>
                 <input type="text" name="nickname"
@@ -148,11 +157,6 @@
                        class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-2.5 text-[#1A1A1A] placeholder-[#AAA] text-[15px] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
               </div>
               <!-- 대표 촬영 지역 — DTO 미대응, UI only -->
-              <div>
-                <label class="block text-sm font-medium text-[#444] mb-1.5">대표 촬영 지역</label>
-                <input type="text" disabled placeholder="예: 서울 · 경기 (준비 중)"
-                       class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-2.5 text-[#AAA] placeholder-[#AAA] text-[15px] cursor-not-allowed">
-              </div>
             </div>
           </div>
 
@@ -190,20 +194,6 @@
                        th:value="${profile.link}"
                        placeholder="https://instagram.com/..."
                        class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-2.5 text-[#1A1A1A] placeholder-[#AAA] text-[15px] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
-              </div>
-
-              <!-- 전문 분야 — DTO 미대응, UI only -->
-              <div>
-                <label class="block text-sm font-medium text-[#444] mb-1">전문 분야</label>
-                <p class="text-xs text-[#888] mb-2">해당하는 촬영 카테고리를 모두 선택해 주세요 (준비 중)</p>
-                <div class="flex flex-wrap gap-2">
-                  <th:block th:each="cat : ${ {'데이트 스냅','프로필 사진','졸업사진','웨딩 스냅','가족사진','증명사진','반려동물','제품 촬영'} }">
-                    <label class="flex items-center gap-1.5 bg-[#F9FAFC] border border-[#CCC] rounded-full px-3 py-1.5 text-sm text-[#888] cursor-not-allowed select-none">
-                      <input type="checkbox" disabled class="w-3.5 h-3.5 accent-[#1D3CFF]">
-                      <span th:text="${cat}"></span>
-                    </label>
-                  </th:block>
-                </div>
               </div>
 
               <!-- 경력 사항 -->
@@ -374,33 +364,43 @@
 
             <div class="space-y-6">
 
-              <!-- 촬영 방식 — DTO 미대응, UI only -->
-              <div>
-                <label class="block text-sm font-medium text-[#444] mb-2">촬영 방식 <span class="text-xs text-[#888] font-normal">(준비 중)</span></label>
-                <div class="flex flex-wrap gap-2">
-                  <label class="flex items-center gap-2 bg-[#F9FAFC] border border-[#CCC] rounded-full px-4 py-1.5 text-sm text-[#888] cursor-not-allowed select-none">
-                    <input type="checkbox" disabled class="w-3.5 h-3.5 accent-[#1D3CFF]"> 방문 촬영
-                  </label>
-                  <label class="flex items-center gap-2 bg-[#F9FAFC] border border-[#CCC] rounded-full px-4 py-1.5 text-sm text-[#888] cursor-not-allowed select-none">
-                    <input type="checkbox" disabled class="w-3.5 h-3.5 accent-[#1D3CFF]"> 스튜디오 촬영
-                  </label>
-                </div>
-              </div>
 
-              <!-- 연락 가능 시간 + 평균 응답 시간 — DTO 미대응, UI only -->
+              <!-- 연락 가능 시간 + 평균 응답 시간 -->
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label class="block text-sm font-medium text-[#444] mb-1.5">연락 가능 시간 <span class="text-xs text-[#888] font-normal">(준비 중)</span></label>
+                  <label class="block text-sm font-medium text-[#444] mb-1.5">연락 가능 시간</label>
                   <div class="flex items-center gap-2">
-                    <select disabled class="flex-1 bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#AAA] cursor-not-allowed"><option>시작 시간</option></select>
+                    <select name="contactableStartTime"
+                            class="flex-1 bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+                      <option value="" disabled th:selected="${profile.contactableStartTime == null}">시작 시간</option>
+                      <th:block th:each="h : ${#numbers.sequence(0, 23)}">
+                        <option th:value="${h}"
+                                th:text="${h + '시'}"
+                                th:selected="${profile.contactableStartTime == h}"></option>
+                      </th:block>
+                    </select>
                     <span class="text-[#888] text-sm flex-shrink-0">~</span>
-                    <select disabled class="flex-1 bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#AAA] cursor-not-allowed"><option>종료 시간</option></select>
+                    <select name="contactableEndTime"
+                            class="flex-1 bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+                      <option value="" disabled th:selected="${profile.contactableEndTime == null}">종료 시간</option>
+                      <th:block th:each="h : ${#numbers.sequence(0, 23)}">
+                        <option th:value="${h}"
+                                th:text="${h + '시'}"
+                                th:selected="${profile.contactableEndTime == h}"></option>
+                      </th:block>
+                    </select>
                   </div>
                 </div>
                 <div>
-                  <label class="block text-sm font-medium text-[#444] mb-1.5">평균 응답 시간 <span class="text-xs text-[#888] font-normal">(준비 중)</span></label>
-                  <select disabled class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#AAA] cursor-not-allowed">
-                    <option>30분 이내 / 1시간 이내 / 3시간 이내 / 당일 이내</option>
+                  <label class="block text-sm font-medium text-[#444] mb-1.5">평균 응답 시간</label>
+                  <select name="responseTime"
+                          class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-3 py-2.5 text-sm text-[#1A1A1A] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+                    <option value="" disabled th:selected="${profile.responseTime == null}">선택</option>
+                    <th:block th:each="rt : ${responseTimes}">
+                      <option th:value="${rt.name()}"
+                              th:text="${rt.toString()}"
+                              th:selected="${profile.responseTime == rt}"></option>
+                    </th:block>
                   </select>
                 </div>
               </div>
@@ -439,22 +439,22 @@
                 </div>
               </div>
 
-              <!-- 분위기 태그 — DTO 미대응, UI only -->
-              <div>
-                <label class="block text-sm font-medium text-[#444] mb-1">분위기 태그 <span class="text-xs text-[#888] font-normal">(준비 중)</span></label>
-                <p class="text-xs text-[#888] mb-2">포트폴리오에 노출될 분위기 키워드를 직접 추가하거나 AI 자동 생성을 활용하세요</p>
-                <div class="flex flex-wrap gap-2 mb-2 p-3 bg-[#F9FAFC] border border-[#CCC] rounded-lg">
-                  <span class="bg-white text-[#888] text-xs px-3 py-1 rounded-full border border-[#CCC]">#감성스냅</span>
-                  <span class="bg-white text-[#888] text-xs px-3 py-1 rounded-full border border-[#CCC]">#자연광</span>
-                  <span class="bg-white text-[#888] text-xs px-3 py-1 rounded-full border border-[#CCC]">#따뜻한</span>
-                  <input type="text" disabled placeholder="태그 입력 후 Enter (준비 중)"
-                         class="flex-1 min-w-36 bg-transparent text-xs text-[#AAA] placeholder-[#AAA] outline-none cursor-not-allowed">
-                </div>
-                <button type="button" disabled
-                        class="flex items-center gap-1.5 text-xs font-semibold border border-[#CCC] text-[#AAA] bg-[#F9FAFC] rounded-lg px-3 py-1.5 cursor-not-allowed">
-                  ✨ AI 태그 자동 생성 (준비 중)
-                </button>
-              </div>
+<!--              &lt;!&ndash; 분위기 태그 — DTO 미대응, UI only &ndash;&gt;-->
+<!--              <div>-->
+<!--                <label class="block text-sm font-medium text-[#444] mb-1">분위기 태그 <span class="text-xs text-[#888] font-normal">(준비 중)</span></label>-->
+<!--                <p class="text-xs text-[#888] mb-2">포트폴리오에 노출될 분위기 키워드를 직접 추가하거나 AI 자동 생성을 활용하세요</p>-->
+<!--                <div class="flex flex-wrap gap-2 mb-2 p-3 bg-[#F9FAFC] border border-[#CCC] rounded-lg">-->
+<!--                  <span class="bg-white text-[#888] text-xs px-3 py-1 rounded-full border border-[#CCC]">#감성스냅</span>-->
+<!--                  <span class="bg-white text-[#888] text-xs px-3 py-1 rounded-full border border-[#CCC]">#자연광</span>-->
+<!--                  <span class="bg-white text-[#888] text-xs px-3 py-1 rounded-full border border-[#CCC]">#따뜻한</span>-->
+<!--                  <input type="text" disabled placeholder="태그 입력 후 Enter (준비 중)"-->
+<!--                         class="flex-1 min-w-36 bg-transparent text-xs text-[#AAA] placeholder-[#AAA] outline-none cursor-not-allowed">-->
+<!--                </div>-->
+<!--                <button type="button" disabled-->
+<!--                        class="flex items-center gap-1.5 text-xs font-semibold border border-[#CCC] text-[#AAA] bg-[#F9FAFC] rounded-lg px-3 py-1.5 cursor-not-allowed">-->
+<!--                  ✨ AI 태그 자동 생성 (준비 중)-->
+<!--                </button>-->
+<!--              </div>-->
 
             </div>
           </div>
@@ -475,7 +475,33 @@
               </button>
             </div>
           </div>
+          <script>
+              document.getElementById('profileImg').addEventListener('change', function () {
+                  const file = this.files[0];
+                  if (!file) return;
 
+                  document.getElementById('img-filename').textContent = file.name;
+
+                  const reader = new FileReader();
+                  reader.onload = e => {
+                      // placeholder SVG 숨기기
+                      const placeholder = document.getElementById('img-placeholder');
+                      if (placeholder) placeholder.style.display = 'none';
+
+                      // 미리보기 img — 없으면 생성
+                      let preview = document.getElementById('img-preview');
+                      if (!preview) {
+                          preview = document.createElement('img');
+                          preview.id = 'img-preview';
+                          preview.alt = '프로필 사진';
+                          preview.className = 'w-full h-full object-cover';
+                          placeholder.parentNode.appendChild(preview);
+                      }
+                      preview.src = e.target.result;
+                  };
+                  reader.readAsDataURL(file);
+              });
+          </script>
         </form>
       </div>
     </div>

@@ -5,6 +5,7 @@ import com.pickkasso.pickkasso.global.tag.TagRepository;
 import com.pickkasso.pickkasso.item.entity.Item;
 import com.pickkasso.pickkasso.item.entity.ItemType;
 import com.pickkasso.pickkasso.item.entity.Plan;
+import com.pickkasso.pickkasso.item.entity.PlanType;
 import com.pickkasso.pickkasso.item.repository.ItemRepository;
 import com.pickkasso.pickkasso.user.entity.*;
 import com.pickkasso.pickkasso.user.repository.*;
@@ -103,32 +104,32 @@ public class ReservationDevSeeder implements ApplicationRunner {
                 "전문 프로필 사진 촬영", "보정 3컷 포함", "의상 및 메이크업 별도",
                 ItemType.IN, 24, "촬영 3일 전부터 환불 불가",
                 "서울특별시 강남구 테헤란로 1", 37.5000, 127.0370,
-                "1인 프로필", 80000, 60, 120, 3, 3);
+                PlanType.STANDARD, "1인 프로필", 80000, 60, 120, 3, 3);
         ensureItem(itemsByName, photographer, "데이트", "데이트 스냅",
                 "자연스러운 커플 스냅 촬영", "원본 전체 제공", "입장료 별도",
                 ItemType.OUT, 48, "촬영 5일 전부터 일정 변경만 가능",
                 "서울특별시 마포구 양화로 188", 37.5570, 126.9245,
-                "커플 2시간", 150000, 120, 250, 10, 5);
+                PlanType.STANDARD, "커플 2시간", 150000, 120, 250, 10, 5);
         ensureItem(itemsByName, photographer, "증명", "증명사진",
                 "빠르게 완성하는 증명사진 촬영", "기본 보정 포함", "인화 배송 별도",
                 ItemType.IN, 12, "촬영 전날까지 취소 가능",
                 "서울특별시 강남구 봉은사로 112", 37.5045, 127.0280,
-                "기본 증명", 50000, 30, 20, 2, 2);
+                PlanType.STANDARD, "기본 증명", 50000, 30, 20, 2, 2);
         ensureItem(itemsByName, photographer, "웨딩", "웨딩 스냅",
                 "본식 전후 웨딩 스냅 촬영", "보정본 20컷 포함", "드레스 및 부케 별도",
                 ItemType.OUT, 72, "촬영 7일 전부터 환불 불가",
                 "서울특별시 용산구 서빙고로 137", 37.5204, 126.9946,
-                "웨딩 하프데이", 200000, 180, 400, 20, 7);
+                PlanType.STANDARD, "웨딩 하프데이", 200000, 180, 400, 20, 7);
         ensureItem(itemsByName, photographer, "졸업", "졸업사진",
                 "졸업 시즌 야외/실내 촬영", "보정본 8컷 포함", "학사복 대여 별도",
                 ItemType.OUT, 24, "우천 시 일정 조율",
                 "서울특별시 종로구 세종대로 175", 37.5720, 126.9769,
-                "졸업 2시간", 180000, 120, 220, 8, 4);
+                PlanType.STANDARD, "졸업 2시간", 180000, 120, 220, 8, 4);
         ensureItem(itemsByName, photographer, "가족", "가족사진",
                 "자연스러운 가족 야외 촬영", "보정본 6컷 포함", "소품은 개별 준비",
                 ItemType.OUT, 24, "촬영 2일 전까지 변경 가능",
                 "경기도 성남시 분당구 문정로 145", 37.3786, 127.1492,
-                "가족 1시간", 130000, 60, 150, 6, 4);
+                PlanType.STANDARD, "가족 1시간", 130000, 60, 150, 6, 4);
 
         return itemsByName;
     }
@@ -146,6 +147,7 @@ public class ReservationDevSeeder implements ApplicationRunner {
                             String address,
                             double lat,
                             double lng,
+                            PlanType planType,
                             String planName,
                             int price,
                             int shootingDuration,
@@ -162,7 +164,7 @@ public class ReservationDevSeeder implements ApplicationRunner {
                 includes, excludes, itemType, minBookingLeadTime,
                 cancellationPolicy, address, lat, lng
         );
-        Plan.createPlan(item, planName, price, shootingDuration, originalPhotoCount, editedPhotoCount, deliveryDays);
+        Plan.createPlan(item, planType, true, planName, price, shootingDuration, originalPhotoCount, editedPhotoCount, deliveryDays);
         itemRepository.save(item);
         itemsByName.put(itemName, item);
         log.info("[seed] created dev item: {}", itemName);
@@ -170,7 +172,7 @@ public class ReservationDevSeeder implements ApplicationRunner {
 
     private Tag ensureTag(String name) {
         return tagRepository.findTagByName(name)
-                .orElseGet(() -> tagRepository.save(Tag.createTag(name)));
+                .orElseGet(() -> tagRepository.save(Tag.createTag(name, "")));
     }
 
     private void save(Reservation r, ReservationStatus targetStatus) {

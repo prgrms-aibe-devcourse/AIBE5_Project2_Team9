@@ -49,7 +49,7 @@ class S3ServiceTest {
     @Test
     @DisplayName("logo.png S3 업로드 성공")
     void upload_logoPng_success() throws IOException {
-        uploadedUrl = s3Service.upload(logoPng, "test");
+        uploadedUrl = s3Service.upload(logoPng, "test", "logo.png");
 
         System.out.println("logo.png URL: " + uploadedUrl);
         assertThat(uploadedUrl).contains("logo.png");

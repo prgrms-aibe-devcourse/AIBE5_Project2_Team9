@@ -19,6 +19,13 @@ public class Plan {
     @JoinColumn(name = "item_id", nullable = false)
     private Item item;
 
+    @Enumerated(value = EnumType.STRING)
+    @Column(name = "plan_type")
+    private PlanType planType;
+
+    @Column(name = "enabled")
+    private Boolean enabled;
+
     @Column(name = "name")
     private String name;
 
@@ -39,6 +46,8 @@ public class Plan {
 
     private Plan(
         Item item,
+        PlanType planType,
+        Boolean enabled,
         String name,
         Integer price,
         Integer shootingDuration,
@@ -46,6 +55,8 @@ public class Plan {
         Integer editedPhotoCount,
         Integer deliveryDays) {
 
+        this.planType = planType;
+        this.enabled = (enabled != null) ? enabled : false;
         this.item = item;
         this.name = name;
         this.price = price;
@@ -58,6 +69,8 @@ public class Plan {
     //== 생성 method ==//
     public static Plan createPlan(
         Item item,
+        PlanType planType,
+        Boolean enabled,
         String name,
         Integer price,
         Integer shootingDuration,
@@ -65,12 +78,30 @@ public class Plan {
         Integer editedPhotoCount,
         Integer deliveryDays) {
 
-        Plan plan = new Plan(item, name, price, shootingDuration, originalPhotoCount, editedPhotoCount, deliveryDays);
+        Plan plan = new Plan(item, planType, enabled, name, price, shootingDuration, originalPhotoCount, editedPhotoCount, deliveryDays);
         plan.item.addPlan(plan);
         plan.item.updateDefaultPrice();
 
         return plan;
     }
+
+    public void updatePlan(
+        Boolean enabled,
+        String name,
+        Integer price,
+        Integer shootingDuration,
+        Integer originalPhotoCount,
+        Integer editedPhotoCount,
+        Integer deliveryDays) {
+        this.enabled = enabled;
+        this.name = name;
+        setPrice(price);
+        this.shootingDuration = shootingDuration;
+        this.originalPhotoCount = originalPhotoCount;
+        this.editedPhotoCount = editedPhotoCount;
+        this.deliveryDays = deliveryDays;
+    }
+
 
     public void setPrice(Integer price) {
         this.price = price;

@@ -1,28 +1,26 @@
 package com.pickkasso.pickkasso.user.service;
 
+import com.pickkasso.pickkasso.global.img.DefaultImgDto;
+import com.pickkasso.pickkasso.global.service.DefaultImgService;
+import com.pickkasso.pickkasso.global.service.S3Service;
 import com.pickkasso.pickkasso.user.dto.photographer.CareerDto;
 import com.pickkasso.pickkasso.user.dto.photographer.EducationDto;
 import com.pickkasso.pickkasso.user.dto.photographer.PhotographerProfileEditRequest;
 import com.pickkasso.pickkasso.user.dto.photographer.PhotographerPortfolioSummaryDto;
 import com.pickkasso.pickkasso.user.dto.photographer.PhotographerProfileResponse;
 import com.pickkasso.pickkasso.user.dto.photographer.ProfileCompletionDto;
-import com.pickkasso.pickkasso.user.entity.Career;
-import com.pickkasso.pickkasso.user.entity.Education;
-import com.pickkasso.pickkasso.user.entity.Photographer;
-import com.pickkasso.pickkasso.user.entity.PhotographerProfile;
-import com.pickkasso.pickkasso.user.repository.CareerRepository;
-import com.pickkasso.pickkasso.user.repository.EducationRepository;
-import com.pickkasso.pickkasso.user.repository.PhotographerProfileRepository;
-import com.pickkasso.pickkasso.user.repository.PhotographerRepository;
-import com.pickkasso.pickkasso.user.repository.PortfolioRepository;
+import com.pickkasso.pickkasso.user.entity.*;
+import com.pickkasso.pickkasso.user.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,9 +29,12 @@ public class PhotographerProfileService {
 
     private final PhotographerRepository photographerRepository;
     private final PhotographerProfileRepository photographerProfileRepository;
+    private final PortfolioImgRepository portfolioImgRepository;
     private final CareerRepository careerRepository;
     private final EducationRepository educationRepository;
     private final PortfolioRepository portfolioRepository;
+    private final DefaultImgService defaultImgService;
+    private final S3Service s3Service;
 
     @Transactional(readOnly = true)
     public PhotographerProfileResponse getProfileForm(Long photographerId) {
@@ -59,12 +60,21 @@ public class PhotographerProfileService {
                 ))
                 .toList();
 
+        Map<Long, String> imgUrlMap = portfolioImgRepository
+            .findRepresentativeImgsByPhotographerId(photographerId)
+            .stream()
+            .collect(Collectors.toMap(
+                img -> img.getPortfolio().getId(),
+                PortfolioImg::getImgUrl
+            ));
+
         List<PhotographerPortfolioSummaryDto> portfolios = portfolioRepository.findByPhotographerIdOrderByIdDesc(photographerId)
                 .stream()
                 .map(portfolio -> new PhotographerPortfolioSummaryDto(
                         portfolio.getId(),
                         portfolio.getName(),
-                        portfolio.getDescription()
+                        portfolio.getDescription(),
+                        imgUrlMap.get(portfolio.getId())
                 ))
                 .toList();
 
@@ -76,6 +86,12 @@ public class PhotographerProfileService {
                     photographerId,
                     null,
                     null,
+                    null,
+                    null,
+                    null,
+                    0,
+                    0L,
+                    0,
                     null,
                     null,
                     null,
@@ -93,6 +109,12 @@ public class PhotographerProfileService {
                 profile.getNickname(),
                 profile.getIntro(),
                 profile.getLink(),
+                profile.getPurchaseCount(),
+                profile.getReviewScore(),
+                profile.getReviewCount(),
+                profile.getContactableStartTime(),
+                profile.getContactableEndTime(),
+                profile.getResponseTime(),
                 convertToolsToList(profile.getTools()),
                 careerDtos,
                 educationDtos,
@@ -126,36 +148,48 @@ public class PhotographerProfileService {
         return new ProfileCompletionDto(hasProfileImage, hasIntro, hasServices, hasEquipment, hasPortfolio, score);
     }
 
-    public void createOrUpdateProfile(Long photographerId, PhotographerProfileEditRequest request) {
+    public void createOrUpdateProfile(Long photographerId, PhotographerProfileEditRequest request, MultipartFile profileImg) {
         Photographer photographer = getPhotographer(photographerId);
 
         validateRequest(request);
 
         PhotographerProfile profile = photographer.getPhotographerProfile();
 
+        String dirName = "photographer/user_" + photographerId;
+        String imgUrl = (profileImg != null && !profileImg.isEmpty())
+            ? defaultImgService.uploadImage(profileImg, 0, dirName).getImgUrl()
+            : request.imgUrl();
         // profile 이 없으면 새로 생성
         if (profile == null) {
             PhotographerProfile newProfile = PhotographerProfile.createPhotographerProfile(
                     photographer,
-                    request.imgUrl(),
+                    imgUrl,
                     request.nickname(),
                     request.intro(),
                     convertToolsToMap(request.tools()),
                     request.link(),
-                    false
+                    request.contactableStartTime(),
+                    request.contactableEndTime(),
+                    request.responseTime()
             );
 
             photographerProfileRepository.save(newProfile);
             photographer.connectProfile(newProfile);
         } else {
             // profile 이 있으면 수정
+            if (profileImg != null && !profileImg.isEmpty() && request.imgUrl() != null) {
+                s3Service.delete(request.imgUrl());
+            }
             profile.updatePhotographerProfile(
-                    request.imgUrl(),
+                    imgUrl,
                     request.nickname(),
                     request.intro(),
                     convertToolsToMap(request.tools()),
                     request.link(),
-                    profile.getVerified()
+                    profile.getVerified(),
+                    request.contactableStartTime(),
+                    request.contactableEndTime(),
+                    request.responseTime()
             );
         }
 
