@@ -164,7 +164,7 @@ public class PhotographerReservationService {
                 .findByIdAndPhotographerId(reservationId, photographerId)
                 .orElseThrow(() -> new IllegalArgumentException("예약을 찾을 수 없습니다."));
         reservation.reject();
-        reservation.getMember().refundCache(reservation.getTotalPrice());
+        reservation.getMember().refundCash(reservation.getTotalPrice());
     }
 
     private long countByStatus(List<Reservation> reservations, ReservationStatus status) {

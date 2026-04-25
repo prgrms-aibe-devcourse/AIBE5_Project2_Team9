@@ -45,7 +45,7 @@ public class UserReservationService {
         }
 
         int price = plan.getPrice();
-        member.deductCache(price);
+        member.deductCash(price);
 
         String fullAddress = req.getAddress() != null ? req.getAddress().trim() : "";
         if (req.getDetailAddress() != null && !req.getDetailAddress().isBlank()) {
@@ -96,6 +96,6 @@ public class UserReservationService {
             throw new IllegalArgumentException("본인 예약만 취소할 수 있습니다.");
         }
         reservation.cancel();
-        reservation.getMember().refundCache(reservation.getTotalPrice());
+        reservation.getMember().refundCash(reservation.getTotalPrice());
     }
 }

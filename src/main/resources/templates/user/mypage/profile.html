@@ -63,7 +63,7 @@
             <div>
               <p class="text-xs text-[#888] mb-1">보유 캐시</p>
               <p class="text-2xl font-bold text-[#1D3CFF]"
-                 th:text="${member.cache != null ? #numbers.formatInteger(member.cache, 1, 'COMMA') + ' C' : '0 C'}">0 C</p>
+                 th:text="${member.cash != null ? #numbers.formatInteger(member.cash, 1, 'COMMA') + ' C' : '0 C'}">0 C</p>
             </div>
             <button class="bg-white border border-[#1D3CFF] text-[#1D3CFF] hover:bg-[#1D3CFF] hover:text-white font-semibold px-4 py-2 rounded-lg text-sm transition-colors">
               충전하기

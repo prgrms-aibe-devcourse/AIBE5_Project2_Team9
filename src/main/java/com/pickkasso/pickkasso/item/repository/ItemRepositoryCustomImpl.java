@@ -67,17 +67,17 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     }
 
     private OrderSpecifier<?> getOrderSpecifier(String orderBy, NumberTemplate<Double> distance) {
-        if (orderBy == null) return QItem.item.avgScore.desc();
+        if (orderBy == null) return QItem.item.reviewScore.divide(QItem.item.reviewCount).desc();
 
         return switch (orderBy) {
-            case "score"            -> QItem.item.avgScore.desc();
+            case "score"            -> QItem.item.reviewScore.divide(QItem.item.reviewCount).desc();
             case "review"           -> QItem.item.reviewCount.desc();
             case "created-at-desc"  -> QItem.item.createdAt.desc();
             case "created-at-asc"   -> QItem.item.createdAt.asc();
             case "price-desc"       -> QItem.item.defaultPrice.desc();
             case "price-asc"        -> QItem.item.defaultPrice.asc();
-            case "distance"         -> (distance == null) ? QItem.item.avgScore.desc() : distance.asc();
-            default                 -> QItem.item.avgScore.desc();
+            case "distance"         -> (distance == null) ? QItem.item.reviewScore.divide(QItem.item.reviewCount).desc() : distance.asc();
+            default                 -> QItem.item.reviewScore.divide(QItem.item.reviewCount).desc();
         };
     }
 
@@ -105,9 +105,9 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 new QTagReference(item.tag.id, item.tag.name, item.tag.emoji),
                 new QPhotographerSimpleCardDto(Expressions.nullExpression(String.class), item.photographer.name),
                 new QRegionDto(item.address, item.detailAddress, item.lat, item.lng),
-                item.avgScore,
                 item.defaultPrice,
                 item.itemType,
+                item.reviewScore,
                 item.reviewCount,
                 // distance
                 distanceExpr != null ? distanceExpr : Expressions.nullExpression(Double.class)
@@ -191,7 +191,10 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         if (spec.sort() == AiItemQuerySpec.AiItemSort.RANDOM) {
             query.orderBy(Expressions.numberTemplate(Double.class, "RAND()").asc());
         } else {
-            query.orderBy(item.avgScore.desc(), item.reviewCount.desc());
+            query.orderBy(
+                item.reviewScore.divide(item.reviewCount).desc(),
+                item.reviewCount.desc()
+            );
         }
 
         return query.fetch();

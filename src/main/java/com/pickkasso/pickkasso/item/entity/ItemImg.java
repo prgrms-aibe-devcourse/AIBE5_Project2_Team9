@@ -19,7 +19,7 @@ public class ItemImg extends DefaultImg {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item")
+    @JoinColumn(name = "item_id")
     private Item item;
 
     private ItemImg(

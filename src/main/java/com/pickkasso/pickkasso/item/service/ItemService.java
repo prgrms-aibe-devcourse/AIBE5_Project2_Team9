@@ -255,9 +255,9 @@ public class ItemService {
                 .imgUrl(item.getThumbnailImgUrl())
                 .tag(TagReference.from(item.getTag()))
                 .region(RegionDto.from(item))
-                .avgScore(item.getAvgScore())
                 .defaultPrice(item.getDefaultPrice())
                 .itemType(item.getItemType())
+                .reviewScore(item.getReviewScore())
                 .reviewCount(item.getReviewCount())
                 .build();
             resList.add(dto);

@@ -19,13 +19,13 @@ public interface ItemRepository extends JpaRepository<Item, Long>, ItemRepositor
         "JOIN FETCH i.tag t " +
         "JOIN FETCH i.photographer p " +
         "WHERE t.name = :tagName " +
-        "ORDER BY i.avgScore DESC ")
+        "ORDER BY (i.reviewScore / i.reviewCount) DESC ")
     List<Item> findScoreItemListByTagName(@Param("tagName") String tagName, Pageable pageable);
 
     @Query("SELECT i FROM Item i " +
         "JOIN FETCH i.tag t " +
         "JOIN FETCH i.photographer p " +
-        "ORDER BY i.avgScore DESC ")
+        "ORDER BY (i.reviewScore / i.reviewCount) DESC ")
     List<Item> findScoreItemList(Pageable pageable);
 
     @Query("SELECT i FROM Item i " +

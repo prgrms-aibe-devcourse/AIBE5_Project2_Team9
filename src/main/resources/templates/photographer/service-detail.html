@@ -89,7 +89,7 @@
               <span th:if="${item.reviewCount > 0}" class="flex items-center gap-1 text-sm">
                 <span class="text-[#0097FF]">★</span>
                 <span class="font-semibold text-[#1A1A1A]"
-                      th:text="${#numbers.formatDecimal(item.avgScore / 100.0, 1, 1)}">4.9</span>
+                      th:text="${#numbers.formatDecimal(item.reviewScore * 1.0 / item.reviewCount, 1, 2)}">4.9</span>
                 <span class="text-[#888]" th:text="'(' + ${item.reviewCount} + '개)'"></span>
               </span>
               <span th:unless="${item.reviewCount > 0}" class="text-sm text-[#AAA]">아직 후기가 없어요</span>
@@ -217,10 +217,10 @@
             <div class="flex items-center gap-6 pb-5 border-b border-[#CCC]">
               <div class="text-center">
                 <p class="text-5xl font-bold text-[#1A1A1A]"
-                   th:text="${#numbers.formatDecimal(item.avgScore / 100.0, 1, 1)}">0.0</p>
+                   th:text="${#numbers.formatDecimal(item.reviewScore * 1.0 / item.reviewCount, 1, 2)}">0.0</p>
                 <div class="flex gap-0.5 mt-2 justify-center">
                   <span th:each="i : ${#numbers.sequence(1, 5)}"
-                        th:style="${i <= item.avgScore / 100} ? 'color:#FBBF24' : 'color:#E5E7EB'"
+                        th:style="${i <= item.reviewScore * 1.0 / item.reviewCount} ? 'color:#FBBF24' : 'color:#E5E7EB'"
                         class="text-lg">★</span>
                 </div>
               </div>

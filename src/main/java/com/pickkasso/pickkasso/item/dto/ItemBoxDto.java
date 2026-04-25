@@ -23,9 +23,9 @@ public class ItemBoxDto {
     private TagReference tag;
     private PhotographerSimpleCardDto photographer;
     private RegionDto region;
-    private Integer avgScore;
     private Integer defaultPrice;
     private ItemType itemType;
+    private Long reviewScore;
     private Integer reviewCount;
     private Double distance;
 
@@ -37,9 +37,9 @@ public class ItemBoxDto {
             .tag(TagReference.from(item.getTag()))
             .photographer(PhotographerSimpleCardDto.from(item.getPhotographer()))
             .region(RegionDto.from(item))
-            .avgScore(item.getAvgScore())
             .defaultPrice(item.getDefaultPrice())
             .itemType(item.getItemType())
+            .reviewScore(item.getReviewScore())
             .reviewCount(item.getReviewCount())
             .build();
     }

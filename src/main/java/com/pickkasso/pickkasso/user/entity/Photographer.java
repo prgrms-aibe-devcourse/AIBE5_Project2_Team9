@@ -42,13 +42,13 @@ public class Photographer extends UserBasicInfo {
         String name,
         Gender gender,
         String phone,
-        Integer cache) {
+        Integer cash) {
         this.account = account;
         this.email = email;
         this.name = name;
         this.gender = gender;
         this.phone = phone;
-        this.cache = cache;
+        this.cash = cash;
     }
 
     //== 생성 method ==//
@@ -58,8 +58,8 @@ public class Photographer extends UserBasicInfo {
         String name,
         Gender gender,
         String phone,
-        Integer cache) {
-        return new Photographer(account, email, name, gender, phone, cache);
+        Integer cash) {
+        return new Photographer(account, email, name, gender, phone, cash);
     }
 
     // 양방향 관계 연결용

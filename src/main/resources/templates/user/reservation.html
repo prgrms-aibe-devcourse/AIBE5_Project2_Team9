@@ -261,7 +261,7 @@
             <div>
               <p class="text-xs text-[#888] mb-0.5">보유 캐시</p>
               <p class="text-xl font-bold text-[#1A1A1A]">
-                <span th:text="${member != null and member.cache != null ? #numbers.formatInteger(member.cache, 0, 'COMMA') : '0'}">0</span>
+                <span th:text="${member != null and member.cash != null ? #numbers.formatInteger(member.cash, 0, 'COMMA') : '0'}">0</span>
                 <span class="text-[#1D3CFF]">C</span>
               </p>
             </div>
@@ -316,7 +316,7 @@
                       th:text="${profile.nickname != null and !#strings.isEmpty(profile.nickname) ? profile.nickname + ' 작가' : '작가'}">작가</span>
                 <span class="text-xs text-[#888] ml-auto" th:if="${item.reviewCount > 0}">
                   <span class="text-[#0097FF]">★</span>
-                  <span th:text="${#numbers.formatDecimal(item.avgScore / 100.0, 1, 1)}">4.9</span>
+                  <span th:text="${#numbers.formatDecimal(item.reviewScore * 1.0 / item.reviewCount, 1, 2)}">4.9</span>
                 </span>
               </div>
 
@@ -378,10 +378,10 @@
                   <span class="text-base font-medium text-[#888]"> C</span>
                 </span>
               </div>
-              <div class="flex items-center justify-between" th:if="${member != null and member.cache != null}">
+              <div class="flex items-center justify-between" th:if="${member != null and member.cash != null}">
                 <span class="text-xs text-[#888]">결제 후 잔여 캐시</span>
                 <span class="text-sm font-medium text-[#888]"
-                      th:text="${#numbers.formatInteger(member.cache - selectedPlan.price, 1, 'COMMA')} + ' C'">0 C</span>
+                      th:text="${#numbers.formatInteger(member.cash - selectedPlan.price, 1, 'COMMA')} + ' C'">0 C</span>
               </div>
             </div>
           </div>

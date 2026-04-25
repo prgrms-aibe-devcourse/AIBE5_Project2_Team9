@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 class AiPickRecommendationServiceLocationTest {
 
-    private final AiPickRecommendationService service = new AiPickRecommendationService(null);
+    private final AiPickRecommendationService service = new AiPickRecommendationService(null, null);
 
     @Test
     @DisplayName("생활권/행정동 입력을 대표 지역으로 정규화한다")
