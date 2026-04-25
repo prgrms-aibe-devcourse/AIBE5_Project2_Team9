@@ -19,4 +19,10 @@ public interface PlanRepository extends JpaRepository<Plan, Long> {
         "WHERE p.item.id = :itemId " +
         "AND p.enabled = true")
     List<Plan> findByItemIdAndEnabled(@Param("itemId") Long itemId);
+
+    @Query("SELECT p FROM Plan p " +
+        "JOIN FETCH p.item i " +
+        "JOIN FETCH i.photographer ph " +
+        "WHERE p.id = :id")
+    Optional<Plan> findByIdWithItemAndPhotographer(@Param("id") Long id);
 }

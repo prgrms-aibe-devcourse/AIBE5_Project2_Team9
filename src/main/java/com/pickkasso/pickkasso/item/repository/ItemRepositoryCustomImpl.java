@@ -5,6 +5,7 @@ import com.pickkasso.pickkasso.global.tag.QTagReference;
 import com.pickkasso.pickkasso.global.tag.Tag;
 import com.pickkasso.pickkasso.item.dto.ItemBoxDto;
 import com.pickkasso.pickkasso.item.dto.ItemSearchCondition;
+import com.pickkasso.pickkasso.item.entity.Item;
 import com.pickkasso.pickkasso.item.entity.ItemType;
 import com.pickkasso.pickkasso.item.entity.QItem;
 import com.pickkasso.pickkasso.user.dto.photographer.QPhotographerSimpleCardDto;
@@ -15,6 +16,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.core.types.dsl.NumberTemplate;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import org.springframework.data.domain.Page;
@@ -23,6 +25,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Locale;
 
 public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
     private JPAQueryFactory queryFactory;
@@ -134,4 +137,121 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
 
         return new PageImpl<>(content, pageable, total);
     }
+
+    @Override
+    public List<Item> findForAiPick(AiItemQuerySpec spec) {
+        QItem item = QItem.item;
+        BooleanBuilder where = new BooleanBuilder();
+
+        switch (spec.categoryMode()) {
+            case TAG_STRICT -> {
+                com.querydsl.core.types.Predicate p = buildCategoryTagStrict(item, spec.categoryKeywords());
+                if (p != null) {
+                    where.and(p);
+                }
+            }
+            case TAG_OR_TEXT -> {
+                com.querydsl.core.types.Predicate p = buildCategoryTagOrText(item, spec.categoryKeywords());
+                if (p != null) {
+                    where.and(p);
+                }
+            }
+            case ANY -> { }
+        }
+
+        if (spec.locationMode() == AiItemQuerySpec.LocationMode.CONTAINS) {
+            if (spec.singleLocation() != null) {
+                where.and(item.address.contains(spec.singleLocation()));
+            }
+        } else if (spec.locationMode() == AiItemQuerySpec.LocationMode.OR_KEYWORDS) {
+            com.querydsl.core.types.Predicate p = buildAddressOrAny(item, spec.locationOrKeywords());
+            if (p != null) {
+                where.and(p);
+            }
+        }
+
+        if (spec.priceMode() == AiItemQuerySpec.PriceMode.LTE) {
+            if (spec.maxPrice() != null) {
+                where.and(item.defaultPrice.loe(spec.maxPrice()));
+            }
+        } else if (spec.priceMode() == AiItemQuerySpec.PriceMode.LTE_RELAX_130) {
+            if (spec.maxPrice() != null) {
+                int p = (int) (spec.maxPrice() * 1.3);
+                where.and(item.defaultPrice.loe(p));
+            }
+        }
+
+        JPAQuery<Item> query = queryFactory
+            .selectFrom(item)
+            .innerJoin(item.tag).fetchJoin()
+            .innerJoin(item.photographer).fetchJoin()
+            .where(where)
+            .limit(spec.limit() > 0 ? spec.limit() : 150);
+
+        if (spec.sort() == AiItemQuerySpec.AiItemSort.RANDOM) {
+            query.orderBy(Expressions.numberTemplate(Double.class, "RAND()").asc());
+        } else {
+            query.orderBy(item.avgScore.desc(), item.reviewCount.desc());
+        }
+
+        return query.fetch();
+    }
+
+    private com.querydsl.core.types.Predicate buildCategoryTagStrict(QItem item, List<String> keywords) {
+        if (keywords == null || keywords.isEmpty()) {
+            return null;
+        }
+        BooleanBuilder b = new BooleanBuilder();
+        for (String kw : keywords) {
+            if (kw == null || kw.isBlank()) {
+                continue;
+            }
+            String k = kw.toLowerCase(Locale.ROOT);
+            b.or(item.tag.name.toLowerCase().contains(k));
+        }
+        if (!b.hasValue()) {
+            return null;
+        }
+        return b.getValue();
+    }
+
+    private com.querydsl.core.types.Predicate buildCategoryTagOrText(QItem item, List<String> keywords) {
+        if (keywords == null || keywords.isEmpty()) {
+            return null;
+        }
+        BooleanBuilder perKeyword = new BooleanBuilder();
+        for (String kw : keywords) {
+            if (kw == null || kw.isBlank()) {
+                continue;
+            }
+            String k = kw.toLowerCase(Locale.ROOT);
+            perKeyword.or(
+                item.tag.name.toLowerCase().contains(k)
+                    .or(item.name.toLowerCase().contains(k))
+                    .or(item.description.contains(kw))
+            );
+        }
+        if (!perKeyword.hasValue()) {
+            return null;
+        }
+        return perKeyword.getValue();
+    }
+
+    private com.querydsl.core.types.Predicate buildAddressOrAny(QItem item, List<String> keywords) {
+        if (keywords == null || keywords.isEmpty()) {
+            return null;
+        }
+        BooleanBuilder b = new BooleanBuilder();
+        for (String kw : keywords) {
+            if (kw == null || kw.isBlank()) {
+                continue;
+            }
+            b.or(item.address.contains(kw));
+        }
+        if (!b.hasValue()) {
+            return null;
+        }
+        return b.getValue();
+    }
 }
+

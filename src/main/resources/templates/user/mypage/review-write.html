@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/default :: layout(~{::title}, ~{::pageStyles}, ~{::main})}">
+<head>
+  <title th:fragment="title">후기 작성 | PICKASSO</title>
+  <th:block th:fragment="pageStyles"></th:block>
+</head>
+<body>
+
+<main th:fragment="main" class="bg-[#F9FAFC] min-h-screen pb-16">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex flex-col gap-6 lg:flex-row lg:items-start">
+
+      <!-- 사이드바 -->
+      <th:block th:replace="~{fragments/mypage-sidebar :: sidebar}" />
+
+      <!-- 메인 콘텐츠 -->
+      <div class="flex-1 min-w-0">
+
+        <!-- 헤더 -->
+        <div class="mb-6">
+          <div class="flex items-center gap-2 mb-1">
+            <a th:href="@{/member/mypage/reservations}"
+               class="text-[#888] hover:text-[#1D3CFF] transition-colors">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+            </a>
+            <h1 class="text-2xl font-bold text-[#1A1A1A]">후기 작성</h1>
+          </div>
+          <p class="text-sm text-[#888] mt-1 ml-7">촬영 경험을 솔직하게 남겨주세요.</p>
+        </div>
+
+        <!-- 에러 메시지 -->
+        <div th:if="${reviewError}"
+             class="mb-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-600"
+             th:text="${reviewError}">에러 메시지</div>
+
+        <!-- 이미 작성된 경우 -->
+        <div th:if="${hasReview}"
+             class="bg-white border border-[#CCC] rounded-2xl px-8 py-16 text-center">
+          <div class="text-5xl mb-4">✅</div>
+          <p class="text-base font-semibold text-[#444] mb-2">이미 후기를 작성하셨습니다.</p>
+          <p class="text-sm text-[#888] mb-6">한 예약당 후기는 한 번만 작성할 수 있습니다.</p>
+          <a th:href="@{/member/mypage/reservations}"
+             class="inline-flex items-center justify-center bg-white border border-[#1D3CFF] text-[#1D3CFF] hover:bg-[#1D3CFF] hover:text-white font-semibold px-6 py-2.5 rounded-lg text-sm transition-colors">
+            예약 내역으로
+          </a>
+        </div>
+
+        <!-- 작성 폼 -->
+        <div th:unless="${hasReview}" class="space-y-4">
+
+          <!-- 예약 정보 요약 카드 -->
+          <div class="bg-white border border-[#CCC] rounded-2xl p-5">
+            <p class="text-xs font-semibold text-[#888] uppercase tracking-wider mb-3">예약 정보</p>
+            <div class="flex gap-4 items-center">
+              <div class="w-[64px] h-[64px] rounded-xl bg-[#D3DEF2] flex items-center justify-center flex-shrink-0 text-2xl">📷</div>
+              <div class="min-w-0">
+                <p class="text-base font-bold text-[#1A1A1A] leading-snug" th:text="${reservation.item.name}">서비스명</p>
+                <p class="text-sm text-[#444] mt-1" th:text="${reservation.item.photographer.name}">작가명</p>
+                <p class="text-sm text-[#888] mt-0.5"
+                   th:text="${#temporals.format(reservation.scheduledAt, 'yyyy.MM.dd HH:mm')}">날짜</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 후기 입력 폼 -->
+          <form th:action="@{/reservations/{id}/review(id=${reservation.id})}"
+                method="post"
+                id="reviewForm"
+                class="bg-white border border-[#CCC] rounded-2xl p-6 space-y-6">
+
+            <!-- 별점 선택 -->
+            <div>
+              <label class="block text-sm font-bold text-[#1A1A1A] mb-3">별점 <span class="text-[#1D3CFF]">*</span></label>
+              <div class="flex items-center gap-1" id="starContainer">
+                <button type="button" data-value="1" class="star-btn text-[42px] leading-none text-[#E5E7EB] hover:scale-110 transition-all">★</button>
+                <button type="button" data-value="2" class="star-btn text-[42px] leading-none text-[#E5E7EB] hover:scale-110 transition-all">★</button>
+                <button type="button" data-value="3" class="star-btn text-[42px] leading-none text-[#E5E7EB] hover:scale-110 transition-all">★</button>
+                <button type="button" data-value="4" class="star-btn text-[42px] leading-none text-[#E5E7EB] hover:scale-110 transition-all">★</button>
+                <button type="button" data-value="5" class="star-btn text-[42px] leading-none text-[#E5E7EB] hover:scale-110 transition-all">★</button>
+                <span id="ratingLabel" class="ml-3 text-sm font-semibold text-[#888]">별점을 선택해주세요</span>
+              </div>
+              <input type="hidden" name="rating" id="ratingInput" value="0">
+            </div>
+
+            <!-- 후기 내용 -->
+            <div>
+              <label for="content" class="block text-sm font-bold text-[#1A1A1A] mb-2">
+                후기 내용 <span class="text-[#1D3CFF]">*</span>
+              </label>
+              <textarea id="content" name="content" rows="6" maxlength="500"
+                        placeholder="촬영 경험을 솔직하게 작성해주세요. (최소 10자, 최대 500자)"
+                        class="w-full border border-[#CCC] rounded-xl px-4 py-3 text-sm text-[#1A1A1A] resize-none focus:outline-none focus:border-[#1D3CFF] transition-colors placeholder:text-[#BBB]"></textarea>
+              <p class="text-xs text-[#888] mt-1 text-right">
+                <span id="charCount">0</span>/500
+              </p>
+            </div>
+
+            <!-- 버튼 -->
+            <div class="flex gap-3 pt-2">
+              <a th:href="@{/member/mypage/reservations}"
+                 class="flex-1 text-center border border-[#CCC] text-[#444] hover:bg-[#F9FAFC] font-semibold py-3 rounded-xl text-sm transition-colors">
+                취소
+              </a>
+              <button type="submit"
+                      class="flex-1 bg-[#1D3CFF] hover:bg-[#162DCC] text-white font-semibold py-3 rounded-xl text-sm transition-colors">
+                후기 등록
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const stars = document.querySelectorAll('.star-btn');
+    const ratingInput = document.getElementById('ratingInput');
+    const ratingLabel = document.getElementById('ratingLabel');
+    const labels = ['', '별로예요', '그저그래요', '보통이에요', '좋아요', '최고예요!'];
+
+    function updateStars(value) {
+      stars.forEach(s => {
+        const v = parseInt(s.dataset.value);
+        s.style.color = v <= value ? '#FBBF24' : '#E5E7EB';
+      });
+      ratingLabel.textContent = value > 0 ? labels[value] : '별점을 선택해주세요';
+      ratingLabel.style.color = value > 0 ? '#1A1A1A' : '#888';
+    }
+
+    stars.forEach(star => {
+      star.addEventListener('click', () => {
+        const value = parseInt(star.dataset.value);
+        ratingInput.value = value;
+        updateStars(value);
+      });
+      star.addEventListener('mouseover', () => updateStars(parseInt(star.dataset.value)));
+      star.addEventListener('mouseout', () => updateStars(parseInt(ratingInput.value)));
+    });
+
+    const textarea = document.getElementById('content');
+    const charCount = document.getElementById('charCount');
+    textarea.addEventListener('input', () => {
+      charCount.textContent = textarea.value.length;
+    });
+
+    document.getElementById('reviewForm').addEventListener('submit', e => {
+      if (parseInt(ratingInput.value) < 1) {
+        e.preventDefault();
+        alert('별점을 선택해주세요.');
+        return;
+      }
+      if (textarea.value.trim().length < 10) {
+        e.preventDefault();
+        alert('후기 내용을 최소 10자 이상 작성해주세요.');
+      }
+    });
+  </script>
+</main>
+
+</body>
+</html>

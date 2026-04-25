@@ -34,15 +34,15 @@ public class Item extends Region {
     private String name;
 
     @Lob
-    @Column(name = "description", nullable = false)
+    @Column(name = "description", nullable = false, columnDefinition = "TEXT")
     private String description;
 
     @Lob
-    @Column(name = "includes")
+    @Column(name = "includes", columnDefinition = "TEXT")
     private String includes;
 
     @Lob
-    @Column(name = "excludes")
+    @Column(name = "excludes", columnDefinition = "TEXT")
     private String excludes;
 
     @Column(name = "item_type", nullable = false)
@@ -69,7 +69,7 @@ public class Item extends Region {
     private Integer minBookingLeadTime;
 
     @Lob
-    @Column(name = "cancellation_policy")
+    @Column(name = "cancellation_policy", columnDefinition = "TEXT")
     private String cancellationPolicy;
 
     // TODO: createdAt 등은 나중에 따로 서브테이블로 관리해야 한다. 지금은 구현을 위해
@@ -190,6 +190,12 @@ public class Item extends Region {
             .orElse(null);
     }
 
+    public void addReview(int rating) {
+        int newCount = this.reviewCount + 1;
+        this.avgScore = (this.avgScore * this.reviewCount + rating * 100) / newCount;
+        this.reviewCount = newCount;
+    }
+
     // item notice
     public void addItemNotice(ItemNotice itemNotice) {
         itemNoticeList.add(itemNotice);
@@ -204,5 +210,29 @@ public class Item extends Region {
     public void updateItemNoticeList(List<ItemNotice> newItemNoticeList) {
         itemNoticeList.clear();
         itemNoticeList.addAll(newItemNoticeList);
+    }
+
+    public void updateBasicInfo(
+        Tag tag,
+        String name,
+        String description,
+        String includes,
+        String excludes,
+        ItemType itemType,
+        Integer minBookingLeadTime,
+        String cancellationPolicy,
+        String address,
+        Double lat,
+        Double lng
+    ) {
+        this.tag = tag;
+        this.name = name;
+        this.description = description != null ? description : "";
+        this.includes = includes;
+        this.excludes = excludes;
+        this.itemType = itemType;
+        this.minBookingLeadTime = minBookingLeadTime != null ? minBookingLeadTime : 1;
+        this.cancellationPolicy = cancellationPolicy;
+        initRegion(address, this.getDetailAddress(), lat, lng);
     }
 }

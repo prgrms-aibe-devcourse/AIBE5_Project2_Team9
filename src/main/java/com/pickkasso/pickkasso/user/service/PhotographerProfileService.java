@@ -8,6 +8,7 @@ import com.pickkasso.pickkasso.user.dto.photographer.EducationDto;
 import com.pickkasso.pickkasso.user.dto.photographer.PhotographerProfileEditRequest;
 import com.pickkasso.pickkasso.user.dto.photographer.PhotographerPortfolioSummaryDto;
 import com.pickkasso.pickkasso.user.dto.photographer.PhotographerProfileResponse;
+import com.pickkasso.pickkasso.user.dto.photographer.ProfileCompletionDto;
 import com.pickkasso.pickkasso.user.entity.*;
 import com.pickkasso.pickkasso.user.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -119,6 +120,32 @@ public class PhotographerProfileService {
                 educationDtos,
                 portfolios
         );
+    }
+
+    @Transactional(readOnly = true)
+    public ProfileCompletionDto getProfileCompletion(Long photographerId) {
+        Photographer photographer = getPhotographer(photographerId);
+        PhotographerProfile profile = photographer.getPhotographerProfile();
+
+        boolean hasProfileImage = profile != null
+                && profile.getImgUrl() != null
+                && !profile.getImgUrl().isBlank();
+        boolean hasIntro = profile != null
+                && profile.getIntro() != null
+                && !profile.getIntro().isBlank();
+        boolean hasServices = !photographer.getItemList().isEmpty();
+        boolean hasEquipment = profile != null
+                && profile.getTools() != null
+                && !profile.getTools().isEmpty();
+        boolean hasPortfolio = portfolioRepository.existsByPhotographerId(photographerId);
+
+        int score = (hasProfileImage ? 20 : 0)
+                + (hasIntro ? 20 : 0)
+                + (hasServices ? 20 : 0)
+                + (hasEquipment ? 20 : 0)
+                + (hasPortfolio ? 20 : 0);
+
+        return new ProfileCompletionDto(hasProfileImage, hasIntro, hasServices, hasEquipment, hasPortfolio, score);
     }
 
     public void createOrUpdateProfile(Long photographerId, PhotographerProfileEditRequest request, MultipartFile profileImg) {

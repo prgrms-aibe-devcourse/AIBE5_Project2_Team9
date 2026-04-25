@@ -1,11 +1,17 @@
 package com.pickkasso.pickkasso.user.controller;
 
+import com.pickkasso.pickkasso.review.repository.ReviewRepository;
 import com.pickkasso.pickkasso.user.dto.PasswordChangeDto;
+import com.pickkasso.pickkasso.user.dto.UserReservationDto;
 import com.pickkasso.pickkasso.user.entity.Account;
 import com.pickkasso.pickkasso.user.entity.Member;
+import com.pickkasso.pickkasso.user.entity.Photographer;
+import com.pickkasso.pickkasso.user.entity.Reservation;
+import com.pickkasso.pickkasso.user.entity.Role;
 import com.pickkasso.pickkasso.user.repository.AccountRepository;
 import com.pickkasso.pickkasso.user.repository.MemberRepository;
-import com.pickkasso.pickkasso.user.service.AccountService;
+import com.pickkasso.pickkasso.user.repository.PhotographerRepository;
+import com.pickkasso.pickkasso.user.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,13 +20,18 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/member/mypage")
 public class MyPageController {
 
+    private final PhotographerRepository photographerRepository;
     private final MemberRepository memberRepository;
     private final AccountRepository accountRepository;
+    private final ReservationRepository reservationRepository;
+    private final ReviewRepository reviewRepository;
     private final PasswordEncoder passwordEncoder;
 
     private Member getCurrentMember(Authentication auth) {
@@ -35,14 +46,30 @@ public class MyPageController {
 
     @GetMapping("/reservations")
     public String reservations(Authentication auth, Model model) {
-        model.addAttribute("member", getCurrentMember(auth));
+        Member member = getCurrentMember(auth);
+        List<Reservation> rawList = reservationRepository.findByMemberIdWithDetails(member.getId());
+        List<UserReservationDto> reservations = rawList.stream()
+                .map(r -> new UserReservationDto(r, reviewRepository.existsByReservationId(r.getId())))
+                .toList();
+        model.addAttribute("member", member);
+        model.addAttribute("reservations", reservations);
         model.addAttribute("activeTab", "reservations");
         return "user/mypage/reservations";
     }
 
     @GetMapping("/profile")
     public String profile(Authentication auth, Model model) {
-        model.addAttribute("member", getCurrentMember(auth));
+        Account account = accountRepository.findByUsername(auth.getName());
+
+        if (account.getRole() == Role.PHOTOGRAPHER) {
+            // 작가라면 작가 테이블에서 조회
+            Photographer photographer = photographerRepository.findByAccount(account);
+            model.addAttribute("member", photographer); // HTML에서 'member'라는 이름을 공통으로 쓴다면 이름을 맞춰줍니다.
+        } else {
+            // 일반 회원이라면 멤버 테이블에서 조회
+            Member member = memberRepository.findByAccount(account);
+            model.addAttribute("member", member);
+        }
         model.addAttribute("activeTab", "profile");
         return "user/mypage/profile";
     }
@@ -72,11 +99,6 @@ public class MyPageController {
 
         redirectAttributes.addFlashAttribute("success", true);
         return "redirect:/member/mypage/profile";
-    }
-
-    @GetMapping("/member/mypage/profile")
-    public String getProfile(Authentication auth, Model model) {
-        return "user/mypage/profile"; // flash attribute가 model에 자동으로 담김
     }
 
     @GetMapping("/photographer/{photographerId}/profile")

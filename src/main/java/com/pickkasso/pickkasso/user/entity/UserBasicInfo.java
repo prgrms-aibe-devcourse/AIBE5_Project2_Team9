@@ -29,4 +29,17 @@ public class UserBasicInfo {
 
     @Column(name = "deleted_at")
     protected LocalDateTime deletedAt;
+
+    public void deductCache(int amount) {
+        int current = this.cache == null ? 0 : this.cache;
+        if (current < amount) {
+            throw new IllegalStateException("캐시 잔액이 부족합니다.");
+        }
+        this.cache = current - amount;
+    }
+
+    public void refundCache(int amount) {
+        if (amount <= 0) return;
+        this.cache = (this.cache == null ? 0 : this.cache) + amount;
+    }
 }
