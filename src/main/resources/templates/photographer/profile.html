@@ -243,10 +243,16 @@
 
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
             <a th:each="item : ${items}"
-               th:href="@{/photographer/{id}/service/{itemId}(id=${profile.photographerId}, itemId=${item.id})}"
+               th:href="@{/item/{itemId}(itemId=${item.id})}"
                class="rounded-2xl border border-[#CCC] bg-[#F9FAFC] overflow-hidden hover:shadow-md hover:border-[#1D3CFF] transition-all no-underline">
-              <div class="h-36 bg-[#D3DEF2] flex items-center justify-center text-[#888] text-2xl font-semibold"
-                   th:text="${item.tag.name}">카테고리</div>
+              <div class="h-36 bg-[#D3DEF2] flex items-center justify-center text-[#888] text-2xl font-semibold overflow-hidden">
+                <img th:if="${item.imgUrl != null and !#strings.isEmpty(item.imgUrl)}"
+                     th:src="${item.imgUrl}"
+                     th:alt="${item.name}"
+                     class="w-full h-full object-cover">
+                <span th:unless="${item.imgUrl != null and !#strings.isEmpty(item.imgUrl)}"
+                      th:text="${item.tag.name}">카테고리</span>
+              </div>
               <div class="p-4">
                 <p class="text-[11px] font-semibold uppercase tracking-widest text-[#0097FF] mb-1.5"
                    th:text="${item.itemType.name() == 'IN' ? '스튜디오 촬영' : '방문 촬영'}">촬영 유형</p>
