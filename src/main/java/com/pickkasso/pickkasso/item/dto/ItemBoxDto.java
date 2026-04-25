@@ -33,7 +33,7 @@ public class ItemBoxDto {
         return ItemBoxDto.builder()
             .id(item.getId())
             .name(item.getName())
-            // .imgUrl() 미구현
+            .imgUrl(item.getThumbnailImgUrl())
             .tag(TagReference.from(item.getTag()))
             .photographer(PhotographerSimpleCardDto.from(item.getPhotographer()))
             .region(RegionDto.from(item))

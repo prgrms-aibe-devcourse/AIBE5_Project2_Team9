@@ -49,6 +49,9 @@ public class Item extends Region {
     @Enumerated(EnumType.STRING)
     private ItemType itemType;
 
+    @Column(name = "thumbnail_img_url", length = 500)
+    private String thumbnailImgUrl;
+
     // review와 연계해서 자동으로 계산해야 합니다.
     @Column(name = "review_count", nullable = false)
     private Integer reviewCount;
@@ -129,6 +132,30 @@ public class Item extends Region {
         return item;
     }
 
+    public void updateItem(
+        Tag tag,
+        String name,
+        String description,
+        String includes,
+        String excludes,
+        ItemType itemType,
+        Integer minBookingLeadTime,
+        String cancellationPolicy,
+        String address,
+        Double lat,
+        Double lng) {
+        this.tag = tag;
+        this.name = name;
+        this.description = description;
+        this.includes = includes;
+        this.excludes = excludes;
+        this.itemType = itemType;
+        this.minBookingLeadTime = minBookingLeadTime;
+        this.cancellationPolicy = cancellationPolicy;
+        this.initRegion(address, "", lat, lng);
+    }
+
+
     // plan
     public void addPlan(Plan plan) {
         planList.add(plan);
@@ -140,6 +167,7 @@ public class Item extends Region {
 
     public void updateDefaultPrice() {
         defaultPrice = planList.stream()
+            .filter(p -> p.getEnabled() == true)
             .mapToInt(Plan::getPrice)
             .min()
             .orElse(0);
@@ -155,6 +183,11 @@ public class Item extends Region {
     public void updateItemImgList(List<ItemImg> newItemImgList) {
         itemImgList.clear();
         itemImgList.addAll(newItemImgList);
+        this.thumbnailImgUrl = newItemImgList.stream()
+            .filter(img -> img.getImgOrder() == 0)
+            .map(ItemImg::getImgUrl)
+            .findFirst()
+            .orElse(null);
     }
 
     public void addReview(int rating) {

@@ -32,7 +32,7 @@ public class PhotographerProfileController {
     public String profilePage(@PathVariable Long photographerId, Model model, Authentication authentication) {
         PhotographerProfileResponse response = photographerProfileService.getProfileForm(photographerId);
         model.addAttribute("profile", response);
-        model.addAttribute("items", itemService.getItemsByPhotographerId(photographerId));
+        model.addAttribute("items", itemService.getItemBoxDtoById(photographerId));
 
         List<ReviewDto> reviews = reviewRepository.findByPhotographerIdWithDetails(photographerId)
                 .stream().map(ReviewDto::new).toList();

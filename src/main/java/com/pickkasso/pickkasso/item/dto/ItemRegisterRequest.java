@@ -1,6 +1,7 @@
 package com.pickkasso.pickkasso.item.dto;
 
 import com.pickkasso.pickkasso.item.entity.ItemType;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,6 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class ItemRegisterRequest {
     private String tagName;
     private ItemType itemType;

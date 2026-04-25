@@ -4,12 +4,7 @@ import com.pickkasso.pickkasso.user.dto.photographer.CareerDto;
 import com.pickkasso.pickkasso.user.dto.photographer.EducationDto;
 import com.pickkasso.pickkasso.user.dto.photographer.PhotographerProfileEditRequest;
 import com.pickkasso.pickkasso.user.dto.photographer.PhotographerProfileResponse;
-import com.pickkasso.pickkasso.user.entity.Account;
-import com.pickkasso.pickkasso.user.entity.Career;
-import com.pickkasso.pickkasso.user.entity.Education;
-import com.pickkasso.pickkasso.user.entity.Gender;
-import com.pickkasso.pickkasso.user.entity.Photographer;
-import com.pickkasso.pickkasso.user.entity.Role;
+import com.pickkasso.pickkasso.user.entity.*;
 import com.pickkasso.pickkasso.user.repository.AccountRepository;
 import com.pickkasso.pickkasso.user.repository.CareerRepository;
 import com.pickkasso.pickkasso.user.repository.EducationRepository;
@@ -55,6 +50,9 @@ class PhotographerProfileServiceTest {
                 "김민준 작가",
                 "안녕하세요. 감성 스냅 작가입니다.",
                 "https://example.com",
+                0,
+                0,
+                ResponseTime.IN_DAY,
                 List.of("Sony A7IV", "85mm f1.4"),
                 List.of(
                         new CareerDto(null, "프리랜서 사진작가", LocalDate.of(2020, 1, 1), null)
@@ -92,6 +90,9 @@ class PhotographerProfileServiceTest {
                 "기존 작가명",
                 "기존 소개",
                 "https://first.com",
+                0,
+                0,
+                ResponseTime.IN_DAY,
                 List.of("기존 장비"),
                 List.of(),
                 List.of()
@@ -104,6 +105,9 @@ class PhotographerProfileServiceTest {
                 "수정된 작가명",
                 "수정된 소개",
                 "https://updated.com",
+                0,
+                0,
+                ResponseTime.IN_DAY,
                 List.of("Sony A7IV", "35mm"),
                 List.of(
                         new CareerDto(null, "수정 경력", LocalDate.of(2021, 1, 1), null)
