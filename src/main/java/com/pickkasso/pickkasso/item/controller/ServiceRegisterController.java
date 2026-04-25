@@ -86,7 +86,18 @@ public class ServiceRegisterController {
 
 
     @GetMapping("/{itemId}/edit")
-    public String serviceEditForm(@PathVariable Long photographerId, @PathVariable Long itemId, Model model) {
+    public String serviceEditForm(
+        @PathVariable Long photographerId,
+        @PathVariable Long itemId,
+        Authentication authentication,
+        Model model) {
+        ensurePhotographerOwner(authentication, photographerId);
+
+        Item item = itemService.getItemById(itemId);
+        if (!item.getPhotographer().getId().equals(photographerId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "본인 서비스만 수정할 수 있습니다.");
+        }
+
         model.addAttribute("photographerId", photographerId);
         model.addAttribute("tagList", tagService.findAllTagReference());
         model.addAttribute("itemRegisterRequest", itemService.getItemRegisterRequest(photographerId, itemId));
@@ -96,17 +107,19 @@ public class ServiceRegisterController {
         return "photographer/service-register";
     }
 
-
+    // 예외처리 부분 반영하지 않음
     @PostMapping("/{itemId}/edit")
     public String updateService(
         @PathVariable Long photographerId,
         @PathVariable Long itemId,
+        Authentication authentication,
         @ModelAttribute ItemRegisterRequest itemRegisterRequest,
         @RequestParam(required = false) List<String> keptImgUrls,
         @RequestParam(required = false) List<Integer> keptImgOrders,
         @RequestParam(required = false) List<MultipartFile> newFiles,
         @RequestParam(required = false) List<Integer> newFileOrders,
         RedirectAttributes redirectAttributes) {
+        ensurePhotographerOwner(authentication, photographerId);
 
         try {
             itemService.updateItem(photographerId, itemId, itemRegisterRequest, keptImgUrls, keptImgOrders, newFiles, newFileOrders);
@@ -115,6 +128,16 @@ public class ServiceRegisterController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/photographer/" + photographerId + "/service/" + itemId + "/edit";
+        }
+    }
+
+    private void ensurePhotographerOwner(Authentication authentication, Long photographerId) {
+        if (authentication == null || authentication.getName() == null) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "접근 권한이 없습니다.");
+        }
+        Account account = accountRepository.findByUsername(authentication.getName());
+        if (account == null || account.getRole() != Role.PHOTOGRAPHER || !photographerId.equals(account.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "본인 계정으로만 수정할 수 있습니다.");
         }
     }
 
