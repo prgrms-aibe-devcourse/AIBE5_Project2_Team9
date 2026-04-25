@@ -26,6 +26,7 @@ public class SecurityConfig {
                         "/find-id/**", "/find-pw/**", "/item/**",
                         "/search/**", "/items/fragment","/api/check-username"
                     ).permitAll()
+                    .requestMatchers("/photographer/*/profile", "/photographer/*/portfolio/*").permitAll()
                     .requestMatchers("/photographer/**").hasRole("PHOTOGRAPHER")
                             .anyRequest().authenticated()
             )
