@@ -27,6 +27,7 @@ public class ItemBoxDto {
     private ItemType itemType;
     private Long reviewScore;
     private Integer reviewCount;
+    private Integer purchaseCount;
     private Double distance;
 
     public static ItemBoxDto from(Item item) {
@@ -41,6 +42,7 @@ public class ItemBoxDto {
             .itemType(item.getItemType())
             .reviewScore(item.getReviewScore())
             .reviewCount(item.getReviewCount())
+            .purchaseCount(item.getPurchaseCount())
             .build();
     }
 }

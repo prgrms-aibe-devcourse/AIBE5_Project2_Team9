@@ -109,6 +109,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                 item.itemType,
                 item.reviewScore,
                 item.reviewCount,
+                item.purchaseCount,
                 // distance
                 distanceExpr != null ? distanceExpr : Expressions.nullExpression(Double.class)
             )).from(item)

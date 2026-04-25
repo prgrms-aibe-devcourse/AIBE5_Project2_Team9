@@ -71,6 +71,9 @@ public class Item extends Region {
     @Column(name = "cancellation_policy", columnDefinition = "TEXT")
     private String cancellationPolicy;
 
+    @Column(name="purchase_count", nullable = false)
+    private Integer purchaseCount;
+
     // TODO: createdAt 등은 나중에 따로 서브테이블로 관리해야 한다. 지금은 구현을 위해
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -108,6 +111,7 @@ public class Item extends Region {
         reviewCount = 0;
         reviewScore = 0L;
         defaultPrice = 0;
+        purchaseCount = 0;
     }
 
     //== 생성 method ==//
