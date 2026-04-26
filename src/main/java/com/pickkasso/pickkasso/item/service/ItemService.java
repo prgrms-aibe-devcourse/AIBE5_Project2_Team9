@@ -264,4 +264,9 @@ public class ItemService {
         }
         return resList;
     }
+
+    public List<ItemBoxDto> getCustomItemList(int count) {
+        List<Item> itemList = itemRepository.findCustomItem(PageRequest.of(0, count));
+        return getItemBoxDtoList(itemList);
+    }
 }

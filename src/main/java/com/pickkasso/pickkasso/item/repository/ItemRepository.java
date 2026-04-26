@@ -67,4 +67,13 @@ public interface ItemRepository extends JpaRepository<Item, Long>, ItemRepositor
         "LEFT JOIN FETCH i.tag " +
         "WHERE i.photographer.id = :photographerId ")
     List<Item> findItemByPhotographerId(@Param("photographerId") Long photographerId);
+
+    @Query("SELECT i FROM Item i " +
+        "JOIN FETCH i.tag t " +
+        "JOIN FETCH i.photographer " +
+        "WHERE t.name IN ('야외', '데이트스냅') " +
+        "AND i.reviewCount >= 10 " +
+        "AND (i.reviewScore * 1.0 / i.reviewCount) >= 4.0 " +
+        "ORDER BY (i.reviewScore * 1.0 / i.reviewCount) DESC, FUNCTION('RAND')")
+    List<Item> findCustomItem(Pageable pageable);
 }
