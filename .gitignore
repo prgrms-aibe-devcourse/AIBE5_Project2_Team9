@@ -56,6 +56,6 @@ CLAUDE.md
 /refer
 
 **/script/**
-!**/script/
-!**/script/**/
-!**/script/**/*.sql
+#!**/script/
+#!**/script/**/
+#!**/script/**/*.sql
