@@ -62,10 +62,11 @@
           <div class="flex items-center justify-between gap-4 rounded-xl bg-[#F9FAFC] border border-[#CCC] px-5 py-4">
             <div>
               <p class="text-xs text-[#888] mb-1">보유 캐시</p>
-              <p class="text-2xl font-bold text-[#1D3CFF]"
+              <p id="cashBalance" class="text-2xl font-bold text-[#1D3CFF]"
                  th:text="${member.cash != null ? #numbers.formatInteger(member.cash, 1, 'COMMA') + ' C' : '0 C'}">0 C</p>
             </div>
-            <button class="bg-white border border-[#1D3CFF] text-[#1D3CFF] hover:bg-[#1D3CFF] hover:text-white font-semibold px-4 py-2 rounded-lg text-sm transition-colors">
+            <button class="bg-white border border-[#1D3CFF] text-[#1D3CFF] hover:bg-[#1D3CFF] hover:text-white font-semibold px-4 py-2 rounded-lg text-sm transition-colors"
+                    onclick="cashChargeModal.open(onCashChargeSuccess)">
               충전하기
             </button>
           </div>
@@ -109,6 +110,16 @@
       </div>
     </div>
   </div>
+  <th:block th:replace="~{fragments/modal/cash-charge-modal :: cashChargeModal}" />
+  <script>
+    function onCashChargeSuccess(data) {
+      const txt = data.newBalance.toLocaleString() + ' C';
+      const main = document.getElementById('cashBalance');
+      const side = document.getElementById('sidebarCashBalance');
+      if (main) main.textContent = txt;
+      if (side) side.textContent = txt;
+    }
+  </script>
 </main>
 
 </body>

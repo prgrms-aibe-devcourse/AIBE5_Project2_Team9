@@ -42,4 +42,9 @@ public class UserBasicInfo {
         if (amount <= 0) return;
         this.cash = (this.cash == null ? 0 : this.cash) + amount;
     }
+
+    public int addCache(int amount) {
+        this.cash = (this.cash == null ? 0 : this.cash) + amount;
+        return this.cash;
+    }
 }
