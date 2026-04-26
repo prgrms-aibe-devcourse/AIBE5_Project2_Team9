@@ -193,6 +193,8 @@
               url.searchParams.set("page", '');
               if (value) {
                   url.searchParams.set("distance", value);
+              } else {
+                  url.searchParams.delete("distance");  // ← 추가
               }
               window.location.href = url.toString();
           }
@@ -468,7 +470,7 @@
               class="sort-select text-sm text-[#444] border border-[#CCC] rounded-lg py-[7px] pl-3 pr-7 bg-white cursor-pointer outline-none"
               onchange="changeDistance(this.value)"
             >
-              <option value="" th:selected="${itemSearchFormDto.distance != null}">거리 제한 없음</option>
+              <option value="" th:selected="${itemSearchFormDto.distance == null}">거리 제한 없음</option>
               <option value="1"  th:selected="${itemSearchFormDto.distance != null and itemSearchFormDto.distance == 1}">1km 이내</option>
               <option value="3"  th:selected="${itemSearchFormDto.distance != null and itemSearchFormDto.distance == 3}">3km 이내</option>
               <option value="5"  th:selected="${itemSearchFormDto.distance != null and itemSearchFormDto.distance == 5}">5km 이내</option>
