@@ -396,7 +396,7 @@
         </div>
 
         <div th:if="${canEditService}" class="bg-white border border-[#CCC] rounded-2xl p-5">
-          <a th:href="@{/photographer/{photographerId}/item/{itemId}/edit(photographerId=${item.photographer.id}, itemId=${item.id})}"
+          <a th:href="@{/photographer/{photographerId}/service/{itemId}/edit(photographerId=${item.photographer.id}, itemId=${item.id})}"
              class="inline-flex w-full items-center justify-center gap-2 bg-white border border-[#1D3CFF] text-[#1D3CFF] hover:bg-[#1D3CFF] hover:text-white active:bg-[#1530E0] font-semibold px-5 py-2.5 rounded-lg transition-colors text-sm">
             수정하기
           </a>
