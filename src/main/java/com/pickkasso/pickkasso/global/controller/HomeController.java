@@ -20,6 +20,11 @@ public class HomeController {
     private final ItemService itemService;
 
     @GetMapping("/")
+    public String landing() {
+        return "landing";
+    }
+
+    @GetMapping("/home")
     public String home(Model model) {
         List<TagReference> tagList = tagService.findAllTagReference();
         model.addAttribute("tagList", tagList);
