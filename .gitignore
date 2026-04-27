@@ -49,6 +49,9 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 
+#### Fonts (non-redistributable)
+#**/fonts/WhiteAngelica.ttf
+
 ### etc
 
 CLAUDE.md
