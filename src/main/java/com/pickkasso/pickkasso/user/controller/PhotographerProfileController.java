@@ -10,6 +10,9 @@ import com.pickkasso.pickkasso.user.entity.ResponseTime;
 import com.pickkasso.pickkasso.user.repository.AccountRepository;
 import com.pickkasso.pickkasso.user.service.PhotographerProfileService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,6 +30,7 @@ public class PhotographerProfileController {
     private final ItemService itemService;
     private final AccountRepository accountRepository;
     private final ReviewRepository reviewRepository;
+    private static final int REVIEW_PAGE_SIZE = 5;
 
     @GetMapping
     public String profilePage(@PathVariable Long photographerId, Model model, Authentication authentication) {
@@ -34,11 +38,16 @@ public class PhotographerProfileController {
         model.addAttribute("profile", response);
         model.addAttribute("items", itemService.getItemBoxDtoById(photographerId));
 
-        List<ReviewDto> reviews = reviewRepository.findByPhotographerIdWithDetails(photographerId)
+        Pageable reviewPageable = PageRequest.of(0, REVIEW_PAGE_SIZE, Sort.by(Sort.Order.desc("createdAt")));
+        List<ReviewDto> reviews = reviewRepository.findByPhotographer_Id(photographerId, reviewPageable)
+                .map(ReviewDto::new)
+                .getContent();
+        List<ReviewDto> allReviews = reviewRepository.findByPhotographerIdWithDetails(photographerId)
                 .stream().map(ReviewDto::new).toList();
-        double avgRating = reviews.stream().mapToInt(ReviewDto::getRating).average().orElse(0.0);
+        double avgRating = allReviews.stream().mapToInt(ReviewDto::getRating).average().orElse(0.0);
         model.addAttribute("reviews", reviews);
-        model.addAttribute("reviewCount", reviews.size());
+        model.addAttribute("reviewCount", allReviews.size());
+        model.addAttribute("reviewHasNext", allReviews.size() > reviews.size());
         model.addAttribute("avgRating", String.format("%.1f", avgRating));
 
         boolean isOwner = false;
