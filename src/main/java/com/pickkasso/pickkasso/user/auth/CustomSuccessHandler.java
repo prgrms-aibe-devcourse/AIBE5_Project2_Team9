@@ -26,7 +26,7 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
             System.out.println("카카오 로그인 성공");
             System.out.println(oAuth2User.getAttributes());
 
-            response.sendRedirect("/");
+            response.sendRedirect("/home");
             return;
         }
 
@@ -49,13 +49,13 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
 
         // 정상 로그인
         if (role.equals("ROLE_MEMBER")) {
-            response.sendRedirect("/");
+            response.sendRedirect("/home");
         } else if (role.equals("ROLE_PHOTOGRAPHER")) {
-            response.sendRedirect("/");
+            response.sendRedirect("/home");
         } else if (role.equals("ROLE_ADMIN")) {
             response.sendRedirect("/admin");
         } else {
-            response.sendRedirect("/");
+            response.sendRedirect("/home");
         }
     }
 }
