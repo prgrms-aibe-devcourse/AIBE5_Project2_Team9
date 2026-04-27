@@ -346,7 +346,7 @@
               <span
                 id="display-date"
                 class="flex-1 text-center"
-                th:text="${itemSearchFormDto.date != null ? #temporals.format(itemSearchFormDto.date, 'MM/dd') : '날짜'}"
+                th:text="${itemSearchFormDto.date != null ? #temporals.format(itemSearchFormDto.date, 'yyyy-MM-dd') : '날짜'}"
                 >날짜</span
               >
             </div>
