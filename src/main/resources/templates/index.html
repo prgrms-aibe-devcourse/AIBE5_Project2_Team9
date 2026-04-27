@@ -69,7 +69,7 @@
                 heroSlides[heroCurrent].classList.replace('opacity-100', 'opacity-0');
                 heroCurrent = (heroCurrent + 1) % heroSlides.length;
                 heroSlides[heroCurrent].classList.replace('opacity-0', 'opacity-100');
-            }, 20000);
+            }, 12000);
 
             // 카테고리 태그 토글
             document.querySelectorAll('.cat-tag').forEach(tag => {
@@ -111,22 +111,20 @@
   <section class="h-[480px] relative overflow-hidden flex flex-col items-center justify-center gap-7 px-6">
 
     <!-- 배경 이미지 슬라이드쇼 -->
-    <img th:src="@{/images/hero/omar-flores-lQT_bOWtysE-unsplash.jpg}"
-         src="/images/hero/omar-flores-lQT_bOWtysE-unsplash.jpg"
-         alt="" aria-hidden="true" loading="eager"
-         class="hero-slide absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000 opacity-100">
-    <img th:src="@{/images/hero/nightView.jpg}"
-         src="/images/hero/nightView.jpg"
-         alt="" aria-hidden="true" loading="eager"
-         class="hero-slide absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000 opacity-0">
-    <img th:src="@{/images/hero/nathalie-stimpfl-EDKWnb-kZV4-unsplash.jpg}"
-         src="/images/hero/nathalie-stimpfl-EDKWnb-kZV4-unsplash.jpg"
-         alt="" aria-hidden="true" loading="eager"
-         class="hero-slide absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000 opacity-0">
+    <img th:src="@{/images/hero/hero_image_1.webp}" src="/images/hero/hero_image_1.webp" alt="" aria-hidden="true" loading="eager" class="hero-slide absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000 opacity-100">
+    <img th:src="@{/images/hero/hero_image_2.webp}" src="/images/hero/hero_image_2.webp" alt="" aria-hidden="true" loading="lazy"  class="hero-slide absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000 opacity-0">
+    <img th:src="@{/images/hero/hero_image_3.webp}" src="/images/hero/hero_image_3.webp" alt="" aria-hidden="true" loading="lazy"  class="hero-slide absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000 opacity-0">
+    <img th:src="@{/images/hero/hero_image_4.webp}" src="/images/hero/hero_image_4.webp" alt="" aria-hidden="true" loading="lazy"  class="hero-slide absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000 opacity-0">
+    <img th:src="@{/images/hero/hero_image_5.webp}" src="/images/hero/hero_image_5.webp" alt="" aria-hidden="true" loading="lazy"  class="hero-slide absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000 opacity-0">
+    <img th:src="@{/images/hero/hero_image_6.webp}" src="/images/hero/hero_image_6.webp" alt="" aria-hidden="true" loading="lazy"  class="hero-slide absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000 opacity-0">
+    <img th:src="@{/images/hero/hero_image_7.webp}" src="/images/hero/hero_image_7.webp" alt="" aria-hidden="true" loading="lazy"  class="hero-slide absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000 opacity-0">
+    <img th:src="@{/images/hero/hero_image_8.webp}" src="/images/hero/hero_image_8.webp" alt="" aria-hidden="true" loading="lazy"  class="hero-slide absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000 opacity-0">
+    <img th:src="@{/images/hero/hero_image_9.webp}" src="/images/hero/hero_image_9.webp" alt="" aria-hidden="true" loading="lazy"  class="hero-slide absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000 opacity-0">
     <!-- 오버레이 -->
     <div class="absolute inset-0 bg-black/50"></div>
 
-    <h1 class="relative z-10 font-[500] text-[38px] text-white text-center tracking-tight leading-[1.3]">
+    <h1 class="relative z-10 font-[500] text-[38px] text-white text-center tracking-tight leading-[1.3]
+               bg-black/30 backdrop-blur-sm px-8 py-4 rounded-2xl">
       소중한 순간, 색감 있는 작가를 만나보세요
     </h1>
 
