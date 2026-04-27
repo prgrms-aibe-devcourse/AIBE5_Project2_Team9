@@ -221,6 +221,10 @@ public class PhotographerDashboardController {
         Long photographerId = photographer.getId();
         LocalDate normalizedWeekStart = reservationService.normalizeWeekStart(weekStart);
         ProfileCompletionDto completion = photographerProfileService.getProfileCompletion(photographerId);
+        List<ReviewDto> recentReviews = reviewRepository.findByPhotographerIdWithDetails(photographerId).stream()
+                .limit(2)
+                .map(ReviewDto::new)
+                .toList();
 
         model.addAttribute("photographer", photographer);
         model.addAttribute("userId", photographerId);
@@ -230,5 +234,6 @@ public class PhotographerDashboardController {
         model.addAttribute("pendingList", reservationService.getPendingList(photographerId));
         model.addAttribute("todaySchedule", reservationService.getTodaySchedule(photographerId));
         model.addAttribute("weekly", reservationService.getWeeklyCalendar(photographerId, normalizedWeekStart));
+        model.addAttribute("recentReviews", recentReviews);
     }
 }

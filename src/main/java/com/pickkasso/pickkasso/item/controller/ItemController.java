@@ -12,8 +12,11 @@ import com.pickkasso.pickkasso.review.dto.ReviewDto;
 import com.pickkasso.pickkasso.review.repository.ReviewRepository;
 import com.pickkasso.pickkasso.user.service.PhotographerProfileService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,6 +36,7 @@ public class ItemController {
     private final PlanService planService;
     private final ReviewRepository reviewRepository;
     private static final int PAGE_VIEW_COUNT = 20;
+    private static final int REVIEW_PAGE_SIZE = 5;
 
     private ItemSearchCondition toCondition(ItemSearchFormDto dto) {
         ItemSearchCondition condition = new ItemSearchCondition();
@@ -96,9 +100,19 @@ public class ItemController {
         model.addAttribute("itemImgList", itemService.getItemImage(photographerId, id));
         model.addAttribute("canEditService", isOwnerPhotographer(item, authentication));
 
-        List<ReviewDto> reviews = reviewRepository.findByItemIdWithDetails(id)
-                .stream().map(ReviewDto::new).toList();
+        Pageable reviewPageable = PageRequest.of(0, REVIEW_PAGE_SIZE, Sort.by(Sort.Order.desc("createdAt")));
+        List<ReviewDto> reviews = reviewRepository.findByReservation_Item_Id(id, reviewPageable)
+            .map(ReviewDto::new)
+            .getContent();
+        List<ReviewDto> allReviews = reviewRepository.findByItemIdWithDetails(id)
+            .stream().map(ReviewDto::new).toList();
+        int reviewCount = allReviews.size();
+        double avgRating = allReviews.stream().mapToInt(ReviewDto::getRating).average().orElse(0.0);
         model.addAttribute("reviews", reviews);
+        model.addAttribute("reviewCount", reviewCount);
+        model.addAttribute("reviewHasNext", reviewCount > reviews.size());
+        model.addAttribute("avgRatingValue", avgRating);
+        model.addAttribute("avgRating", String.format("%.1f", avgRating));
 
         return "photographer/service-detail";
     }
