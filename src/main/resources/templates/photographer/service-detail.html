@@ -86,13 +86,13 @@
             </a>
             <!-- Rating row -->
             <div class="flex items-center gap-3 mt-1 flex-wrap">
-              <span th:if="${item.reviewCount > 0}" class="flex items-center gap-1 text-sm">
+              <span th:if="${reviewCount > 0}" class="flex items-center gap-1 text-sm">
                 <span class="text-[#0097FF]">★</span>
                 <span class="font-semibold text-[#1A1A1A]"
-                      th:text="${#numbers.formatDecimal(item.reviewScore * 1.0 / item.reviewCount, 1, 2)}">4.9</span>
-                <span class="text-[#888]" th:text="'(' + ${item.reviewCount} + '개)'"></span>
+                      th:text="${avgRating}">4.9</span>
+                <span class="text-[#888]" th:text="'(' + ${reviewCount} + '개)'"></span>
               </span>
-              <span th:unless="${item.reviewCount > 0}" class="text-sm text-[#AAA]">아직 후기가 없어요</span>
+              <span th:unless="${reviewCount > 0}" class="text-sm text-[#AAA]">아직 후기가 없어요</span>
               <span class="inline-flex items-center gap-1 rounded-full border border-[#CCC] bg-[#F9FAFC] px-3 py-0.5 text-xs text-[#444]"
                     th:text="${item.itemType.name() == 'IN' ? '🏢 스튜디오 촬영' : '📍 방문 촬영'}">방문 촬영</span>
               <span class="inline-flex items-center gap-1 rounded-full border border-[#CCC] bg-[#F9FAFC] px-3 py-0.5 text-xs text-[#0097FF] font-semibold"
@@ -208,27 +208,36 @@
         <!-- 리뷰 -->
         <div class="bg-white border border-[#CCC] rounded-2xl p-6">
           <div class="flex items-center justify-between gap-3 mb-5">
-            <h2 class="text-xl font-semibold text-[#1A1A1A]">리뷰</h2>
-            <span class="text-sm text-[#888]" th:text="${item.reviewCount} + '개'">0개</span>
+            <div class="flex items-center gap-3">
+              <h2 class="text-xl font-semibold text-[#1A1A1A]">리뷰</h2>
+              <span class="text-sm text-[#888]" th:text="${reviewCount} + '개'">0개</span>
+            </div>
+            <select id="item-review-order" class="text-sm border border-[#CCC] rounded-lg px-3 py-2 bg-white text-[#444]">
+              <option value="recent">최신순</option>
+              <option value="score-desc">별점 높은순</option>
+              <option value="score-asc">별점 낮은순</option>
+            </select>
           </div>
 
-          <div th:if="${item.reviewCount > 0}">
+          <div th:if="${reviewCount > 0}">
             <!-- 요약 -->
             <div class="flex items-center gap-6 pb-5 border-b border-[#CCC]">
               <div class="text-center">
                 <p class="text-5xl font-bold text-[#1A1A1A]"
-                   th:text="${#numbers.formatDecimal(item.reviewScore * 1.0 / item.reviewCount, 1, 2)}">0.0</p>
+                   th:text="${avgRating}">0.0</p>
                 <div class="flex gap-0.5 mt-2 justify-center">
                   <span th:each="i : ${#numbers.sequence(1, 5)}"
-                        th:style="${i <= item.reviewScore * 1.0 / item.reviewCount} ? 'color:#FBBF24' : 'color:#E5E7EB'"
+                        th:style="${i <= avgRatingValue} ? 'color:#FBBF24' : 'color:#E5E7EB'"
                         class="text-lg">★</span>
                 </div>
               </div>
-              <p class="text-sm text-[#888]" th:text="'후기 ' + ${item.reviewCount} + '개'">후기 0개</p>
+              <p class="text-sm text-[#888]" th:text="'후기 ' + ${reviewCount} + '개'">후기 0개</p>
             </div>
 
             <!-- 개별 리뷰 목록 -->
-            <div class="divide-y divide-[#EEE] mt-1">
+            <div id="item-review-list"
+                 class="divide-y divide-[#EEE] mt-1"
+                 th:attr="data-item-id=${item.id},data-current-page=0,data-has-next=${reviewHasNext}">
               <article th:each="review : ${reviews}" class="py-5">
                 <div class="flex items-start justify-between gap-4 mb-3">
                   <div class="flex items-center gap-3">
@@ -246,14 +255,22 @@
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                       </svg>
                     </th:block>
+                    <span class="text-[12px] font-bold text-[#1A1A1A] ml-1" th:text="${review.rating + '.0'}">4.0</span>
                   </div>
                 </div>
                 <p class="text-[13px] text-[#444] leading-relaxed" th:text="${review.content}">후기 내용</p>
               </article>
             </div>
+
+            <button id="item-review-load-more"
+                    th:if="${reviewHasNext}"
+                    type="button"
+                    class="mt-4 w-full text-sm font-semibold text-[#1D3CFF] border border-[#1D3CFF] rounded-lg py-2.5 hover:bg-[#1D3CFF] hover:text-white transition-colors">
+              더 불러오기
+            </button>
           </div>
 
-          <div th:unless="${item.reviewCount > 0}"
+          <div th:unless="${reviewCount > 0}"
                class="rounded-xl border border-dashed border-[#CCC] bg-[#F9FAFC] px-5 py-8 text-center">
             <p class="text-base font-medium text-[#444] mb-1">아직 등록된 후기가 없어요.</p>
             <p class="text-sm text-[#888]">이 작가에게 예약 후 첫 번째 후기를 남겨보세요.</p>
@@ -427,6 +444,64 @@
         });
       });
     })();
+
+    (function () {
+      const listEl = document.getElementById('item-review-list');
+      const orderEl = document.getElementById('item-review-order');
+      const loadMoreBtn = document.getElementById('item-review-load-more');
+      if (!listEl || !orderEl) return;
+
+      const itemId = listEl.dataset.itemId;
+      let currentPage = parseInt(listEl.dataset.currentPage || '0', 10);
+      let hasNext = (listEl.dataset.hasNext || 'false') === 'true';
+      let loading = false;
+
+      const toggleLoadMore = () => {
+        if (!loadMoreBtn) return;
+        loadMoreBtn.style.display = hasNext ? 'block' : 'none';
+      };
+      toggleLoadMore();
+
+      const loadReviews = async (page, append) => {
+        if (loading) return;
+        loading = true;
+        try {
+          const url = `/review/item/${itemId}/fragment?orderBy=${encodeURIComponent(orderEl.value)}&page=${page}`;
+          const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+          if (!res.ok) return;
+          const html = await res.text();
+          const temp = document.createElement('div');
+          temp.innerHTML = html;
+          const fragment = temp.querySelector('[data-has-next]');
+          if (!fragment) return;
+
+          if (append) {
+            listEl.insertAdjacentHTML('beforeend', fragment.innerHTML);
+          } else {
+            listEl.innerHTML = fragment.innerHTML;
+          }
+
+          hasNext = fragment.dataset.hasNext === 'true';
+          currentPage = page;
+          toggleLoadMore();
+        } finally {
+          loading = false;
+        }
+      };
+
+      orderEl.addEventListener('change', () => {
+        hasNext = true;
+        loadReviews(0, false);
+      });
+
+      if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', () => {
+          if (!hasNext) return;
+          loadReviews(currentPage + 1, true);
+        });
+      }
+    })();
+
     function selectImg(el) {
         document.getElementById('main-img').src = el.dataset.src;
         document.querySelectorAll('.thumbnail-item').forEach(t => {

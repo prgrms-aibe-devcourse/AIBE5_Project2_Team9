@@ -8,7 +8,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.thymeleaf.extras.springsecurity6.dialect.SpringSecurityDialect;
 
 @Configuration
 @EnableWebSecurity
@@ -24,7 +23,8 @@ public class SecurityConfig {
                     .requestMatchers("/", "/login", "/signup/**", "/find-account", "/403", "/404", "/500", "/400", "/error-default",
                         "/css/**", "/fonts/**", "/js/**", "/images/**",
                         "/find-id/**", "/find-pw/**", "/item/**",
-                        "/search/**", "/items/fragment","/api/check-username"
+                        "/search/**", "/items/fragment","/api/check-username",
+                        "/review/item/**", "/review/photographer/**"
                     ).permitAll()
                     .requestMatchers("/photographer/*/profile", "/photographer/*/portfolio/*").permitAll()
                     .requestMatchers("/photographer/**").hasRole("PHOTOGRAPHER")
