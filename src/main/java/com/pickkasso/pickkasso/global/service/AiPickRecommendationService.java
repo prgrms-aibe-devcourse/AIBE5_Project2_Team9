@@ -562,7 +562,9 @@ public class AiPickRecommendationService {
             .sorted(Comparator
                 .comparingInt((ScoredItem si) -> locationPriority(si.item(), parsed)).reversed()
                 .thenComparing(Comparator.comparingInt(ScoredItem::score).reversed())
-                .thenComparing(Comparator.comparingInt((ScoredItem si) -> si.item().getAvgScore()).reversed())
+                .thenComparing(Comparator.comparingDouble((ScoredItem si) ->
+                    si.item().getReviewCount() == 0 ? 0.0 :
+                        (double) si.item().getReviewScore() / si.item().getReviewCount()).reversed())
                 .thenComparing(Comparator.comparingInt((ScoredItem si) -> si.item().getReviewCount()).reversed()))
             .toList();
 
@@ -701,7 +703,7 @@ public class AiPickRecommendationService {
                 item.getTag().getName(),
                 item.getName(),
                 item.getPhotographer().getName(),
-                item.getAvgScore() / 100.0,
+                (double) item.getReviewScore() / item.getReviewCount(),
                 item.getReviewCount(),
                 extractRegion(item.getAddress(), parsed.location()),
                 item.getDefaultPrice(),
@@ -1242,7 +1244,7 @@ public class AiPickRecommendationService {
             else if (item.getDefaultPrice() <= parsed.maxPrice() * 1.3) score += 10;
         }
         score += Math.min(item.getReviewCount(), 30);
-        score += Math.min(item.getAvgScore() / 20, 10);
+        score += Math.min((int) ((double) item.getReviewScore() / item.getReviewCount() * 100) / 20, 10);
         return score;
     }
 

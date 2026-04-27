@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="_csrf"        th:content="${_csrf.token}"/>
+  <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
   <title th:text="${item.name} + ' 예약 | PICKASSO'">예약하기 | PICKASSO</title>
   <link rel="stylesheet" th:href="@{/css/global.css}">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -19,6 +21,7 @@
     }
   </script>
   <style>
+    /* ── 캘린더 ── */
     .cal-day {
       width: 2.25rem; height: 2.25rem;
       border-radius: 9999px;
@@ -35,6 +38,7 @@
     .cal-day.sun:hover, .cal-day.sat:hover, .cal-day.normal:hover { background: #F0F3FF; }
     .cal-day.selected { background: #1D3CFF !important; color: #fff !important; cursor: default; }
 
+    /* ── 시간 슬롯 ── */
     .time-btn {
       padding: 0.625rem 0;
       border-radius: 0.5rem;
@@ -58,6 +62,9 @@
       border-color: #CCC; background: #F9FAFC; color: #CCC; cursor: not-allowed;
     }
   </style>
+
+  <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+  <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=66fd58e49ef902c79dbaa2577ceb31d2&libraries=services"></script>
 </head>
 <body class="bg-[#F9FAFC] text-[#1A1A1A] font-sans">
 
@@ -187,19 +194,44 @@
               장소 주소
               <span th:if="${item.itemType.name() == 'OUT'}" class="text-red-400">*</span>
             </label>
-            <input type="text" name="address" id="addressInput"
-                   th:value="${item.itemType.name() == 'IN' ? item.address : ''}"
-                   th:readonly="${item.itemType.name() == 'IN'}"
-                   placeholder="촬영하고 싶은 장소의 주소를 입력해 주세요"
+            <!-- IN: 읽기 전용 텍스트 -->
+            <input th:if="${item.itemType.name() == 'IN'}"
+                   type="text" name="address" id="addressInput"
+                   th:value="${item.address}"
+                   readonly
                    class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]">
+
+            <!-- OUT: 지도 선택 -->
+            <th:block th:if="${item.itemType.name() == 'OUT'}">
+              <input type="hidden" id="h-region" name="address">
+              <input type="hidden" id="h-lat" name="lat">
+              <input type="hidden" id="h-lng" name="lng">
+              <div class="flex items-center gap-2">
+                <div class="flex-1 bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-2.5 text-sm min-h-[42px] flex items-center">
+                  <span id="display-region" class="text-[#AAA]">지도에서 위치를 선택해주세요</span>
+                </div>
+                <button type="button" id="btn-open-location-modal"
+                        class="flex-shrink-0 text-sm font-semibold border border-[#0097FF] text-[#0097FF] bg-white rounded-lg px-4 py-2.5 hover:bg-[#0097FF] hover:text-white transition-colors">
+                  지도 선택
+                </button>
+                <button type="button" id="clear-region-btn"
+                        onclick="clearRegion()"
+                        class="hidden flex-shrink-0 text-sm font-semibold border border-[#CCC] text-[#888] bg-white rounded-lg px-4 py-2.5 hover:border-red-300 hover:text-red-400 transition-colors">
+                  초기화
+                </button>
+              </div>
+            </th:block>
           </div>
 
           <div>
             <label class="text-sm font-medium text-[#444] mb-1.5 block">상세 장소 안내</label>
             <input type="text" name="detailAddress"
+                   th:value="${item.itemType.name() == 'IN' ? item.detailAddress : ''}"
+                   th:readonly="${item.itemType.name() == 'IN'}"
                    placeholder="예: 9번 출구 앞, 공원 입구 등 찾기 쉬운 장소를 알려주세요"
                    class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF] mb-1">
-            <p class="text-xs text-[#888]">작가가 찾아올 수 있도록 구체적으로 알려주세요</p>
+            <p class="text-xs text-[#888]"
+               th:text="${item.itemType.name() == 'IN'} ? '작가가 설정한 스튜디오 위치입니다' : '작가가 찾아올 수 있도록 구체적으로 알려주세요'"></p>
           </div>
         </section>
 
@@ -257,19 +289,21 @@
             <span>💳</span><span>캐시 결제</span>
           </h2>
 
-          <div class="flex items-center justify-between bg-[#F9FAFC] border border-[#CCC] rounded-xl px-5 py-4 mb-4">
-            <div>
-              <p class="text-xs text-[#888] mb-0.5">보유 캐시</p>
-              <p class="text-xl font-bold text-[#1A1A1A]">
-                <span th:text="${member != null and member.cache != null ? #numbers.formatInteger(member.cache, 0, 'COMMA') : '0'}">0</span>
-                <span class="text-[#1D3CFF]">C</span>
-              </p>
-            </div>
-            <button type="button"
-                    class="text-sm font-semibold border border-[#1D3CFF] text-[#1D3CFF] px-4 py-2 rounded-lg hover:bg-[#1D3CFF] hover:text-white active:bg-[#1530E0] transition-colors">
-              + 캐시 충전
-            </button>
+        <!-- 보유 캐시 -->
+        <div class="flex items-center justify-between bg-[#F9FAFC] border border-[#CCC] rounded-xl px-5 py-4 mb-4">
+          <div>
+            <p class="text-xs text-[#888] mb-0.5">보유 캐시</p>
+            <p class="text-xl font-bold text-[#1A1A1A]">
+              <span id="cashBalance" th:text="${member != null and member.cash != null ? #numbers.formatInteger(member.cash, 0, 'COMMA') : '0'}">0</span>
+              <span class="text-[#1D3CFF]">C</span>
+            </p>
           </div>
+          <button type="button"
+                  class="text-sm font-semibold border border-[#1D3CFF] text-[#1D3CFF] px-4 py-2 rounded-lg hover:bg-[#1D3CFF] hover:text-white active:bg-[#1530E0] transition-colors"
+                  onclick="cashChargeModal.open(onCashChargeSuccess)">
+            + 캐시 충전
+          </button>
+        </div>
 
           <div class="border-t border-[#CCC] pt-4 space-y-1.5">
             <p class="text-xs text-[#888]">• 예약 거절 또는 작가 취소 시 전액 즉시 환불됩니다</p>
@@ -316,7 +350,7 @@
                       th:text="${profile.nickname != null and !#strings.isEmpty(profile.nickname) ? profile.nickname + ' 작가' : '작가'}">작가</span>
                 <span class="text-xs text-[#888] ml-auto" th:if="${item.reviewCount > 0}">
                   <span class="text-[#0097FF]">★</span>
-                  <span th:text="${#numbers.formatDecimal(item.avgScore / 100.0, 1, 1)}">4.9</span>
+                  <span th:text="${#numbers.formatDecimal(item.reviewScore * 1.0 / item.reviewCount, 1, 2)}">4.9</span>
                 </span>
               </div>
 
@@ -366,7 +400,7 @@
                 <span class="text-[#444]"
                       th:text="${selectedPlan.name != null and !#strings.isEmpty(selectedPlan.name) ? selectedPlan.name : '기본 패키지'}">기본 패키지</span>
                 <span class="font-medium text-[#1A1A1A]"
-                      th:text="${#numbers.formatInteger(selectedPlan.price, 1, 'COMMA')} + '원'">0원</span>
+                      th:text="${#numbers.formatInteger(selectedPlan.price*1.1, 1, 'COMMA')} + '원'">0원</span>
               </div>
             </div>
 
@@ -374,14 +408,14 @@
               <div class="flex items-center justify-between mb-1.5">
                 <span class="text-sm font-semibold text-[#1A1A1A]">총 결제금액</span>
                 <span class="text-lg font-bold text-[#1D3CFF]">
-                  <span th:text="${#numbers.formatInteger(selectedPlan.price, 1, 'COMMA')}">0</span>
+                  <span th:text="${#numbers.formatInteger(selectedPlan.price*1.1, 1, 'COMMA')}">0</span>
                   <span class="text-base font-medium text-[#888]"> C</span>
                 </span>
               </div>
-              <div class="flex items-center justify-between" th:if="${member != null and member.cache != null}">
+              <div class="flex items-center justify-between" th:if="${member != null and member.cash != null}">
                 <span class="text-xs text-[#888]">결제 후 잔여 캐시</span>
                 <span class="text-sm font-medium text-[#888]"
-                      th:text="${#numbers.formatInteger(member.cache - selectedPlan.price, 1, 'COMMA')} + ' C'">0 C</span>
+                      th:text="${#numbers.formatInteger(member.cash - selectedPlan.price*1.1, 1, 'COMMA')} + ' C'">0 C</span>
               </div>
             </div>
           </div>
@@ -394,7 +428,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
             </svg>
             <span th:if="${selectedPlan != null}"
-                  th:text="${#numbers.formatInteger(selectedPlan.price, 1, 'COMMA')} + ' 캐시로 예약 신청'">예약 신청</span>
+                  th:text="${#numbers.formatInteger(selectedPlan.price*1.1, 1, 'COMMA')} + ' 캐시로 예약 신청'">예약 신청</span>
             <span th:unless="${selectedPlan != null}">예약 신청하기</span>
           </button>
 
@@ -628,5 +662,34 @@
   }
 </script>
 
+<th:block th:replace="~{fragments/modal/cash-charge-modal :: cashChargeModal}" />
+<script>
+  function onCashChargeSuccess(data) {
+    const balanceEl = document.getElementById('cashBalance');
+    if (balanceEl) balanceEl.textContent = data.newBalance.toLocaleString();
+    const remainingEl = document.getElementById('remainingCash');
+    const totalPriceEl = document.getElementById('totalPrice');
+    if (remainingEl && totalPriceEl) {
+      const totalText = totalPriceEl.textContent.replace(/[^0-9]/g, '');
+      const total = parseInt(totalText, 10) || 0;
+      const remaining = Math.max(0, data.newBalance - total);
+      remainingEl.textContent = remaining.toLocaleString() + ' C';
+    }
+  }
+
+  function clearRegion() {
+      document.getElementById('h-region').value = '';
+      document.getElementById('h-lat').value = '';
+      document.getElementById('h-lng').value = '';
+      const displayEl = document.getElementById('display-region');
+      displayEl.textContent = '지도에서 위치를 선택해주세요';
+      displayEl.classList.add('text-[#AAA]');
+      document.getElementById('clear-region-btn').classList.add('hidden');
+  }
+</script>
+html<th:block th:if="${item.itemType.name() == 'OUT'}"
+              th:replace="~{fragments/modal/location-modal-for-item :: locationModal(
+              'h-region', 'h-lat', 'h-lng', 'display-region', 'clear-region-btn'
+          )}"/>
 </body>
 </html>

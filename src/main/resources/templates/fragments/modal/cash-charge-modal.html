@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="cashChargeModal">
+
+  <div id="cash-charge-modal"
+       style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:12px; width:420px; padding:28px 28px 20px;">
+
+      <h2 style="font-size:18px; font-weight:600; margin:0 0 6px;">캐시 충전</h2>
+      <p style="font-size:12px; color:#888; margin:0 0 20px;">충전할 금액을 선택해 주세요.</p>
+
+      <div id="cash-preset-list" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <div class="cash-item" data-amount="10000" onclick="cashChargeModal.select(this)">
+          <span class="cash-label">10,000 C</span>
+        </div>
+        <div class="cash-item" data-amount="30000" onclick="cashChargeModal.select(this)">
+          <span class="cash-label">30,000 C</span>
+        </div>
+        <div class="cash-item" data-amount="50000" onclick="cashChargeModal.select(this)">
+          <span class="cash-label">50,000 C</span>
+        </div>
+        <div class="cash-item" data-amount="100000" onclick="cashChargeModal.select(this)">
+          <span class="cash-label">100,000 C</span>
+        </div>
+      </div>
+
+      <div style="border-top:1px solid #eee; margin-top:20px; padding-top:16px; display:flex; justify-content:flex-end; gap:8px;">
+        <button type="button" onclick="cashChargeModal.close()"
+                style="padding:8px 20px; border:1px solid #ddd; border-radius:8px; background:#fff; cursor:pointer;">취소</button>
+        <button type="button" id="btn-confirm-cash" onclick="cashChargeModal.confirm()"
+                style="padding:8px 20px; background:#1D3CFF; color:#fff; border:none; border-radius:8px; opacity:0.4; cursor:default;" disabled>
+          충전하기
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .cash-item {
+      display: flex; justify-content: center; align-items: center;
+      padding: 18px 16px; border-radius: 10px;
+      border: 1.5px solid #eee; cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .cash-item:hover { border-color: #1D3CFF; }
+    .cash-item[data-selected="true"] { border-color: #1D3CFF; background: #EEF2FF; }
+    .cash-label { font-size: 14px; font-weight: 600; color: #1A1A1A; }
+  </style>
+
+  <script>
+    const cashChargeModal = {
+      amount: null,
+      onSuccess: null,
+
+      open(onSuccess) {
+        this.amount = null;
+        this.onSuccess = onSuccess || null;
+        document.querySelectorAll('.cash-item').forEach(el => el.dataset.selected = 'false');
+        this.setConfirmEnabled(false);
+        document.getElementById('cash-charge-modal').style.display = 'flex';
+      },
+
+      close() {
+        document.getElementById('cash-charge-modal').style.display = 'none';
+      },
+
+      select(el) {
+        document.querySelectorAll('.cash-item').forEach(x => x.dataset.selected = 'false');
+        el.dataset.selected = 'true';
+        this.amount = parseInt(el.dataset.amount, 10);
+        this.setConfirmEnabled(true);
+      },
+
+      setConfirmEnabled(enabled) {
+        const btn = document.getElementById('btn-confirm-cash');
+        btn.disabled = !enabled;
+        btn.style.opacity = enabled ? '1' : '0.4';
+        btn.style.cursor = enabled ? 'pointer' : 'default';
+      },
+
+      async confirm() {
+        if (!this.amount) return;
+        const csrfToken  = document.querySelector('meta[name="_csrf"]')?.content || '';
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content || 'X-CSRF-TOKEN';
+        try {
+          const res = await fetch('/api/v1/cash/charge', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', [csrfHeader]: csrfToken },
+            body: JSON.stringify({ amount: this.amount })
+          });
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({ message: '충전에 실패했습니다.' }));
+            throw new Error(err.message || '충전에 실패했습니다.');
+          }
+          const data = await res.json();
+          if (typeof this.onSuccess === 'function') this.onSuccess(data);
+          this.close();
+          alert(this.amount.toLocaleString() + ' C 충전이 완료되었습니다.');
+        } catch (e) {
+          alert('충전 실패: ' + e.message);
+        }
+      }
+    };
+  </script>
+
+</th:block>
+</body>
+</html>

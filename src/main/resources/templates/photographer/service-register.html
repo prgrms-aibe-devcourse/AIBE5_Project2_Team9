@@ -352,7 +352,7 @@
             <div class="flex items-center gap-2">
               <div class="flex-1 bg-[#F9FAFC] border border-[#CCC] rounded-[10px] px-3.5 py-2.5 text-sm min-h-[42px] flex items-center">
                 <span id="display-region"
-                      th:classappend="${itemRegisterRequest.address != null and !#strings.isEmpty(itemRegisterRequest.address)} ? ' text-[#1A1A1A]' : ' text-[#AAA]'"
+                      th:classappend="${itemRegisterRequest.address != null and !#strings.isEmpty(itemRegisterRequest.address)} ? ' text-[#888]' : ' text-[#AAA]'"
                       th:text="${itemRegisterRequest.address != null and !#strings.isEmpty(itemRegisterRequest.address)} ? ${itemRegisterRequest.address} : '지도에서 위치를 선택해주세요'">
                 </span>
               </div>
@@ -366,7 +366,11 @@
                       class="flex-shrink-0 text-sm font-semibold border border-[#CCC] text-[#888] bg-white rounded-[10px] px-4 py-2.5 hover:border-red-300 hover:text-red-400 transition-colors">
                 초기화
               </button>
-            </div>
+            </div>    <!-- 상세 주소 입력 추가 -->
+            <input type="text" name="detailAddress"
+                   th:value="${itemRegisterRequest.detailAddress}"
+                   placeholder="상세 주소를 입력하세요 (예: 2층 스튜디오)"
+                   class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-[10px] px-3.5 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] outline-none focus:border-[#1D3CFF] focus:ring-[3px] focus:ring-[#1D3CFF]/[0.08] transition-all">
           </div>
 
           <!-- 추가 옵션 -->

@@ -22,7 +22,7 @@
              class="cat-item"
              th:data-value="${tag.name}"
              onclick="categoryModal.select(this)">
-          <span class="cat-label" th:text="${tag.name}"></span>
+          <span class="cat-label" th:text="${tag.emoji + ' ' + tag.name}"></span>
         </div>
       </div>
 

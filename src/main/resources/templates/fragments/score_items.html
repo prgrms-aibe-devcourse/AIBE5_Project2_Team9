@@ -29,10 +29,10 @@
         <div class="card-footer">
           <div class="score">
             <span class="star">★</span>
-            <span th:text="${#numbers.formatDecimal(item.avgScore / 100.0, 1, 2)}"></span>
+            <span th:text="${#numbers.formatDecimal(item.reviewScore * 1.0 / item.reviewCount, 1, 2)}"></span>
             <span class="review-count" th:text="'(' + ${item.reviewCount} + ')'"></span>
           </div>
-          <span class="price" th:text="${#numbers.formatInteger(item.defaultPrice, 3, 'COMMA') + '원~'}"></span>
+          <span class="price" th:text="${#numbers.formatInteger(item.defaultPrice*1.1, 3, 'COMMA') + '원~'}"></span>
         </div>
       </div>
     </a>

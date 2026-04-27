@@ -54,3 +54,8 @@ Desktop.ini
 CLAUDE.md
 .claude
 /refer
+
+**/script/**
+#!**/script/
+#!**/script/**/
+#!**/script/**/*.sql

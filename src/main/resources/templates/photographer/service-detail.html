@@ -89,7 +89,7 @@
               <span th:if="${item.reviewCount > 0}" class="flex items-center gap-1 text-sm">
                 <span class="text-[#0097FF]">★</span>
                 <span class="font-semibold text-[#1A1A1A]"
-                      th:text="${#numbers.formatDecimal(item.avgScore / 100.0, 1, 1)}">4.9</span>
+                      th:text="${#numbers.formatDecimal(item.reviewScore * 1.0 / item.reviewCount, 1, 2)}">4.9</span>
                 <span class="text-[#888]" th:text="'(' + ${item.reviewCount} + '개)'"></span>
               </span>
               <span th:unless="${item.reviewCount > 0}" class="text-sm text-[#AAA]">아직 후기가 없어요</span>
@@ -217,10 +217,10 @@
             <div class="flex items-center gap-6 pb-5 border-b border-[#CCC]">
               <div class="text-center">
                 <p class="text-5xl font-bold text-[#1A1A1A]"
-                   th:text="${#numbers.formatDecimal(item.avgScore / 100.0, 1, 1)}">0.0</p>
+                   th:text="${#numbers.formatDecimal(item.reviewScore * 1.0 / item.reviewCount, 1, 2)}">0.0</p>
                 <div class="flex gap-0.5 mt-2 justify-center">
                   <span th:each="i : ${#numbers.sequence(1, 5)}"
-                        th:style="${i <= item.avgScore / 100} ? 'color:#FBBF24' : 'color:#E5E7EB'"
+                        th:style="${i <= item.reviewScore * 1.0 / item.reviewCount} ? 'color:#FBBF24' : 'color:#E5E7EB'"
                         class="text-lg">★</span>
                 </div>
               </div>
@@ -295,9 +295,8 @@
 
             <!-- Price -->
             <div class="mb-4">
-              <p class="text-xs text-[#888] mb-0.5">시작 가격</p>
               <p class="text-3xl font-bold text-[#1A1A1A]">
-                ₩<span th:text="${#numbers.formatInteger(plan.price, 1, 'COMMA')}">0</span>
+                ₩<span th:text="${#numbers.formatInteger(plan.price*1.1, 1, 'COMMA')}">0</span>
               </p>
             </div>
 
@@ -377,9 +376,14 @@
               <span class="font-medium text-[#1A1A1A]" th:text="${item.tag.name}">데이트스냅</span>
             </li>
             <li th:if="${item.address != null and !#strings.isEmpty(item.address)}"
-                class="flex items-center justify-between gap-3">
+                class="flex items-start justify-between gap-3">
               <span class="text-[#888]">촬영 장소</span>
-              <span class="font-medium text-[#1A1A1A] text-right max-w-[200px]" th:text="${item.address}">서울</span>
+              <div class="text-right max-w-[200px]">
+                <span class="font-medium text-[#1A1A1A] block" th:text="${item.address}">서울</span>
+                <span class="text-sm text-[#1A1A1A] block"
+                      th:if="${item.detailAddress != null and !#strings.isEmpty(item.detailAddress)}"
+                      th:text="${item.detailAddress}">2층 스튜디오</span>
+              </div>
             </li>
             <li class="flex items-center justify-between gap-3">
               <span class="text-[#888]">최소 예약</span>
@@ -396,7 +400,7 @@
         </div>
 
         <div th:if="${canEditService}" class="bg-white border border-[#CCC] rounded-2xl p-5">
-          <a th:href="@{/photographer/{photographerId}/item/{itemId}/edit(photographerId=${item.photographer.id}, itemId=${item.id})}"
+          <a th:href="@{/photographer/{photographerId}/service/{itemId}/edit(photographerId=${item.photographer.id}, itemId=${item.id})}"
              class="inline-flex w-full items-center justify-center gap-2 bg-white border border-[#1D3CFF] text-[#1D3CFF] hover:bg-[#1D3CFF] hover:text-white active:bg-[#1530E0] font-semibold px-5 py-2.5 rounded-lg transition-colors text-sm">
             수정하기
           </a>

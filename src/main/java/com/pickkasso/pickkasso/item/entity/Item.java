@@ -57,9 +57,8 @@ public class Item extends Region {
     private Integer reviewCount;
 
     // review와 연계해서 자동으로 계산해야 합니다.
-    // * 100을 저장
-    @Column(name = "avg_score", nullable = false)
-    private Integer avgScore;
+    @Column(name = "review_score", nullable = false)
+    private Long reviewScore;
 
     // plan의 값에 의해 결정됨
     @Column(name = "default_price", nullable = false)
@@ -71,6 +70,9 @@ public class Item extends Region {
     @Lob
     @Column(name = "cancellation_policy", columnDefinition = "TEXT")
     private String cancellationPolicy;
+
+    @Column(name="purchase_count", nullable = false)
+    private Integer purchaseCount;
 
     // TODO: createdAt 등은 나중에 따로 서브테이블로 관리해야 한다. 지금은 구현을 위해
     @Column(name = "created_at", nullable = false)
@@ -107,8 +109,9 @@ public class Item extends Region {
         this.cancellationPolicy = cancellationPolicy;
         this.createdAt = java.time.LocalDateTime.now();
         reviewCount = 0;
-        avgScore = 0;
+        reviewScore = 0L;
         defaultPrice = 0;
+        purchaseCount = 0;
     }
 
     //== 생성 method ==//
@@ -142,6 +145,7 @@ public class Item extends Region {
         Integer minBookingLeadTime,
         String cancellationPolicy,
         String address,
+        String detailAddress,
         Double lat,
         Double lng) {
         this.tag = tag;
@@ -152,7 +156,7 @@ public class Item extends Region {
         this.itemType = itemType;
         this.minBookingLeadTime = minBookingLeadTime;
         this.cancellationPolicy = cancellationPolicy;
-        this.initRegion(address, "", lat, lng);
+        this.initRegion(address, detailAddress, lat, lng);
     }
 
 
@@ -192,7 +196,17 @@ public class Item extends Region {
 
     public void addReview(int rating) {
         int newCount = this.reviewCount + 1;
-        this.avgScore = (this.avgScore * this.reviewCount + rating * 100) / newCount;
+        this.reviewScore +=  rating;
+        this.reviewCount = newCount;
+    }
+
+    public void updateReview(int beforeRating, int afterRating) {
+        this.reviewScore += afterRating - beforeRating;
+    }
+
+    public void deleteReview(int rating) {
+        int newCount = this.reviewCount - 1;
+        this.reviewScore -=  rating;
         this.reviewCount = newCount;
     }
 

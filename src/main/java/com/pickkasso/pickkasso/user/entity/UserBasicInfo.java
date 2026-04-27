@@ -24,22 +24,27 @@ public class UserBasicInfo {
     @Column(name = "phone")
     protected String phone;
 
-    @Column(name = "cache")
-    protected Integer cache;
+    @Column(name = "cash")
+    protected Integer cash;
 
     @Column(name = "deleted_at")
     protected LocalDateTime deletedAt;
 
-    public void deductCache(int amount) {
-        int current = this.cache == null ? 0 : this.cache;
-        if (current < amount) {
+    public void deductCash(int amount) {
+        int current = this.cash == null ? 0 : this.cash;
+        if (current < amount*11/10) {
             throw new IllegalStateException("캐시 잔액이 부족합니다.");
         }
-        this.cache = current - amount;
+        this.cash = current - amount*11/10;
     }
 
-    public void refundCache(int amount) {
+    public void refundCash(int amount) {
         if (amount <= 0) return;
-        this.cache = (this.cache == null ? 0 : this.cache) + amount;
+        this.cash = (this.cash == null ? 0 : this.cash) + amount*11/10;
+    }
+
+    public int addCache(int amount) {
+        this.cash = (this.cash == null ? 0 : this.cash) + amount;
+        return this.cash;
     }
 }
