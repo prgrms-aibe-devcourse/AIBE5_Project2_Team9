@@ -97,7 +97,7 @@
               <div class="flex items-center justify-center gap-1">
                 <span class="text-xl text-[#FFB800]">★</span>
                 <span class="text-2xl font-bold text-[#1A1A1A]"
-                      th:text="${profile.reviewCount != null and profile.reviewCount > 0} ? ${#numbers.formatDecimal(profile.reviewScore * 1.0 / profile.reviewCount, 1, 1)} : '0.0'"></span>
+                      th:text="${profile.reviewCount != null and profile.reviewCount > 0} ? ${#numbers.formatDecimal(profile.reviewScore * 1.0 / profile.reviewCount, 1, 2)} : '0.0'"></span>
               </div>
             </div>
           </div>

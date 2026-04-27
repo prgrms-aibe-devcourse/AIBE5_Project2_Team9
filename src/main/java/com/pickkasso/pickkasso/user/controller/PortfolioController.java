@@ -2,7 +2,12 @@ package com.pickkasso.pickkasso.user.controller;
 
 import com.pickkasso.pickkasso.global.img.ImageUploadException;
 import com.pickkasso.pickkasso.global.tag.TagService;
+import com.pickkasso.pickkasso.user.dto.photographer.PhotographerProfileResponse;
 import com.pickkasso.pickkasso.user.dto.portfolio.PortfolioDto;
+import com.pickkasso.pickkasso.user.entity.Photographer;
+import com.pickkasso.pickkasso.user.entity.PhotographerProfile;
+import com.pickkasso.pickkasso.user.repository.PhotographerRepository;
+import com.pickkasso.pickkasso.user.service.PhotographerProfileService;
 import com.pickkasso.pickkasso.user.service.PortfolioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -20,6 +25,8 @@ public class PortfolioController {
 
     private final PortfolioService portfolioService;
     private final TagService tagService;
+    private final PhotographerRepository photographerRepository;
+    private final PhotographerProfileService photographerProfileService;
 
     @GetMapping("/new")
     public String createPortfolioForm(@PathVariable Long photographerId, Model model) {
@@ -67,7 +74,10 @@ public class PortfolioController {
             Model model
     ) {
         PortfolioDto portfolioDto = portfolioService.getPortfolioDto(photographerId, portfolioId);
+        PhotographerProfileResponse profile = photographerProfileService.getProfileForm(photographerId);
+
         model.addAttribute("portfolioName", portfolioDto.name());
+        model.addAttribute("photographer", profile);
         model.addAttribute("portfolioDescription", portfolioDto.description());
         model.addAttribute("tagList", tagService.findAllTagReference());
         model.addAttribute("portfolioTagList", portfolioService.getPortfolioTagReference(photographerId, portfolioId));
