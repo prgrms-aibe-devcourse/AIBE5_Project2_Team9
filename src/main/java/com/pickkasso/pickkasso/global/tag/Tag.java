@@ -18,12 +18,16 @@ public class Tag {
     @Column(name = "name")
     private String name;
 
-    private Tag(String name) {
+    @Column(name = "emoji")
+    private String emoji;
+
+    private Tag(String name, String emoji) {
         this.name = name;
+        this.emoji = emoji;
     }
 
     //== 생성 method ==//
-    public static Tag createTag(String name) {
-        return new Tag(name);
+    public static Tag createTag(String name, String emoji) {
+        return new Tag(name, emoji);
     }
 }

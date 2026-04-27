@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/default :: layout(~{::title}, ~{::pageStyles}, ~{::main})}">
+<head>
+  <title>잘못된 요청입니다 - PICKASSO</title>
+  <th:block th:fragment="pageStyles">
+    <style>
+        .error-page-shell {
+            min-height: calc(100vh - 8rem);
+            background:
+                radial-gradient(circle at top left, rgba(29, 60, 255, 0.10), transparent 28rem),
+                radial-gradient(circle at bottom right, rgba(0, 151, 255, 0.14), transparent 26rem);
+        }
+    </style>
+  </th:block>
+</head>
+<body>
+<main class="error-page-shell flex items-center justify-center px-6 py-16 -translate-y-4">
+  <section class="w-full max-w-[720px] rounded-[32px] border border-[#DCE5F3] bg-white/90 px-8 pb-12 pt-6 text-center shadow-[0_20px_80px_rgba(29,60,255,0.08)] backdrop-blur-sm sm:px-12">
+    <div class="mx-auto mb-6 flex h-36 w-36 items-center justify-center">
+      <img th:src="@{/images/error_logo.webp}"
+           alt="에러 안내 로고"
+           class="h-full w-full object-contain" />
+    </div>
+
+    <p class="mb-3 text-sm font-semibold uppercase tracking-[0.35em] text-[#1D3CFF]">Error 400</p>
+    <h1 class="mb-4 text-[32px] font-semibold leading-tight text-[#1A1A1A] sm:text-[40px]">
+      요청하신 내용에 오류가 있어요
+    </h1>
+    <p class="mx-auto max-w-[520px] text-[16px] leading-7 text-[#666]">
+      입력하신 데이터의 형식이 올바르지 않거나 잘못된 방식으로 요청되었습니다.<br>
+      내용을 다시 한 번 확인하신 후 시도해 주세요.
+    </p>
+
+    <div class="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+      <a th:href="@{/}"
+         class="inline-flex min-w-[180px] items-center justify-center rounded-full bg-[#1D3CFF] px-6 py-3 text-[15px] font-semibold text-white no-underline transition-colors hover:bg-[#1530E0]">
+        홈으로 이동
+      </a>
+      <a href="javascript:history.back();"
+         class="inline-flex min-w-[180px] items-center justify-center rounded-full border border-[#1D3CFF] bg-white px-6 py-3 text-[15px] font-semibold text-[#1D3CFF] no-underline transition-colors hover:bg-[#EEF4FF]">
+        이전 페이지로
+      </a>
+    </div>
+  </section>
+</main>
+</body>
+</html>

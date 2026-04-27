@@ -1,19 +1,31 @@
 package com.pickkasso.pickkasso.global.controller;
 
+import com.pickkasso.pickkasso.global.tag.TagReference;
+import com.pickkasso.pickkasso.global.tag.TagService;
+import com.pickkasso.pickkasso.item.dto.ItemSearchFormDto;
+import com.pickkasso.pickkasso.item.service.ItemService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import java.util.List;
+
 @Controller
+@RequiredArgsConstructor
 public class HomeController {
+    private final TagService tagService;
+    private final ItemService itemService;
 
     @GetMapping("/")
-    public String landing() {
-        return "landing";
-    }
-
-    @GetMapping("/home")
-    public String home() {
+    public String home(Model model) {
+        List<TagReference> tagList = tagService.findAllTagReference();
+        model.addAttribute("tagList", tagList);
+        model.addAttribute("itemSearchFormDto", new ItemSearchFormDto());
+        model.addAttribute("scoreItemList", itemService.getScoreItemList(5));
+        model.addAttribute("customItemList", itemService.getCustomItemList(5));
         return "index";
     }
 
@@ -22,7 +34,7 @@ public class HomeController {
         return "common/login";
     }
 
-    @GetMapping("/signup")
+    /*@GetMapping("/signup")
     public String signupIndex() {
         return "redirect:/signup/user";
     }
@@ -43,5 +55,5 @@ public class HomeController {
     @PostMapping({"/signup/user", "/signup/photographer"})
     public String signupStub() {
         return "common/signup-pending";
-    }
+    }*/
 }

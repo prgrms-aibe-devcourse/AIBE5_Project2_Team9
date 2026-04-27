@@ -51,7 +51,7 @@ class PortfolioServiceTest {
         );
 
         // when
-        Long portfolioId = portfolioService.createPortfolio(photographer.getId(), dto);
+        Long portfolioId = portfolioService.createPortfolio(photographer.getId(), dto, null, null);
 
         // then
         Portfolio portfolio = portfolioRepository.findById(portfolioId).orElseThrow();

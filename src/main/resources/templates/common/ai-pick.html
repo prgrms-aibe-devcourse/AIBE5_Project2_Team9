@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/default :: layout(~{::title}, ~{::pageStyles}, ~{::main})}">
+<head>
+  <title th:fragment="title">AI Pick — PICKASSO</title>
+  <th:block th:fragment="pageStyles">
+    <style>
+      @keyframes ai-pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50%      { opacity: 0.5; transform: scale(0.85); }
+      }
+      .ai-badge-dot { animation: ai-pulse 1.8s ease-in-out infinite; }
+    </style>
+  </th:block>
+</head>
+<body>
+<main th:fragment="main" class="max-w-[760px] mx-auto px-6 pt-[52px] pb-[100px]">
+
+  <!-- ═══════════════════════════════════════════
+       HERO
+  ════════════════════════════════════════════ -->
+  <section class="text-center mb-12">
+    <div class="inline-flex items-center gap-[7px] mb-5 px-4 py-1.5 rounded-[100px] border border-[#D3DEF2]
+                bg-[linear-gradient(135deg,#D3DEF2,#F9FAFC)] text-[13px] font-bold text-[#1D3CFF]">
+      <span class="ai-badge-dot w-2 h-2 rounded-full bg-[#1D3CFF]"></span>
+      AI PICK
+    </div>
+    <h1 class="text-[32px] font-extrabold text-[#1A1A1A] leading-[1.35] tracking-[-0.02em] mb-3">
+      어떤 촬영을 원하세요?<br>
+      <em class="not-italic text-[#1D3CFF]">AI가 딱 맞는 작가를 찾아드려요</em>
+    </h1>
+    <p class="text-[15px] text-[#888] leading-[1.7]">
+      원하는 분위기, 장소, 예산을 자유롭게 말씀해 주세요.<br>
+      AI가 조건에 맞는 작가를 추천해 드립니다.
+    </p>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       CHAT
+  ════════════════════════════════════════════ -->
+  <div class="bg-white border-[1.5px] border-[#CCC] rounded-[20px] overflow-hidden mb-6
+              shadow-[0_4px_24px_rgba(29,60,255,0.06)]">
+
+    <div class="flex flex-col gap-5 px-7 pt-7 pb-5">
+
+      <!-- AI 인사 -->
+      <div class="flex gap-3 items-start">
+        <div class="w-9 h-9 rounded-full shrink-0 flex items-center justify-center text-lg
+                    bg-[linear-gradient(135deg,#1D3CFF,#0097FF)]">✨</div>
+        <div>
+          <div class="text-xs font-bold text-[#888] mb-[5px]">PICKASSO AI</div>
+          <div class="max-w-[80%] px-[18px] py-3.5 rounded-2xl rounded-tl-[4px]
+                      bg-[#F9FAFC] border border-[#CCC] text-sm leading-[1.7] text-[#1A1A1A]">
+            안녕하세요! 어떤 촬영을 원하시나요?<br>
+            분위기, 장소, 날짜, 예산 등을 자유롭게 알려주시면 딱 맞는 작가를 찾아드릴게요 😊
+          </div>
+        </div>
+      </div>
+
+      <div id="chat-messages">
+      <th:block th:each="msg : ${messages}">
+        <div th:if="${msg.role == 'user'}" class="flex justify-end items-start gap-2">
+          <div class="flex flex-col items-end max-w-[82%]">
+            <div class="text-xs font-bold text-[#888] mb-[5px] text-right">나</div>
+            <div class="max-w-full min-w-[72px] px-[18px] py-3.5 rounded-2xl rounded-tr-[4px]
+                        bg-[#D3DEF2] border border-[#D3DEF2] text-sm leading-[1.7] font-medium text-[#1D3CFF] break-words text-left"
+                 th:text="${msg.content}">
+            </div>
+          </div>
+          <div class="w-9 h-9 rounded-full bg-[#D3DEF2] shrink-0 flex items-center justify-center text-base">👤</div>
+        </div>
+
+        <div th:if="${msg.role == 'ai'}" class="flex gap-3 items-start">
+          <div class="w-9 h-9 rounded-full shrink-0 flex items-center justify-center text-lg
+                      bg-[linear-gradient(135deg,#1D3CFF,#0097FF)]">✨</div>
+          <div>
+            <div class="text-xs font-bold text-[#888] mb-[5px]">PICKASSO AI</div>
+            <div class="max-w-[80%] px-[18px] py-3.5 rounded-2xl rounded-tl-[4px]
+                        bg-[#D3DEF2] border border-[#D3DEF2] text-sm leading-[1.7] text-[#1A1A1A]"
+                 th:utext="${msg.content}">
+            </div>
+          </div>
+        </div>
+      </th:block>
+      </div>
+
+    </div>
+
+    <!-- 입력 폼 -->
+    <form id="ai-search-form" th:action="@{/ai-pick/search}" th:attr="data-ajax-url=@{/ai-pick/search-ajax}" method="post"
+          class="bg-white border-t border-[#CCC] px-5 py-4 flex gap-2.5 items-end">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+      <input type="hidden" name="expandNearby" value="false">
+      <textarea id="ai-query" name="query" rows="1"
+                th:text="${query}"
+                placeholder="원하는 촬영 분위기, 장소, 예산을 자유롭게 적어주세요…"
+                class="flex-1 min-h-[48px] max-h-[120px] bg-[#F9FAFC] border border-[#CCC] rounded-xl
+                       px-4 py-[13px] text-sm text-[#1A1A1A] placeholder-[#AAA] leading-[1.6]
+                       resize-none outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF]"></textarea>
+      <button type="submit" aria-label="전송"
+              class="w-12 h-12 shrink-0 bg-white border border-[#1D3CFF] text-[#1D3CFF] rounded-xl
+                     flex items-center justify-center transition-colors
+                     hover:bg-[#1D3CFF] hover:text-white
+                     active:bg-[#1530E0] active:border-[#1530E0]">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+      </button>
+    </form>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SUGGESTION CHIPS
+  ════════════════════════════════════════════ -->
+  <div class="text-xs font-bold text-[#888] mb-2.5 flex items-center gap-1.5">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="12" y1="8" x2="12" y2="12"/>
+      <line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    이런 질문을 해보세요
+  </div>
+  <div class="flex flex-wrap gap-2 mb-10">
+    <button type="button" data-query="커플 사진 · 자연스러운 분위기로 찍고 싶어요"
+            class="chip px-4 py-[9px] bg-white border border-[#CCC] rounded-[100px]
+                   text-[13px] font-medium text-[#444] flex items-center gap-1.5 transition-colors
+                   hover:border-[#1D3CFF] hover:text-[#1D3CFF] hover:bg-[#D3DEF2]">
+      💑 커플 사진 · 자연스러운 분위기
+    </button>
+    <button type="button" data-query="졸업사진을 야외에서 찍고 싶어요"
+            class="chip px-4 py-[9px] bg-white border border-[#CCC] rounded-[100px]
+                   text-[13px] font-medium text-[#444] flex items-center gap-1.5 transition-colors
+                   hover:border-[#1D3CFF] hover:text-[#1D3CFF] hover:bg-[#D3DEF2]">
+      🎓 졸업사진 · 야외 촬영
+    </button>
+    <button type="button" data-query="취업용 프로필 사진 깔끔한 스타일로 찍고 싶어요"
+            class="chip px-4 py-[9px] bg-white border border-[#CCC] rounded-[100px]
+                   text-[13px] font-medium text-[#444] flex items-center gap-1.5 transition-colors
+                   hover:border-[#1D3CFF] hover:text-[#1D3CFF] hover:bg-[#D3DEF2]">
+      🪞 취업용 프로필 · 깔끔한 스타일
+    </button>
+    <button type="button" data-query="야외 정원에서 웨딩 스냅 찍고 싶어요"
+            class="chip px-4 py-[9px] bg-white border border-[#CCC] rounded-[100px]
+                   text-[13px] font-medium text-[#444] flex items-center gap-1.5 transition-colors
+                   hover:border-[#1D3CFF] hover:text-[#1D3CFF] hover:bg-[#D3DEF2]">
+      💍 웨딩 스냅 · 야외 정원
+    </button>
+    <button type="button" data-query="가족사진을 실내 스튜디오에서 찍고 싶어요"
+            class="chip px-4 py-[9px] bg-white border border-[#CCC] rounded-[100px]
+                   text-[13px] font-medium text-[#444] flex items-center gap-1.5 transition-colors
+                   hover:border-[#1D3CFF] hover:text-[#1D3CFF] hover:bg-[#D3DEF2]">
+      👨‍👩‍👧 가족사진 · 실내 스튜디오
+    </button>
+    <button type="button" data-query="제품 사진 화이트톤 배경으로 찍고 싶어요"
+            class="chip px-4 py-[9px] bg-white border border-[#CCC] rounded-[100px]
+                   text-[13px] font-medium text-[#444] flex items-center gap-1.5 transition-colors
+                   hover:border-[#1D3CFF] hover:text-[#1D3CFF] hover:bg-[#D3DEF2]">
+      📦 제품 사진 · 화이트톤 배경
+    </button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       RESULT
+  ════════════════════════════════════════════ -->
+  <section>
+    <div class="flex items-center justify-between mb-5">
+      <div class="flex items-center gap-2 text-[18px] font-extrabold text-[#1A1A1A]">
+        ✨ AI 추천 결과
+        <span id="result-count" class="text-[13px] font-medium text-[#888]"
+              th:text="|${#lists.size(recommendations)}개의 작가를 찾았어요|">3개의 작가를 찾았어요</span>
+      </div>
+      <button id="reroll-recommend-btn" type="button"
+         class="flex items-center gap-1.5 text-[13px] font-semibold text-[#888] bg-white
+                border border-[#CCC] rounded-lg px-3.5 py-[7px] no-underline transition-colors
+                hover:border-[#1D3CFF] hover:text-[#1D3CFF]">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="1 4 1 10 7 10"/>
+          <path d="M3.51 15a9 9 0 1 0 .49-4.95"/>
+        </svg>
+        다시 추천
+      </button>
+    </div>
+
+    <div id="recommendation-list" class="flex flex-col gap-4">
+      <div id="empty-result-box" th:if="${#lists.isEmpty(recommendations) and !needsNearbyExpansionConfirm}"
+           class="bg-white border border-[#CCC] rounded-2xl px-6 py-10 text-center text-sm text-[#888]">
+        아직 추천 결과가 없습니다. 원하는 촬영 조건을 입력하고 전송해 주세요.
+      </div>
+
+      <div th:each="rec, stat : ${recommendations}"
+           class="relative bg-white border-[1.5px] border-[#CCC] rounded-2xl p-5 flex gap-[18px] items-start
+                  transition-all hover:border-[#1D3CFF] hover:shadow-[0_4px_20px_rgba(29,60,255,0.10)]">
+        <div th:if="${stat.index == 0}"
+             class="absolute -top-2.5 left-5 h-[22px] px-2.5 rounded-[100px]
+                    bg-[#1D3CFF] text-white text-[11px] font-extrabold flex items-center gap-1">
+          ✦ AI 1순위 추천
+        </div>
+        <div th:if="${stat.index > 0}"
+             class="absolute -top-2.5 left-5 h-[22px] px-2.5 rounded-[100px]
+                    bg-[#F9FAFC] border border-[#CCC] text-[#444] text-[11px] font-extrabold flex items-center gap-1"
+             th:text="|${stat.index + 1}순위|">
+          2순위
+        </div>
+        <div class="w-[100px] h-[100px] rounded-xl shrink-0 overflow-hidden border border-[#CCC]
+                    bg-[linear-gradient(135deg,#c8d8f0,#8ca8d8)]
+                    flex items-center justify-center text-xs text-[#888]">
+          대표 이미지
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-[11px] font-semibold text-[#0097FF] tracking-[0.04em] mb-[5px]"
+               th:text="${rec.category} ?: '추천 촬영'">방문 촬영 · 데이트 스냅</div>
+          <div class="text-base font-bold text-[#1A1A1A] leading-[1.35] mb-2"
+               th:text="${rec.title}">감성 데이트 스냅</div>
+          <div class="flex items-center gap-1.5 text-[13px] text-[#444] mb-2">
+            <div class="w-[22px] h-[22px] rounded-full bg-[#D3DEF2] shrink-0 flex items-center justify-center text-[11px]">📷</div>
+            <span th:text="|${rec.photographerName} 작가|">김민준 작가</span>
+          </div>
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <div class="flex items-center gap-[3px] text-[13px] font-semibold text-[#1A1A1A]">
+              <span class="text-[#0097FF]">★</span>
+              <span th:text="${#numbers.formatDecimal(rec.rating,1,1)}">4.9</span>
+            </div>
+            <span class="text-xs text-[#888]" th:text="|후기 ${rec.reviewCount}개|">후기 87개</span>
+            <span class="text-xs text-[#CCC]">·</span>
+            <span class="text-xs text-[#888]" th:text="|📍 ${rec.region}|">📍 마포·홍대</span>
+          </div>
+          <div class="text-base font-extrabold text-[#1D3CFF] mt-2.5">
+            <span th:text="${#numbers.formatInteger(rec.priceFrom,3,'COMMA')}">150,000</span>
+            <span class="text-xs font-medium text-[#888]">원~</span>
+          </div>
+          <div class="mt-2.5 px-[13px] py-2.5 bg-[#D3DEF2] rounded-[9px] text-xs text-[#444] leading-[1.6]
+                      flex gap-[7px] items-start">
+            <span class="text-[#1D3CFF] text-sm shrink-0 mt-px">💬</span>
+            <span th:text="${rec.reason}">조건에 맞는 추천 이유입니다.</span>
+          </div>
+        </div>
+        <div class="shrink-0 pt-1">
+          <a th:href="@{/item/{id}(id=${rec.itemId})}"
+             class="inline-flex items-center bg-white border-[1.5px] border-[#1D3CFF] text-[#1D3CFF]
+                    rounded-[9px] px-[18px] py-2.5 text-[13px] font-bold whitespace-nowrap no-underline
+                    transition-colors hover:bg-[#1D3CFF] hover:text-white">
+            예약하기
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-7 text-center">
+      <a th:href="@{/ai-pick}"
+         class="inline-flex items-center gap-2 bg-white border-[1.5px] border-[#1D3CFF] text-[#1D3CFF]
+                rounded-xl px-8 py-3 text-sm font-bold no-underline transition-colors
+                hover:bg-[#1D3CFF] hover:text-white">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        조건 바꿔서 다시 찾기
+      </a>
+      <p class="text-xs text-[#AAA] mt-2.5">결과가 마음에 들지 않으면 조건을 수정해 다시 추천받을 수 있어요</p>
+    </div>
+  </section>
+
+  <script>
+    (function () {
+      const form = document.getElementById('ai-search-form');
+      const textarea = document.getElementById('ai-query');
+      const messageBox = document.getElementById('chat-messages');
+      const recList = document.getElementById('recommendation-list');
+      const resultCount = document.getElementById('result-count');
+      const rerollBtn = document.getElementById('reroll-recommend-btn');
+      const ajaxUrl = form?.dataset?.ajaxUrl;
+      const csrfInput = form?.querySelector('input[name="_csrf"]');
+      if (!form || !textarea || !messageBox || !recList || !resultCount || !ajaxUrl || !csrfInput) return;
+
+      const csrfName = csrfInput.name;
+      const csrfValue = csrfInput.value;
+
+      function escapeHtml(str) {
+        return String(str ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function renderMessages(messages) {
+        const html = (messages || []).map(msg => {
+          if (msg.role === 'user') {
+            return `
+              <div class="flex justify-end items-start gap-2">
+                <div class="flex flex-col items-end max-w-[82%]">
+                  <div class="text-xs font-bold text-[#888] mb-[5px] text-right">나</div>
+                  <div class="max-w-full min-w-[72px] px-[18px] py-3.5 rounded-2xl rounded-tr-[4px] bg-[#D3DEF2] border border-[#D3DEF2] text-sm leading-[1.7] font-medium text-[#1D3CFF] break-words text-left">${escapeHtml(msg.content)}</div>
+                </div>
+                <div class="w-9 h-9 rounded-full bg-[#D3DEF2] shrink-0 flex items-center justify-center text-base">👤</div>
+              </div>`;
+          }
+          return `
+            <div class="flex gap-3 items-start">
+              <div class="w-9 h-9 rounded-full shrink-0 flex items-center justify-center text-lg bg-[linear-gradient(135deg,#1D3CFF,#0097FF)]">✨</div>
+              <div>
+                <div class="text-xs font-bold text-[#888] mb-[5px]">PICKASSO AI</div>
+                <div class="max-w-[92%] min-w-[320px] px-[18px] py-3.5 rounded-2xl rounded-tl-[4px] bg-[#D3DEF2] border border-[#D3DEF2] text-sm leading-[1.7] text-[#1A1A1A] break-words">${msg.content || ''}</div>
+              </div>
+            </div>`;
+        }).join('');
+        messageBox.innerHTML = html;
+      }
+
+      function appendUserMessage(content) {
+        const safe = escapeHtml(content || '');
+        if (!safe.trim()) return;
+        const html = `
+          <div class="flex justify-end items-start gap-2">
+            <div class="flex flex-col items-end max-w-[82%]">
+              <div class="text-xs font-bold text-[#888] mb-[5px] text-right">나</div>
+              <div class="max-w-full min-w-[72px] px-[18px] py-3.5 rounded-2xl rounded-tr-[4px] bg-[#D3DEF2] border border-[#D3DEF2] text-sm leading-[1.7] font-medium text-[#1D3CFF] break-words text-left">${safe}</div>
+            </div>
+            <div class="w-9 h-9 rounded-full bg-[#D3DEF2] shrink-0 flex items-center justify-center text-base">👤</div>
+          </div>`;
+        messageBox.insertAdjacentHTML('beforeend', html);
+      }
+
+      function appendAiTyping() {
+        const html = `
+          <div id="ai-typing-row" class="flex gap-3 items-start">
+            <div class="w-9 h-9 rounded-full shrink-0 flex items-center justify-center text-lg bg-[linear-gradient(135deg,#1D3CFF,#0097FF)]">✨</div>
+            <div>
+              <div class="text-xs font-bold text-[#888] mb-[5px]">PICKASSO AI</div>
+              <div class="max-w-[92%] min-w-[320px] px-[18px] py-3.5 rounded-2xl rounded-tl-[4px] bg-[#D3DEF2] border border-[#D3DEF2] text-sm leading-[1.7] text-[#1A1A1A] break-words">
+                답변 준비 중...
+              </div>
+            </div>
+          </div>`;
+        messageBox.insertAdjacentHTML('beforeend', html);
+      }
+
+      function removeAiTyping() {
+        const typingRow = document.getElementById('ai-typing-row');
+        if (typingRow) typingRow.remove();
+      }
+
+      function renderExpansionConfirm(data) {
+        const old = document.getElementById('chat-expand-confirm');
+        if (old) old.remove();
+      }
+
+      function renderRecommendations(list, needsConfirm) {
+        const recommendations = list || [];
+        if (!recommendations.length && !needsConfirm) {
+          recList.innerHTML = `
+            <div id="empty-result-box" class="bg-white border border-[#CCC] rounded-2xl px-6 py-10 text-center text-sm text-[#888]">
+              아직 추천 결과가 없습니다. 원하는 촬영 조건을 입력하고 전송해 주세요.
+            </div>
+          `;
+          return;
+        }
+        recList.innerHTML = recommendations.map((rec, idx) => {
+          const badge = idx === 0
+            ? `<div class="absolute -top-2.5 left-5 h-[22px] px-2.5 rounded-[100px] bg-[#1D3CFF] text-white text-[11px] font-extrabold flex items-center gap-1">✦ AI 1순위 추천</div>`
+            : `<div class="absolute -top-2.5 left-5 h-[22px] px-2.5 rounded-[100px] bg-[#F9FAFC] border border-[#CCC] text-[#444] text-[11px] font-extrabold flex items-center gap-1">${idx + 1}순위</div>`;
+          const rating = (typeof rec.rating === 'number') ? rec.rating.toFixed(1) : '0.0';
+          const price = (rec.priceFrom || 0).toLocaleString('ko-KR');
+          return `
+            <div class="relative bg-white border-[1.5px] border-[#CCC] rounded-2xl p-5 flex gap-[18px] items-start transition-all hover:border-[#1D3CFF] hover:shadow-[0_4px_20px_rgba(29,60,255,0.10)]">
+              ${badge}
+              <div class="w-[100px] h-[100px] rounded-xl shrink-0 overflow-hidden border border-[#CCC] bg-[linear-gradient(135deg,#c8d8f0,#8ca8d8)] flex items-center justify-center text-xs text-[#888]">대표 이미지</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[11px] font-semibold text-[#0097FF] tracking-[0.04em] mb-[5px]">${escapeHtml(rec.category || '추천 촬영')}</div>
+                <div class="text-base font-bold text-[#1A1A1A] leading-[1.35] mb-2">${escapeHtml(rec.title || '')}</div>
+                <div class="flex items-center gap-1.5 text-[13px] text-[#444] mb-2">
+                  <div class="w-[22px] h-[22px] rounded-full bg-[#D3DEF2] shrink-0 flex items-center justify-center text-[11px]">📷</div>
+                  <span>${escapeHtml(rec.photographerName || '')} 작가</span>
+                </div>
+                <div class="flex items-center gap-2.5 flex-wrap">
+                  <div class="flex items-center gap-[3px] text-[13px] font-semibold text-[#1A1A1A]"><span class="text-[#0097FF]">★</span><span>${rating}</span></div>
+                  <span class="text-xs text-[#888]">후기 ${rec.reviewCount || 0}개</span>
+                  <span class="text-xs text-[#CCC]">·</span>
+                  <span class="text-xs text-[#888]">📍 ${escapeHtml(rec.region || '지역 정보 없음')}</span>
+                </div>
+                <div class="text-base font-extrabold text-[#1D3CFF] mt-2.5">${price}<span class="text-xs font-medium text-[#888]">원~</span></div>
+                <div class="mt-2.5 px-[13px] py-2.5 bg-[#D3DEF2] rounded-[9px] text-xs text-[#444] leading-[1.6] flex gap-[7px] items-start">
+                  <span class="text-[#1D3CFF] text-sm shrink-0 mt-px">💬</span>
+                  <span>${escapeHtml(rec.reason || '')}</span>
+                </div>
+              </div>
+              <div class="shrink-0 pt-1">
+                <a href="/item/${rec.itemId}" class="inline-flex items-center bg-white border-[1.5px] border-[#1D3CFF] text-[#1D3CFF] rounded-[9px] px-[18px] py-2.5 text-[13px] font-bold whitespace-nowrap no-underline transition-colors hover:bg-[#1D3CFF] hover:text-white">예약하기</a>
+              </div>
+            </div>`;
+        }).join('');
+      }
+
+      async function submitQuery(query, expandNearby, reroll) {
+        const currentQuery = (query || '').trim();
+        if (!reroll && !currentQuery) return;
+        if (!reroll) {
+          appendUserMessage(currentQuery);
+          appendAiTyping();
+          messageBox.scrollTop = messageBox.scrollHeight;
+        }
+
+        const params = new URLSearchParams();
+        params.set('query', currentQuery);
+        params.set('expandNearby', expandNearby ? 'true' : 'false');
+        params.set('reroll', reroll ? 'true' : 'false');
+        params.set(csrfName, csrfValue);
+        textarea.value = '';
+        const res = await fetch(ajaxUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+          body: params.toString()
+        });
+        if (!reroll) removeAiTyping();
+        if (!res.ok) return;
+        const data = await res.json();
+        textarea.value = '';
+        renderMessages(data.messages || []);
+        renderExpansionConfirm(data);
+        renderRecommendations(data.recommendations || [], !!data.needsNearbyExpansionConfirm);
+        resultCount.textContent = `${(data.recommendations || []).length}개의 작가를 찾았어요`;
+        messageBox.scrollTop = messageBox.scrollHeight;
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        submitQuery(textarea.value, false, false);
+      });
+
+      textarea.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          submitQuery(textarea.value, false, false);
+        }
+      });
+
+      document.querySelectorAll('.chip').forEach(btn => {
+        btn.addEventListener('click', () => {
+          textarea.value = btn.dataset.query || '';
+          submitQuery(textarea.value, false, false);
+        });
+      });
+
+      if (rerollBtn) {
+        rerollBtn.addEventListener('click', () => {
+          submitQuery('', false, true);
+        });
+      }
+
+    })();
+  </script>
+
+</main>
+</body>
+</html>

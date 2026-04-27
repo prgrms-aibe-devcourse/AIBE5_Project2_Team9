@@ -1,6 +1,7 @@
 package com.pickkasso.pickkasso.user.entity;
 
 
+import com.pickkasso.pickkasso.item.entity.Item;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -32,6 +33,8 @@ public class Photographer extends UserBasicInfo {
     private List<Education> educationList = new ArrayList<>();
     @OneToMany(mappedBy = "photographer", cascade = CascadeType.ALL)
     private List<Career> careerList = new ArrayList<>();
+    @OneToMany(mappedBy = "photographer", cascade = CascadeType.ALL)
+    private List<Item> itemList = new ArrayList<>();
 
     private Photographer(
         Account account,
@@ -39,13 +42,13 @@ public class Photographer extends UserBasicInfo {
         String name,
         Gender gender,
         String phone,
-        Integer cache) {
+        Integer cash) {
         this.account = account;
         this.email = email;
         this.name = name;
         this.gender = gender;
         this.phone = phone;
-        this.cache = cache;
+        this.cash = cash;
     }
 
     //== 생성 method ==//
@@ -55,12 +58,16 @@ public class Photographer extends UserBasicInfo {
         String name,
         Gender gender,
         String phone,
-        Integer cache) {
-        return new Photographer(account, email, name, gender, phone, cache);
+        Integer cash) {
+        return new Photographer(account, email, name, gender, phone, cash);
     }
 
     // 양방향 관계 연결용
     public void connectProfile(PhotographerProfile photographerProfile) {
         this.photographerProfile = photographerProfile;
     }
+
+    public void addItem(Item item) { itemList.add(item); }
+
+    public void removeItem(Item item) { itemList.remove(item); }
 }

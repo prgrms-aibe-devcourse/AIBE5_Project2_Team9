@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      th:replace="~{layouts/default :: layout(~{::title}, ~{::pageStyles}, ~{::main})}">
+<head>
+  <title th:fragment="title">예약 내역 | PICKKASSO</title>
+  <th:block th:fragment="pageStyles">
+    <style>
+      .highlight-res {
+        border-color: #1D3CFF !important;
+        box-shadow: 0 0 0 4px rgba(29, 60, 255, 0.1) !important;
+        background-color: #F0F4FF !important;
+      }
+    </style>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const highlightId = urlParams.get('resId');
+        const hash = window.location.hash;
+
+        let targetId = null;
+        if (highlightId) {
+          targetId = 'res-' + highlightId;
+        } else if (hash && hash.startsWith('#res-')) {
+          targetId = hash.substring(1);
+        }
+
+        if (targetId) {
+          const element = document.getElementById(targetId);
+          if (element) {
+            // 약간의 지연 후 스크롤 및 강조 (레이아웃 렌더링 대기)
+            setTimeout(() => {
+              element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              element.classList.add('highlight-res');
+
+              // 3초 후 강조 효과 제거 (선택 사항)
+              setTimeout(() => {
+                element.classList.remove('highlight-res');
+              }, 3000);
+            }, 300);
+          }
+        }
+      });
+    </script>
+  </th:block>
+</head>
+<body>
+
+<main th:fragment="main" class="bg-[#F9FAFC] min-h-screen pb-16">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex flex-col gap-6 lg:flex-row lg:items-start">
+
+      <!-- 사이드바 -->
+      <th:block th:replace="~{fragments/mypage-sidebar :: sidebar}" />
+
+      <!-- 메인 콘텐츠 -->
+      <div class="flex-1 min-w-0" th:with="hasReservations=${reservations != null and !#lists.isEmpty(reservations)}">
+
+        <!-- 헤더 -->
+        <div class="mb-6">
+          <h1 class="text-2xl font-bold text-[#1A1A1A]">예약 내역</h1>
+          <p class="text-sm text-[#888] mt-1"
+             th:text="${hasReservations ? '총 ' + #lists.size(reservations) + '개의 예약이 있습니다' : '예약 내역이 없습니다'}">
+            예약 내역이 없습니다
+          </p>
+        </div>
+
+        <!-- 예약 목록 (데이터 있을 때) -->
+        <div th:if="${hasReservations}" class="space-y-4">
+          <!-- 예약 카드 (반복) - 추후 실제 데이터로 연결 -->
+          <div th:each="reservation : ${reservations}"
+               th:id="'res-' + ${reservation.id}"
+               class="bg-white border border-[#CCC] rounded-2xl p-5 hover:shadow-sm transition-all duration-500">
+            <div class="flex gap-4">
+              <!-- 썸네일 -->
+              <div class="w-[88px] h-[88px] rounded-xl bg-[#D3DEF2] flex items-center justify-center flex-shrink-0 text-2xl text-[#888]">
+                📷
+              </div>
+
+              <!-- 내용 -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-start justify-between gap-3 mb-2">
+                  <p class="text-base font-bold text-[#1A1A1A] leading-snug" th:text="${reservation.itemName}">서비스명</p>
+                  <!-- 상태 배지 -->
+                  <span class="flex-shrink-0 text-xs font-semibold px-3 py-1 rounded-full"
+                        th:text="${reservation.statusLabel}"
+                        th:classappend="${reservation.status.name() == 'CONFIRMED'} ? ' bg-[#1D3CFF] text-white' : (${reservation.status.name() == 'PENDING'} ? ' bg-[#D3DEF2] text-[#1D3CFF]' : ' bg-[#F9FAFC] border border-[#CCC] text-[#888]')">
+                    상태
+                  </span>
+                </div>
+
+                <p class="text-sm text-[#444] flex items-center gap-1.5 mb-1">
+                  <svg class="w-3.5 h-3.5 text-[#888] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                  </svg>
+                  <span th:text="${reservation.photographerName}">작가명</span>
+                </p>
+                <p class="text-sm text-[#444] flex items-center gap-1.5 mb-1">
+                  <svg class="w-3.5 h-3.5 text-[#888] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  <span th:text="${reservation.scheduledAt}">날짜/시간</span>
+                </p>
+                <p class="text-sm text-[#888] flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                  </svg>
+                  <span th:text="${reservation.address}">장소</span>
+                </p>
+              </div>
+            </div>
+
+            <!-- 버튼 영역 -->
+            <div class="flex gap-2 mt-4">
+              <a th:href="@{/item/{id}(id=${reservation.itemId})}"
+                 class="bg-white border border-[#1D3CFF] text-[#1D3CFF] hover:bg-[#1D3CFF] hover:text-white font-semibold px-4 py-2 rounded-lg text-sm transition-colors">
+                상세보기
+              </a>
+              <form th:if="${reservation.status.name() == 'CONFIRMED' or reservation.status.name() == 'PENDING'}"
+                    th:action="@{/reservations/{id}/cancel(id=${reservation.id})}"
+                    method="post"
+                    onsubmit="return confirm('정말 취소하시겠습니까? 결제하신 캐시는 즉시 환불됩니다.')">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button type="submit"
+                        class="bg-[#F9FAFC] border border-[#CCC] text-[#444] hover:border-[#CCC] hover:text-[#888] font-semibold px-4 py-2 rounded-lg text-sm transition-colors">
+                  예약 취소
+                </button>
+              </form>
+              <a th:if="${reservation.status.name() == 'COMPLETED' and !reservation.hasReview}"
+                 th:href="@{/reservations/{id}/review(id=${reservation.id})}"
+                 class="bg-[#F9FAFC] border border-[#CCC] text-[#444] hover:border-[#0097FF] hover:text-[#0097FF] font-semibold px-4 py-2 rounded-lg text-sm transition-colors">
+                리뷰 작성
+              </a>
+              <span th:if="${reservation.status.name() == 'COMPLETED' and reservation.hasReview}"
+                    class="bg-[#F9FAFC] border border-[#CCC] text-[#888] font-semibold px-4 py-2 rounded-lg text-sm cursor-default">
+                리뷰 완료
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 빈 상태 -->
+        <div th:unless="${hasReservations}"
+             class="bg-white border border-[#CCC] rounded-2xl px-8 py-16 text-center">
+          <div class="text-5xl mb-4">📅</div>
+          <p class="text-base font-semibold text-[#444] mb-2">아직 예약 내역이 없어요.</p>
+          <p class="text-sm text-[#888] mb-6">마음에 드는 작가를 찾아 첫 촬영을 예약해보세요.</p>
+          <a th:href="@{/}"
+             class="inline-flex items-center justify-center bg-white border border-[#1D3CFF] text-[#1D3CFF] hover:bg-[#1D3CFF] hover:text-white font-semibold px-6 py-2.5 rounded-lg text-sm transition-colors">
+            작가 찾기
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</main>
+
+</body>
+</html>

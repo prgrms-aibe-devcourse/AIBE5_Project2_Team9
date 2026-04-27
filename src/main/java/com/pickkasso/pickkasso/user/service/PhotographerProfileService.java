@@ -1,27 +1,26 @@
 package com.pickkasso.pickkasso.user.service;
 
+import com.pickkasso.pickkasso.global.img.DefaultImgDto;
+import com.pickkasso.pickkasso.global.service.DefaultImgService;
+import com.pickkasso.pickkasso.global.service.S3Service;
 import com.pickkasso.pickkasso.user.dto.photographer.CareerDto;
 import com.pickkasso.pickkasso.user.dto.photographer.EducationDto;
 import com.pickkasso.pickkasso.user.dto.photographer.PhotographerProfileEditRequest;
 import com.pickkasso.pickkasso.user.dto.photographer.PhotographerPortfolioSummaryDto;
 import com.pickkasso.pickkasso.user.dto.photographer.PhotographerProfileResponse;
-import com.pickkasso.pickkasso.user.entity.Career;
-import com.pickkasso.pickkasso.user.entity.Education;
-import com.pickkasso.pickkasso.user.entity.Photographer;
-import com.pickkasso.pickkasso.user.entity.PhotographerProfile;
-import com.pickkasso.pickkasso.user.repository.CareerRepository;
-import com.pickkasso.pickkasso.user.repository.EducationRepository;
-import com.pickkasso.pickkasso.user.repository.PhotographerProfileRepository;
-import com.pickkasso.pickkasso.user.repository.PhotographerRepository;
-import com.pickkasso.pickkasso.user.repository.PortfolioRepository;
+import com.pickkasso.pickkasso.user.dto.photographer.ProfileCompletionDto;
+import com.pickkasso.pickkasso.user.entity.*;
+import com.pickkasso.pickkasso.user.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,9 +29,12 @@ public class PhotographerProfileService {
 
     private final PhotographerRepository photographerRepository;
     private final PhotographerProfileRepository photographerProfileRepository;
+    private final PortfolioImgRepository portfolioImgRepository;
     private final CareerRepository careerRepository;
     private final EducationRepository educationRepository;
     private final PortfolioRepository portfolioRepository;
+    private final DefaultImgService defaultImgService;
+    private final S3Service s3Service;
 
     @Transactional(readOnly = true)
     public PhotographerProfileResponse getProfileForm(Long photographerId) {
@@ -58,12 +60,21 @@ public class PhotographerProfileService {
                 ))
                 .toList();
 
+        Map<Long, String> imgUrlMap = portfolioImgRepository
+            .findRepresentativeImgsByPhotographerId(photographerId)
+            .stream()
+            .collect(Collectors.toMap(
+                img -> img.getPortfolio().getId(),
+                PortfolioImg::getImgUrl
+            ));
+
         List<PhotographerPortfolioSummaryDto> portfolios = portfolioRepository.findByPhotographerIdOrderByIdDesc(photographerId)
                 .stream()
                 .map(portfolio -> new PhotographerPortfolioSummaryDto(
                         portfolio.getId(),
                         portfolio.getName(),
-                        portfolio.getDescription()
+                        portfolio.getDescription(),
+                        imgUrlMap.get(portfolio.getId())
                 ))
                 .toList();
 
@@ -75,6 +86,12 @@ public class PhotographerProfileService {
                     photographerId,
                     null,
                     null,
+                    null,
+                    null,
+                    null,
+                    0,
+                    0L,
+                    0,
                     null,
                     null,
                     null,
@@ -92,6 +109,12 @@ public class PhotographerProfileService {
                 profile.getNickname(),
                 profile.getIntro(),
                 profile.getLink(),
+                profile.getPurchaseCount(),
+                profile.getReviewScore(),
+                profile.getReviewCount(),
+                profile.getContactableStartTime(),
+                profile.getContactableEndTime(),
+                profile.getResponseTime(),
                 convertToolsToList(profile.getTools()),
                 careerDtos,
                 educationDtos,
@@ -99,36 +122,74 @@ public class PhotographerProfileService {
         );
     }
 
-    public void createOrUpdateProfile(Long photographerId, PhotographerProfileEditRequest request) {
+    @Transactional(readOnly = true)
+    public ProfileCompletionDto getProfileCompletion(Long photographerId) {
+        Photographer photographer = getPhotographer(photographerId);
+        PhotographerProfile profile = photographer.getPhotographerProfile();
+
+        boolean hasProfileImage = profile != null
+                && profile.getImgUrl() != null
+                && !profile.getImgUrl().isBlank();
+        boolean hasIntro = profile != null
+                && profile.getIntro() != null
+                && !profile.getIntro().isBlank();
+        boolean hasServices = !photographer.getItemList().isEmpty();
+        boolean hasEquipment = profile != null
+                && profile.getTools() != null
+                && !profile.getTools().isEmpty();
+        boolean hasPortfolio = portfolioRepository.existsByPhotographerId(photographerId);
+
+        int score = (hasProfileImage ? 20 : 0)
+                + (hasIntro ? 20 : 0)
+                + (hasServices ? 20 : 0)
+                + (hasEquipment ? 20 : 0)
+                + (hasPortfolio ? 20 : 0);
+
+        return new ProfileCompletionDto(hasProfileImage, hasIntro, hasServices, hasEquipment, hasPortfolio, score);
+    }
+
+    public void createOrUpdateProfile(Long photographerId, PhotographerProfileEditRequest request, MultipartFile profileImg) {
         Photographer photographer = getPhotographer(photographerId);
 
         validateRequest(request);
 
         PhotographerProfile profile = photographer.getPhotographerProfile();
 
+        String dirName = "photographer/user_" + photographerId;
+        String imgUrl = (profileImg != null && !profileImg.isEmpty())
+            ? defaultImgService.uploadImage(profileImg, 0, dirName).getImgUrl()
+            : request.imgUrl();
         // profile 이 없으면 새로 생성
         if (profile == null) {
             PhotographerProfile newProfile = PhotographerProfile.createPhotographerProfile(
                     photographer,
-                    request.imgUrl(),
+                    imgUrl,
                     request.nickname(),
                     request.intro(),
                     convertToolsToMap(request.tools()),
                     request.link(),
-                    false
+                    request.contactableStartTime(),
+                    request.contactableEndTime(),
+                    request.responseTime()
             );
 
             photographerProfileRepository.save(newProfile);
             photographer.connectProfile(newProfile);
         } else {
             // profile 이 있으면 수정
+            if (profileImg != null && !profileImg.isEmpty() && request.imgUrl() != null) {
+                s3Service.delete(request.imgUrl());
+            }
             profile.updatePhotographerProfile(
-                    request.imgUrl(),
+                    imgUrl,
                     request.nickname(),
                     request.intro(),
                     convertToolsToMap(request.tools()),
                     request.link(),
-                    profile.getVerified()
+                    profile.getVerified(),
+                    request.contactableStartTime(),
+                    request.contactableEndTime(),
+                    request.responseTime()
             );
         }
 
@@ -147,7 +208,7 @@ public class PhotographerProfileService {
         List<Career> newCareers = new ArrayList<>();
 
         for (CareerDto dto : careers) {
-            if (dto.name() == null || dto.name().isBlank()) {
+            if (dto.name() == null || dto.name().isBlank() || dto.startDate() == null) {
                 continue;
             }
 
@@ -183,7 +244,7 @@ public class PhotographerProfileService {
         List<Education> newEducations = new ArrayList<>();
 
         for (EducationDto dto : educations) {
-            if (dto.name() == null || dto.name().isBlank()) {
+            if (dto.name() == null || dto.name().isBlank() || dto.startDate() == null) {
                 continue;
             }
 
@@ -215,13 +276,66 @@ public class PhotographerProfileService {
     }
 
     private void validateRequest(PhotographerProfileEditRequest request) {
-        // 최소한의 필수값 검증
         if (request.nickname() == null || request.nickname().isBlank()) {
             throw new IllegalArgumentException("활동명은 필수입니다.");
         }
 
         if (request.intro() == null || request.intro().isBlank()) {
             throw new IllegalArgumentException("자기소개는 필수입니다.");
+        }
+
+        validateCareerList(request.careers());
+        validateEducationList(request.educations());
+        validateToolList(request.tools());
+    }
+
+    private void validateCareerList(List<CareerDto> careers) {
+        if (careers == null || careers.isEmpty()) {
+            throw new IllegalArgumentException("경력을 최소 1개 입력해 주세요.");
+        }
+        boolean hasValid = false;
+        for (CareerDto dto : careers) {
+            boolean hasName = dto.name() != null && !dto.name().isBlank();
+            boolean hasStart = dto.startDate() != null;
+            if (hasName && !hasStart) {
+                throw new IllegalArgumentException("경력 항목의 시작 월을 선택해 주세요.");
+            }
+            if (hasName && hasStart) {
+                hasValid = true;
+            }
+        }
+        if (!hasValid) {
+            throw new IllegalArgumentException("경력을 최소 1개 입력해 주세요.");
+        }
+    }
+
+    private void validateEducationList(List<EducationDto> educations) {
+        if (educations == null || educations.isEmpty()) {
+            throw new IllegalArgumentException("학력을 최소 1개 입력해 주세요.");
+        }
+        boolean hasValid = false;
+        for (EducationDto dto : educations) {
+            boolean hasName = dto.name() != null && !dto.name().isBlank();
+            boolean hasStart = dto.startDate() != null;
+            if (hasName && !hasStart) {
+                throw new IllegalArgumentException("학력 항목의 시작 월을 선택해 주세요.");
+            }
+            if (hasName && hasStart) {
+                hasValid = true;
+            }
+        }
+        if (!hasValid) {
+            throw new IllegalArgumentException("학력을 최소 1개 입력해 주세요.");
+        }
+    }
+
+    private void validateToolList(List<String> tools) {
+        if (tools == null) {
+            throw new IllegalArgumentException("보유 장비를 최소 1개 입력해 주세요.");
+        }
+        boolean hasValid = tools.stream().anyMatch(t -> t != null && !t.isBlank());
+        if (!hasValid) {
+            throw new IllegalArgumentException("보유 장비를 최소 1개 입력해 주세요.");
         }
     }
 
@@ -233,8 +347,11 @@ public class PhotographerProfileService {
             return result;
         }
 
-        for (int i = 0; i < tools.size(); i++) {
-            result.put("tool" + i, tools.get(i));
+        int idx = 0;
+        for (String tool : tools) {
+            if (tool == null || tool.isBlank()) continue;
+            result.put("tool" + idx, tool);
+            idx++;
         }
 
         return result;

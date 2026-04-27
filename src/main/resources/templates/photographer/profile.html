@@ -3,7 +3,7 @@
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
       th:replace="~{layouts/default :: layout(~{::title}, ~{::pageStyles}, ~{::main})}">
 <head>
-  <title th:fragment="title">작가 프로필 | PICKKASSO</title>
+  <title th:fragment="title">작가 프로필 | PICKASSO</title>
   <th:block th:fragment="pageStyles"></th:block>
 </head>
 <body>
@@ -36,7 +36,7 @@
             <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#0097FF] mb-2">Photographer Profile</p>
             <h1 class="text-3xl font-bold text-[#1A1A1A] break-words"
                 th:text="${profile.nickname != null and !#strings.isEmpty(profile.nickname) ? profile.nickname : '아직 활동명을 등록하지 않은 작가'}">김민준 작가</h1>
-            <p class="mt-2 text-sm text-[#888]">PICKKASSO에서 활동 중인 스냅 작가 프로필입니다.</p>
+            <p class="mt-2 text-sm text-[#888]">PICKASSO에서 활동 중인 스냅 작가 프로필입니다.</p>
 
             <div class="mt-4 flex flex-wrap gap-2">
               <span class="inline-flex items-center gap-1 rounded-full border border-[#CCC] bg-[#F9FAFC] px-3 py-1 text-xs text-[#444]">
@@ -64,7 +64,7 @@
           </div>
         </div>
 
-        <div class="lg:ml-auto flex flex-col sm:flex-row gap-3">
+        <div th:if="${isOwner}" class="lg:ml-auto flex flex-col sm:flex-row gap-3">
           <a th:href="@{/photographer/{id}/portfolio/new(id=${profile.photographerId})}"
              class="inline-flex items-center justify-center rounded-lg border border-[#0097FF] px-5 py-2.5 text-sm font-semibold text-[#0097FF] hover:bg-[#0097FF] hover:text-white transition-colors">
             포트폴리오 등록
@@ -85,33 +85,42 @@
         <div class="bg-white border border-[#CCC] rounded-2xl p-5">
           <h2 class="text-base font-semibold text-[#1A1A1A] mb-4">활동 정보</h2>
 
-          <div class="grid grid-cols-2 gap-3 mb-4">
+          <!-- 총 작업 수 & 평균 별점 -->
+          <div class="grid grid-cols-2 gap-3 mb-6">
             <div class="rounded-xl border border-[#CCC] bg-[#F9FAFC] px-3 py-4 text-center">
-              <p class="text-[11px] text-[#888] mb-1">프로필 완성도</p>
-              <p class="text-2xl font-bold text-[#0097FF]" th:text="${completionRate + '%'}">0%</p>
+              <p class="text-[11px] text-[#888] mb-1">총 작업 수</p>
+              <p class="text-2xl font-bold text-[#1A1A1A]"
+                 th:text="${profile.purchaseCount != null} ? ${profile.purchaseCount + '건'} : '0건'"></p>
             </div>
             <div class="rounded-xl border border-[#CCC] bg-[#F9FAFC] px-3 py-4 text-center">
-              <p class="text-[11px] text-[#888] mb-1">보유 장비</p>
-              <p class="text-2xl font-bold text-[#1A1A1A]" th:text="${toolCount}">0</p>
+              <p class="text-[11px] text-[#888] mb-1">평균 별점</p>
+              <div class="flex items-center justify-center gap-1">
+                <span class="text-xl text-[#FFB800]">★</span>
+                <span class="text-2xl font-bold text-[#1A1A1A]"
+                      th:text="${profile.reviewCount != null and profile.reviewCount > 0} ? ${#numbers.formatDecimal(profile.reviewScore * 1.0 / profile.reviewCount, 1, 2)} : '0.0'"></span>
+              </div>
             </div>
           </div>
 
-          <div class="space-y-3 text-sm text-[#444]">
-            <div class="flex items-center gap-2">
-              <span class="text-[#0097FF]">✦</span>
-              <span th:text="${profile.intro != null and !#strings.isEmpty(profile.intro) ? '자기소개 등록 완료' : '자기소개 준비 중'}">자기소개 준비 중</span>
+          <!-- 지역, 연락 시간, 촬영 타입 -->
+          <div class="space-y-4 text-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-[#888]">주 활동 지역</span>
+              <span class="font-medium text-[#1A1A1A]"
+                    th:text="${topCityList == null or topCityList.isEmpty()} ? '아직 없어요' : ${#strings.listJoin(topCityList, ' · ')}">
+              </span>
             </div>
-            <div class="flex items-center gap-2">
-              <span class="text-[#0097FF]">✦</span>
-              <span th:text="${careerCount > 0 ? '경력 정보 등록 완료' : '경력 정보 준비 중'}">경력 정보 준비 중</span>
+            <div class="flex items-center justify-between">
+              <span class="text-[#888]">연락 가능 시간</span>
+              <span class="font-medium text-[#1A1A1A]"
+                    th:text="${profile.contactableStartTime == null} ? '아직 없어요' : ${profile.contactableStartTime + '시 ~ ' + profile.contactableEndTime + '시'}">
+              </span>
             </div>
-            <div class="flex items-center gap-2">
-              <span class="text-[#0097FF]">✦</span>
-              <span th:text="${educationCount > 0 ? '학력 정보 등록 완료' : '학력 정보 준비 중'}">학력 정보 준비 중</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <span class="text-[#0097FF]">✦</span>
-              <span th:text="${profile.link != null and !#strings.isEmpty(profile.link) ? '외부 링크 연결 완료' : '외부 링크 준비 중'}">외부 링크 준비 중</span>
+            <div class="flex items-center justify-between">
+              <span class="text-[#888]">평균 응답 시간</span>
+              <span class="font-medium text-[#1A1A1A]"
+                    th:text="${profile.responseTime == null} ? '아직 없어요' : ${profile.responseTime.toString()}">
+              </span>
             </div>
           </div>
         </div>
@@ -165,12 +174,13 @@
         <section class="bg-white border border-[#CCC] rounded-2xl p-6 sm:p-7">
           <div class="flex items-center justify-between gap-3 mb-5">
             <h2 class="text-2xl font-semibold text-[#1A1A1A]">작가 소개</h2>
-            <a th:href="@{/photographer/{id}/profile/edit(id=${profile.photographerId})}"
+            <a th:if="${isOwner}"
+               th:href="@{/photographer/{id}/profile/edit(id=${profile.photographerId})}"
                class="text-sm font-medium text-[#888] hover:text-[#1D3CFF] transition-colors">수정하기</a>
           </div>
 
           <div th:if="${profile.intro != null and !#strings.isEmpty(profile.intro)}"
-               class="text-base leading-8 text-[#444] whitespace-pre-line"
+               class="text-base leading-8 text-[#444] whitespace-pre-line break-words"
                th:text="${profile.intro}">작가 소개글</div>
 
           <div th:unless="${profile.intro != null and !#strings.isEmpty(profile.intro)}"
@@ -183,7 +193,8 @@
         <section class="bg-white border border-[#CCC] rounded-2xl p-6 sm:p-7">
           <div class="flex items-center justify-between gap-3 mb-5">
             <h2 class="text-2xl font-semibold text-[#1A1A1A]">포트폴리오</h2>
-            <a th:href="@{/photographer/{id}/portfolio/new(id=${profile.photographerId})}"
+            <a th:if="${isOwner}"
+               th:href="@{/photographer/{id}/portfolio/new(id=${profile.photographerId})}"
                class="text-sm font-medium text-[#888] hover:text-[#1D3CFF] transition-colors">등록하기</a>
           </div>
 
@@ -191,7 +202,13 @@
             <a th:each="portfolio : ${profile.portfolios}"
                th:href="@{/photographer/{id}/portfolio/{portfolioId}(id=${profile.photographerId}, portfolioId=${portfolio.portfolioId})}"
                class="rounded-2xl border border-[#CCC] bg-white p-5 hover:shadow-md transition-shadow no-underline">
-              <div class="aspect-[4/3] rounded-xl bg-[#D3DEF2] flex items-center justify-center text-3xl text-[#888] mb-4">🖼️</div>
+              <div class="aspect-[4/3] rounded-xl bg-[#D3DEF2] overflow-hidden flex items-center justify-center mb-4">
+                <img th:if="${portfolio.imgUrl != null}"
+                     th:src="${portfolio.imgUrl}"
+                     class="w-full h-full object-cover"
+                     alt="포트폴리오 대표 이미지">
+                <span th:if="${portfolio.imgUrl == null}" class="text-3xl text-[#888]">🖼️</span>
+              </div>
               <p class="text-base font-semibold text-[#1A1A1A] mb-2" th:text="${portfolio.name}">포트폴리오 이름</p>
               <p class="text-sm text-[#888] leading-relaxed line-clamp-3"
                  th:text="${portfolio.description != null and !#strings.isEmpty(portfolio.description) ? portfolio.description : '포트폴리오 설명이 아직 없습니다.'}">
@@ -206,7 +223,8 @@
               <p class="text-sm text-[#888] leading-relaxed">프로젝트별 작업물과 설명을 등록하면 고객이 작가님의 분위기를 더 잘 이해할 수 있어요.</p>
             </div>
 
-            <a th:href="@{/photographer/{id}/portfolio/new(id=${profile.photographerId})}"
+            <a th:if="${isOwner}"
+               th:href="@{/photographer/{id}/portfolio/new(id=${profile.photographerId})}"
                class="rounded-2xl border border-[#CCC] bg-white p-5 hover:shadow-md transition-shadow">
               <div class="aspect-[4/3] rounded-xl border-2 border-dashed border-[#CCC] bg-[#F9FAFC] flex items-center justify-center text-[#AAA] text-4xl mb-4">+</div>
               <p class="text-base font-semibold text-[#1A1A1A] mb-2">새 포트폴리오 등록</p>
@@ -217,31 +235,103 @@
 
         <section class="bg-white border border-[#CCC] rounded-2xl p-6 sm:p-7">
           <div class="flex items-center justify-between gap-3 mb-5">
-            <h2 class="text-2xl font-semibold text-[#1A1A1A]">프로필 요약</h2>
+            <h2 class="text-2xl font-semibold text-[#1A1A1A]">판매 중인 서비스</h2>
+            <a th:if="${isOwner}"
+               th:href="@{/photographer/{id}/service/new(id=${profile.photographerId})}"
+               class="text-sm font-medium text-[#888] hover:text-[#1D3CFF] transition-colors">+ 서비스 등록</a>
           </div>
 
-          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div class="rounded-xl border border-[#CCC] bg-[#F9FAFC] p-5">
-              <p class="text-sm font-semibold text-[#1A1A1A] mb-2">기본 정보</p>
-              <div class="space-y-2 text-sm text-[#444]">
-                <p><span class="text-[#888]">활동명</span> <span class="ml-2" th:text="${profile.nickname != null and !#strings.isEmpty(profile.nickname) ? profile.nickname : '미등록'}">미등록</span></p>
-                <p><span class="text-[#888]">외부 링크</span> <span class="ml-2" th:text="${profile.link != null and !#strings.isEmpty(profile.link) ? '연결됨' : '미연결'}">미연결</span></p>
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <a th:each="item : ${items}"
+               th:href="@{/item/{itemId}(itemId=${item.id})}"
+               class="rounded-2xl border border-[#CCC] bg-[#F9FAFC] overflow-hidden hover:shadow-md hover:border-[#1D3CFF] transition-all no-underline">
+              <div class="h-36 bg-[#D3DEF2] flex items-center justify-center text-[#888] text-2xl font-semibold overflow-hidden">
+                <img th:if="${item.imgUrl != null and !#strings.isEmpty(item.imgUrl)}"
+                     th:src="${item.imgUrl}"
+                     th:alt="${item.name}"
+                     class="w-full h-full object-cover">
+                <span th:unless="${item.imgUrl != null and !#strings.isEmpty(item.imgUrl)}"
+                      th:text="${item.tag.name}">카테고리</span>
               </div>
+              <div class="p-4">
+                <p class="text-[11px] font-semibold uppercase tracking-widest text-[#0097FF] mb-1.5"
+                   th:text="${item.itemType.name() == 'IN' ? '스튜디오 촬영' : '방문 촬영'}">촬영 유형</p>
+                <p class="text-sm font-bold text-[#1A1A1A] leading-snug mb-3 line-clamp-2"
+                   th:text="${item.name}">서비스명</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-base font-bold text-[#1A1A1A]">
+                    <span th:text="${#numbers.formatInteger(item.defaultPrice*1.1, 1, 'COMMA')}">0</span><span class="text-xs font-normal text-[#888] ml-0.5">원~</span>
+                  </span>
+                </div>
+              </div>
+            </a>
+
+            <div th:if="${items == null or items.isEmpty()}"
+                 class="rounded-2xl border border-dashed border-[#CCC] bg-[#F9FAFC] p-5 sm:col-span-2 xl:col-span-3">
+              <p class="text-base font-medium text-[#444] mb-1">아직 등록된 서비스가 없어요.</p>
+              <p class="text-sm text-[#888]">촬영 패키지, 가격, 옵션을 등록하면 고객이 바로 예약할 수 있어요.</p>
             </div>
 
-            <div class="rounded-xl border border-[#CCC] bg-[#F9FAFC] p-5">
-              <p class="text-sm font-semibold text-[#1A1A1A] mb-2">프로필 상태</p>
-              <div class="space-y-3">
-                <div class="flex justify-between text-sm text-[#444]">
-                  <span>작성 진행도</span>
-                  <span class="font-semibold text-[#1D3CFF]" th:text="${completionRate + '%'}">0%</span>
-                </div>
-                <div class="h-2 rounded-full bg-[#D3DEF2] overflow-hidden">
-                  <div class="h-full rounded-full bg-[#1D3CFF]" th:classappend="${completionRate == 0 ? ' w-0' : (completionRate == 25 ? ' w-1/4' : (completionRate == 50 ? ' w-1/2' : (completionRate == 75 ? ' w-3/4' : ' w-full')))}"></div>
-                </div>
-                <p class="text-xs text-[#888]">포트폴리오까지 채우면 고객에게 더 풍부한 첫인상을 전달할 수 있어요.</p>
+            <a th:if="${isOwner}"
+               th:href="@{/photographer/{id}/service/new(id=${profile.photographerId})}"
+               class="rounded-2xl border border-[#CCC] bg-[#F9FAFC] overflow-hidden hover:shadow-md transition-shadow">
+              <div class="h-36 border-b border-[#CCC] flex items-center justify-center text-[#AAA] text-4xl">+</div>
+              <div class="p-4">
+                <p class="text-sm font-bold text-[#1A1A1A] mb-1">새 서비스 등록</p>
+                <p class="text-xs text-[#888]">촬영 카테고리, 패키지, 가격을 설정해 서비스를 추가하세요.</p>
               </div>
+            </a>
+          </div>
+        </section>
+        <!-- 고객 후기 섹션 -->
+        <section class="bg-white border border-[#CCC] rounded-2xl p-6 sm:p-7">
+          <div class="flex items-center justify-between gap-3 mb-5">
+            <div class="flex items-center gap-3">
+              <h2 class="text-2xl font-semibold text-[#1A1A1A]">고객 후기</h2>
+              <span class="text-sm font-semibold text-[#888]"
+                    th:text="${reviewCount > 0 ? reviewCount + '건' : ''}"></span>
             </div>
+            <div th:if="${reviewCount > 0}" class="flex items-center gap-1.5">
+              <span class="text-lg text-[#FBBF24]">★</span>
+              <span class="text-base font-bold text-[#1A1A1A]" th:text="${avgRating}">0.0</span>
+            </div>
+          </div>
+
+          <!-- 후기 목록 -->
+          <div th:if="${reviewCount > 0}" class="divide-y divide-[#EEE]">
+            <article th:each="review : ${reviews}" class="py-5 first:pt-0 last:pb-0">
+              <div class="flex items-start justify-between gap-4 mb-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-[#D3DEF2] text-[#1D3CFF] flex items-center justify-center text-sm font-black shrink-0"
+                       th:text="${review.memberInitial}">이</div>
+                  <div>
+                    <p class="text-sm font-bold text-[#1A1A1A]" th:text="${review.memberName}">이름</p>
+                    <p class="text-[11px] text-[#888]">
+                      <span th:text="${review.itemName}">서비스명</span>
+                      <span th:text="' · ' + ${review.createdAt}"></span>
+                    </p>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-0.5 shrink-0">
+                  <th:block th:each="i : ${#numbers.sequence(1, 5)}">
+                    <svg class="w-4 h-4" th:style="${i <= review.rating} ? 'color:#FBBF24' : 'color:#E5E7EB'"
+                         fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                    </svg>
+                  </th:block>
+                  <span class="text-[12px] font-bold text-[#1A1A1A] ml-1" th:text="${review.rating + '.0'}">5.0</span>
+                </div>
+              </div>
+              <p class="text-[13px] text-[#444] leading-relaxed" th:text="${review.content}">후기 내용</p>
+            </article>
+          </div>
+
+          <!-- 빈 상태 -->
+          <div th:unless="${reviewCount > 0}"
+               class="rounded-xl border border-dashed border-[#CCC] bg-[#F9FAFC] px-5 py-10 text-center">
+            <p class="text-base font-medium text-[#444] mb-1">아직 등록된 후기가 없어요.</p>
+            <p class="text-sm text-[#888]">촬영이 완료되면 고객이 후기를 남길 수 있어요.</p>
           </div>
         </section>
       </div>

@@ -16,4 +16,7 @@ public class ItemSearchFormDto {
     private String tag;
     private LocalDate date;
     private String orderBy;
+    private Integer page;
+    private String itemType;
+    private Integer distance;
 }

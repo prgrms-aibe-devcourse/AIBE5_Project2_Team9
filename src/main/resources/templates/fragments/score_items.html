@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="scoreGrid" class="card-grid">
+  <th:block th:if="${#lists.isEmpty(scoreItemList)}">
+    <div class="empty-state">
+      <p class="empty-text">해당 태그의 작가가 아직 없어요</p>
+      <p class="empty-sub">다른 태그를 선택해보세요</p>
+    </div>
+  </th:block>
+  <th:block th:unless="${#lists.isEmpty(scoreItemList)}"
+            th:each="item : ${scoreItemList}">
+    <a th:href="@{/item/{id}(id=${item.id})}" class="card">
+      <div class="card-img-wrap">
+        <img class="card-img"
+             th:src="${item.imgUrl != null ? item.imgUrl : 'https://picsum.photos/seed/' + item.id + '/400/533'}"
+             th:alt="${item.name}"
+             loading="lazy"
+             th:onerror="'this.src=\'https://picsum.photos/seed/' + ${item.id} + '/400/533\''">
+      </div>
+      <div class="card-body">
+        <!-- 상품명 -->
+        <p class="card-item-name" th:text="${item.name}"></p>
+        <!-- 작가명 -->
+        <p class="card-name" th:text="${item.photographer.name}"></p>
+        <!-- 지역 · 태그 -->
+        <p class="card-meta" th:text="${item.region.address + ' · ' + item.tag.name}"></p>
+        <div class="card-footer">
+          <div class="score">
+            <span class="star">★</span>
+            <span th:text="${#numbers.formatDecimal(item.reviewScore * 1.0 / item.reviewCount, 1, 2)}"></span>
+            <span class="review-count" th:text="'(' + ${item.reviewCount} + ')'"></span>
+          </div>
+          <span class="price" th:text="${#numbers.formatInteger(item.defaultPrice*1.1, 3, 'COMMA') + '원~'}"></span>
+        </div>
+      </div>
+    </a>
+  </th:block>
+</div>
+
+</body>
+</html>

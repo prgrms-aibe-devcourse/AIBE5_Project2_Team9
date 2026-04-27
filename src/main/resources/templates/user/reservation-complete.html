@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>예약 신청 완료 | PICKASSO</title>
+  <link rel="stylesheet" th:href="@{/css/global.css}">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { fontFamily: { sans: ['Pretendard', 'sans-serif'], angelica: ['WhiteAngelica', 'cursive'] } } }
+    }
+  </script>
+</head>
+<body class="bg-[#F9FAFC] text-[#1A1A1A] font-sans min-h-screen">
+
+<!-- ─── 헤더 ─────────────────────────────────────────── -->
+<header class="sticky top-0 z-50 bg-[#F9FAFC] border-b border-[#1A1A1A] h-16 flex items-center">
+  <div class="max-w-[1216px] w-full mx-auto px-6 flex items-center justify-between">
+    <a th:href="@{/}" class="flex items-center gap-2">
+      <img th:src="@{/images/logo.png}" alt="PICKASSO 로고" class="h-8 w-auto">
+      <span class="font-angelica text-[16px] text-[#1D3CFF] tracking-wide">PICKASSO</span>
+    </a>
+    <nav class="flex items-center gap-1.5 text-sm" aria-label="예약 흐름">
+      <span class="text-[#888]">예약하기</span>
+      <span class="text-[#CCC]">›</span>
+      <span class="font-semibold text-[#1D3CFF]">예약 완료</span>
+    </nav>
+    <div class="w-[80px]"></div>
+  </div>
+</header>
+
+<!-- ─── 스텝 진행 표시 ─────────────────────────────────── -->
+<div class="bg-white border-b border-[#CCC]">
+  <div class="max-w-[1216px] mx-auto px-6 py-3 flex items-center gap-3 text-sm">
+    <div class="flex items-center gap-2">
+      <div class="w-6 h-6 rounded-full bg-[#0097FF] flex items-center justify-center flex-shrink-0">
+        <svg class="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+        </svg>
+      </div>
+      <span class="font-medium text-[#444]">예약 정보 입력</span>
+    </div>
+    <div class="flex-1 h-px bg-[#1D3CFF] max-w-[60px]"></div>
+    <div class="flex items-center gap-2">
+      <div class="w-6 h-6 rounded-full bg-[#1D3CFF] flex items-center justify-center flex-shrink-0">
+        <svg class="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+        </svg>
+      </div>
+      <span class="font-bold text-[#1D3CFF]">예약 완료</span>
+    </div>
+  </div>
+</div>
+
+<!-- ─── 완료 콘텐츠 ───────────────────────────────────── -->
+<main class="max-w-[640px] mx-auto px-6 py-12">
+
+  <!-- 성공 아이콘 -->
+  <div class="flex flex-col items-center text-center mb-8">
+    <div class="w-20 h-20 rounded-full bg-[#EEF1FF] flex items-center justify-center mb-5">
+      <svg class="w-10 h-10 text-[#1D3CFF]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+    </div>
+    <h1 class="text-2xl font-bold text-[#1A1A1A] mb-2">예약 신청이 완료되었습니다!</h1>
+    <p class="text-sm text-[#888] leading-relaxed">
+      작가의 수락을 기다리고 있어요.<br>
+      작가가 수락하면 카카오톡 알림 또는 이메일로 알려드립니다.
+    </p>
+  </div>
+
+  <!-- 예약 정보 카드 -->
+  <div class="bg-white border border-[#CCC] rounded-2xl overflow-hidden mb-4">
+    <!-- 상단 배지 -->
+    <div class="bg-[#EEF1FF] border-b border-[#C4CCFF] px-6 py-3 flex items-center justify-between">
+      <span class="text-sm font-semibold text-[#1D3CFF]">예약 신청 완료</span>
+      <span class="text-xs text-[#888]"
+            th:text="'예약번호 #' + ${reservation.id}">예약번호 #0</span>
+    </div>
+
+    <div class="p-6 space-y-4">
+      <!-- 서비스 정보 -->
+      <div class="flex flex-col gap-1 pb-4 border-b border-[#CCC]">
+        <p class="text-xs font-medium text-[#0097FF]" th:text="${reservation.item.tag.name}">카테고리</p>
+        <p class="text-base font-bold text-[#1A1A1A]" th:text="${reservation.item.name}">서비스명</p>
+        <p class="text-sm text-[#888]"
+           th:text="${reservation.item.photographer.name != null ? reservation.item.photographer.name + ' 작가' : '작가'}">작가명</p>
+      </div>
+
+      <!-- 예약 상세 -->
+      <div class="grid grid-cols-2 gap-4 text-sm">
+        <div>
+          <p class="text-xs text-[#888] mb-1">촬영 일시</p>
+          <p class="font-semibold text-[#1A1A1A]"
+             th:text="${#temporals.format(reservation.scheduledAt, 'yyyy.MM.dd (EEE) HH:mm')}">날짜</p>
+        </div>
+        <div>
+          <p class="text-xs text-[#888] mb-1">촬영 시간</p>
+          <p class="font-semibold text-[#1A1A1A]"
+             th:text="${reservation.durationMinutes / 60} + '시간'">2시간</p>
+        </div>
+        <div class="col-span-2">
+          <p class="text-xs text-[#888] mb-1">촬영 장소</p>
+          <p class="font-semibold text-[#1A1A1A]" th:text="${reservation.address}">장소</p>
+        </div>
+        <div th:if="${reservation.memo != null and !#strings.isEmpty(reservation.memo)}" class="col-span-2">
+          <p class="text-xs text-[#888] mb-1">요청사항</p>
+          <p class="text-[#444] text-sm leading-relaxed" th:text="${reservation.memo}">요청사항</p>
+        </div>
+      </div>
+
+      <!-- 결제 금액 -->
+      <div class="border-t border-[#CCC] pt-4 flex items-center justify-between">
+        <span class="text-sm font-semibold text-[#1A1A1A]">결제 예정 금액</span>
+        <span class="text-lg font-bold text-[#1D3CFF]">
+          <span th:text="${#numbers.formatInteger(reservation.totalPrice*1.1, 1, 'COMMA')}">0</span> C
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 안내 배너 -->
+  <div class="bg-[#FFFBEB] border border-[#FCD34D] rounded-xl px-5 py-4 mb-6 text-sm text-[#444] leading-relaxed">
+    <p class="font-semibold text-[#886600] mb-1">📌 알아두세요</p>
+    <ul class="space-y-1 text-xs text-[#886600]">
+      <li>• 작가가 수락하면 결제 캐시가 차감됩니다</li>
+      <li>• 작가 거절 시 전액 즉시 환불됩니다</li>
+      <li>• 예약 확정 후 작가의 연락처가 공개됩니다</li>
+    </ul>
+  </div>
+
+  <!-- 버튼 영역 -->
+  <div class="flex flex-col sm:flex-row gap-3">
+    <a th:href="@{/}"
+       class="flex-1 flex items-center justify-center gap-2 bg-white border border-[#CCC] text-[#444] font-semibold py-3.5 rounded-xl hover:border-[#888] hover:text-[#1A1A1A] transition-colors text-sm">
+      홈으로 돌아가기
+    </a>
+    <a th:href="@{/member/mypage/reservations(resId=${reservation.id})}"
+       class="flex-1 flex items-center justify-center gap-2 bg-[#1D3CFF] hover:bg-[#1530E0] text-white font-bold py-3.5 rounded-xl transition-colors text-sm">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+      </svg>
+      내 예약 내역 보기
+    </a>
+  </div>
+
+</main>
+
+</body>
+</html>

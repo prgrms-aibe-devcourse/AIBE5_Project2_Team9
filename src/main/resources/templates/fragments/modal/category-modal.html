@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="categoryModal(tagList)">
+
+  <div id="category-modal"
+       style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:12px; width:480px; padding:28px 28px 20px;">
+
+      <h2 style="font-size:18px; font-weight:500; margin:0 0 20px;">촬영 유형</h2>
+
+      <div id="category-list" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+
+        <!-- 전체 버튼 -->
+        <div class="cat-item"
+             data-value=""
+             onclick="categoryModal.select(this)"
+             style="grid-column: 1 / -1;">
+          <span class="cat-label">전체</span>
+        </div>
+        <div th:each="tag : ${tagList}"
+             class="cat-item"
+             th:data-value="${tag.name}"
+             onclick="categoryModal.select(this)">
+          <span class="cat-label" th:text="${tag.emoji + ' ' + tag.name}"></span>
+        </div>
+      </div>
+
+      <div style="border-top:1px solid #eee; margin-top:20px; padding-top:16px; display:flex; justify-content:flex-end; gap:8px;">
+        <button type="button" onclick="categoryModal.close()"
+                style="padding:8px 20px; border:1px solid #ddd; border-radius:8px; background:#fff; cursor:pointer;">취소</button>
+        <button type="button" id="btn-confirm-category" onclick="categoryModal.confirm()"
+                style="padding:8px 20px; background:#1D3CFF; color:#fff; border:none; border-radius:8px; opacity:0.4; cursor:default;" disabled>선택 완료</button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+      .cat-item {
+          display: flex; align-items: center; gap: 10px;
+          padding: 14px 16px; border-radius: 10px;
+          border: 1.5px solid #eee; cursor: pointer;
+          transition: border-color 0.15s, background 0.15s;
+      }
+      .cat-item:hover { border-color: #1D3CFF; }
+      .cat-item[data-selected="true"] { border-color: #1D3CFF; background: #EEF2FF; }
+      .cat-icon { font-size: 20px; }
+      .cat-label { font-size: 14px; font-weight: 500; }
+  </style>
+  <script>
+      const categoryModal = {
+          selectedValue: null,
+
+          open() {
+              const current = document.getElementById('h-category').value;
+              document.querySelectorAll('.cat-item').forEach(item => {
+                  item.dataset.selected = (item.dataset.value === current) ? 'true' : 'false';
+              });
+              this.selectedValue = current;
+              this.setConfirmEnabled(true); // 전체는 항상 선택 가능
+              document.getElementById('category-modal').style.display = 'flex';
+          },
+
+          close() {
+              document.getElementById('category-modal').style.display = 'none';
+          },
+
+          select(el) {
+              document.querySelectorAll('.cat-item').forEach(item => {
+                  item.dataset.selected = 'false';
+              });
+              el.dataset.selected = 'true';
+              this.selectedValue = el.dataset.value; // 빈 문자열도 허용
+              this.setConfirmEnabled(true);
+          },
+
+          setConfirmEnabled(enabled) {
+              const btn = document.getElementById('btn-confirm-category');
+              btn.disabled = !enabled;
+              btn.style.opacity = enabled ? '1' : '0.4';
+              btn.style.cursor = enabled ? 'pointer' : 'default';
+          },
+
+          confirm() {
+              document.getElementById('h-category').value = this.selectedValue;
+              if (this.selectedValue === '') {
+                  document.getElementById('display-category').textContent = '촬영유형';
+              } else {
+                  document.getElementById('display-category').textContent = this.selectedValue;
+              }
+              this.close();
+          },
+      };
+  </script>
+</th:block>
+</body>
+</html>
