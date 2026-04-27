@@ -223,7 +223,7 @@
                : ${#dates.format(#dates.createNow(), 'M') + '월 추천 매칭'}">
           4월 추천 매칭
         </h2>
-        <p class="custom-sub">편집팀이 직접 선별한 이달의 작가</p>
+        <p class="custom-sub">따뜻해진 봄, 야외 스냅 모음</p>
 
         <!-- 커스텀 카드 그리드 -->
         <div class="card-grid">
@@ -256,7 +256,7 @@
                     <span th:text="${#numbers.formatDecimal(item.reviewScore * 1.0 / item.reviewCount, 1, 2)}"></span>
                     <span class="review-count" th:text="'(' + ${item.reviewCount} + ')'"></span>
                   </div>
-                  <span class="price" th:text="${#numbers.formatInteger(item.defaultPrice, 3, 'COMMA') + '원~'}"></span>
+                  <span class="price" th:text="${#numbers.formatInteger(item.defaultPrice*1.1, 3, 'COMMA') + '원~'}"></span>
                 </div>
               </div>
             </a>

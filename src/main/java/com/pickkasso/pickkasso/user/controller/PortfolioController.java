@@ -2,9 +2,17 @@ package com.pickkasso.pickkasso.user.controller;
 
 import com.pickkasso.pickkasso.global.img.ImageUploadException;
 import com.pickkasso.pickkasso.global.tag.TagService;
+import com.pickkasso.pickkasso.user.dto.photographer.PhotographerProfileResponse;
 import com.pickkasso.pickkasso.user.dto.portfolio.PortfolioDto;
+import com.pickkasso.pickkasso.user.entity.Account;
+import com.pickkasso.pickkasso.user.entity.Photographer;
+import com.pickkasso.pickkasso.user.entity.PhotographerProfile;
+import com.pickkasso.pickkasso.user.repository.AccountRepository;
+import com.pickkasso.pickkasso.user.repository.PhotographerRepository;
+import com.pickkasso.pickkasso.user.service.PhotographerProfileService;
 import com.pickkasso.pickkasso.user.service.PortfolioService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +28,8 @@ public class PortfolioController {
 
     private final PortfolioService portfolioService;
     private final TagService tagService;
+    private final AccountRepository accountRepository;
+    private final PhotographerProfileService photographerProfileService;
 
     @GetMapping("/new")
     public String createPortfolioForm(@PathVariable Long photographerId, Model model) {
@@ -64,10 +74,21 @@ public class PortfolioController {
     public String portfolioDetail(
             @PathVariable Long photographerId,
             @PathVariable Long portfolioId,
+            Authentication authentication,
             Model model
     ) {
         PortfolioDto portfolioDto = portfolioService.getPortfolioDto(photographerId, portfolioId);
+        PhotographerProfileResponse profile = photographerProfileService.getProfileForm(photographerId);
+
+        boolean isOwner = false;
+        if (authentication != null && authentication.isAuthenticated()) {
+            Account account = accountRepository.findByUsername(authentication.getName());
+            isOwner = account != null && account.getId().equals(photographerId);
+        }
+        model.addAttribute("isOwner", isOwner);
+
         model.addAttribute("portfolioName", portfolioDto.name());
+        model.addAttribute("photographer", profile);
         model.addAttribute("portfolioDescription", portfolioDto.description());
         model.addAttribute("tagList", tagService.findAllTagReference());
         model.addAttribute("portfolioTagList", portfolioService.getPortfolioTagReference(photographerId, portfolioId));

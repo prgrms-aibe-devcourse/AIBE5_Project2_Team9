@@ -105,6 +105,7 @@ public class ItemService {
             item.getIncludes(),
             item.getExcludes(),
             item.getAddress(),
+            item.getDetailAddress(),
             item.getLat(),
             item.getLng(),
             item.getMinBookingLeadTime(),
@@ -180,6 +181,7 @@ public class ItemService {
             request.getMinBookingLeadTime() != null ? request.getMinBookingLeadTime() : 1,
             request.getCancellationPolicy(),
             request.getAddress(),
+            request.getDetailAddress(),
             request.getLat(),
             request.getLng()
         );
@@ -263,5 +265,10 @@ public class ItemService {
             resList.add(dto);
         }
         return resList;
+    }
+
+    public List<ItemBoxDto> getCustomItemList(int count) {
+        List<Item> itemList = itemRepository.findCustomItem(PageRequest.of(0, count));
+        return getItemBoxDtoList(itemList);
     }
 }

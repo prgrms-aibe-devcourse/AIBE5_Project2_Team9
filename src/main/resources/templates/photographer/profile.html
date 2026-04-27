@@ -260,7 +260,7 @@
                    th:text="${item.name}">서비스명</p>
                 <div class="flex items-center justify-between">
                   <span class="text-base font-bold text-[#1A1A1A]">
-                    <span th:text="${#numbers.formatInteger(item.defaultPrice, 1, 'COMMA')}">0</span><span class="text-xs font-normal text-[#888] ml-0.5">원~</span>
+                    <span th:text="${#numbers.formatInteger(item.defaultPrice*1.1, 1, 'COMMA')}">0</span><span class="text-xs font-normal text-[#888] ml-0.5">원~</span>
                   </span>
                 </div>
               </div>

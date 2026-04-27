@@ -21,6 +21,7 @@ public class ItemRegisterRequest {
     private String includes;
     private String excludes;
     private String address;
+    private String detailAddress;
     private Double lat;
     private Double lng;
     private Integer minBookingLeadTime;

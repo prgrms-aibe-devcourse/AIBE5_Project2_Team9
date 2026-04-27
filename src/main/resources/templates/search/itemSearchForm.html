@@ -193,6 +193,8 @@
               url.searchParams.set("page", '');
               if (value) {
                   url.searchParams.set("distance", value);
+              } else {
+                  url.searchParams.delete("distance");  // ← 추가
               }
               window.location.href = url.toString();
           }
@@ -344,7 +346,7 @@
               <span
                 id="display-date"
                 class="flex-1 text-center"
-                th:text="${itemSearchFormDto.date != null ? #temporals.format(itemSearchFormDto.date, 'MM/dd') : '날짜'}"
+                th:text="${itemSearchFormDto.date != null ? #temporals.format(itemSearchFormDto.date, 'yyyy-MM-dd') : '날짜'}"
                 >날짜</span
               >
             </div>
@@ -468,7 +470,7 @@
               class="sort-select text-sm text-[#444] border border-[#CCC] rounded-lg py-[7px] pl-3 pr-7 bg-white cursor-pointer outline-none"
               onchange="changeDistance(this.value)"
             >
-              <option value="" th:selected="${itemSearchFormDto.distance != null}">거리 제한 없음</option>
+              <option value="" th:selected="${itemSearchFormDto.distance == null}">거리 제한 없음</option>
               <option value="1"  th:selected="${itemSearchFormDto.distance != null and itemSearchFormDto.distance == 1}">1km 이내</option>
               <option value="3"  th:selected="${itemSearchFormDto.distance != null and itemSearchFormDto.distance == 3}">3km 이내</option>
               <option value="5"  th:selected="${itemSearchFormDto.distance != null and itemSearchFormDto.distance == 5}">5km 이내</option>
@@ -509,7 +511,7 @@
                     <span th:text="${#numbers.formatDecimal(item.reviewScore * 1.0 / item.reviewCount, 1, 2)}"></span>
                     <span class="review-count" th:text="'(' + ${item.reviewCount} + ')'"></span>
                   </div>
-                  <span class="price" th:text="${#numbers.formatInteger(item.defaultPrice, 3, 'COMMA') + '원~'}"></span>
+                  <span class="price" th:text="${#numbers.formatInteger(item.defaultPrice*1.1, 3, 'COMMA') + '원~'}"></span>
                 </div>
               </div>
             </a>
