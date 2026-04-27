@@ -49,7 +49,7 @@ public class SecurityConfig {
                 )
                .logout(logout -> logout
                 .logoutUrl("/logout")
-                .logoutSuccessUrl("/")
+                .logoutSuccessUrl("/home")
            );
 
         return http.build();
