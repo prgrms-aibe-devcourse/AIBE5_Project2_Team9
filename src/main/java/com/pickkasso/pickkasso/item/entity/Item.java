@@ -145,6 +145,7 @@ public class Item extends Region {
         Integer minBookingLeadTime,
         String cancellationPolicy,
         String address,
+        String detailAddress,
         Double lat,
         Double lng) {
         this.tag = tag;
@@ -155,7 +156,7 @@ public class Item extends Region {
         this.itemType = itemType;
         this.minBookingLeadTime = minBookingLeadTime;
         this.cancellationPolicy = cancellationPolicy;
-        this.initRegion(address, "", lat, lng);
+        this.initRegion(address, detailAddress, lat, lng);
     }
 
 

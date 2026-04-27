@@ -201,9 +201,12 @@
           <div>
             <label class="text-sm font-medium text-[#444] mb-1.5 block">상세 장소 안내</label>
             <input type="text" name="detailAddress"
+                   th:value="${item.itemType.name() == 'IN' ? item.detailAddress : ''}"
+                   th:readonly="${item.itemType.name() == 'IN'}"
                    placeholder="예: 9번 출구 앞, 공원 입구 등 찾기 쉬운 장소를 알려주세요"
                    class="w-full bg-[#F9FAFC] border border-[#CCC] rounded-lg px-4 py-2.5 text-sm text-[#1A1A1A] placeholder-[#AAA] focus:outline-none focus:border-[#0097FF] focus:ring-1 focus:ring-[#0097FF] mb-1">
-            <p class="text-xs text-[#888]">작가가 찾아올 수 있도록 구체적으로 알려주세요</p>
+            <p class="text-xs text-[#888]"
+               th:text="${item.itemType.name() == 'IN'} ? '작가가 설정한 스튜디오 위치입니다' : '작가가 찾아올 수 있도록 구체적으로 알려주세요'"></p>
           </div>
         </section>
 
