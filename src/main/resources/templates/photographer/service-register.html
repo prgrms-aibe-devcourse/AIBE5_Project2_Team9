@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6" lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,30 +26,7 @@
 </head>
 <body class="bg-[#F9FAFC] font-sans text-[#1A1A1A]">
 
-<!-- ─── HEADER ──────────────────────────────── -->
-<header class="sticky top-0 z-50 bg-[#F9FAFC] border-b border-[#1A1A1A] h-[68px] flex items-center">
-  <div class="max-w-[1216px] w-full mx-auto px-6 flex items-center justify-between">
-    <a th:href="@{/}" class="flex items-center gap-2 no-underline">
-      <div class="w-[34px] h-[34px] rounded-full bg-[conic-gradient(from_0deg,#1D3CFF,#0097FF,#1D3CFF)] flex-shrink-0"></div>
-      <span class="font-angelica text-[22px] text-[#1D3CFF] tracking-wide">PICKASSO</span>
-    </a>
-    <div class="flex items-center gap-3">
-    <span class="text-[15px] font-semibold text-[#444]"
-          th:text="${itemRegisterRequest.name == null} ? '서비스 등록' : '서비스 수정'">서비스 등록</span>
-      <button type="button"
-              class="flex items-center gap-1.5 text-sm font-semibold text-[#444] bg-white border border-[#CCC] rounded-lg px-4 py-2 hover:border-[#1D3CFF] hover:text-[#1D3CFF] transition-colors">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-        </svg>
-        미리보기
-      </button>
-      <button type="button" id="btn-temp-save"
-              class="text-sm font-bold text-[#1D3CFF] bg-white border-[1.5px] border-[#1D3CFF] rounded-lg px-5 py-2 hover:bg-[#1D3CFF] hover:text-white transition-colors">
-        임시저장
-      </button>
-    </div>
-  </div>
-</header>
+<th:block th:replace="~{fragments/header :: header}" />
 
 <!-- ─── STEP NAV ─────────────────────────────── -->
 <nav class="bg-white border-b border-[#CCC] sticky top-[68px] z-40">
