@@ -114,7 +114,7 @@
       <div class="border-t border-[#CCC] pt-4 flex items-center justify-between">
         <span class="text-sm font-semibold text-[#1A1A1A]">결제 예정 금액</span>
         <span class="text-lg font-bold text-[#1D3CFF]">
-          <span th:text="${#numbers.formatInteger(reservation.totalPrice, 1, 'COMMA')}">0</span> C
+          <span th:text="${#numbers.formatInteger(reservation.totalPrice*1.1, 1, 'COMMA')}">0</span> C
         </span>
       </div>
     </div>

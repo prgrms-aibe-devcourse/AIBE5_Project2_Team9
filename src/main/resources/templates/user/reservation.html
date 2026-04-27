@@ -372,7 +372,7 @@
                 <span class="text-[#444]"
                       th:text="${selectedPlan.name != null and !#strings.isEmpty(selectedPlan.name) ? selectedPlan.name : '기본 패키지'}">기본 패키지</span>
                 <span class="font-medium text-[#1A1A1A]"
-                      th:text="${#numbers.formatInteger(selectedPlan.price, 1, 'COMMA')} + '원'">0원</span>
+                      th:text="${#numbers.formatInteger(selectedPlan.price*1.1, 1, 'COMMA')} + '원'">0원</span>
               </div>
             </div>
 
@@ -380,14 +380,14 @@
               <div class="flex items-center justify-between mb-1.5">
                 <span class="text-sm font-semibold text-[#1A1A1A]">총 결제금액</span>
                 <span class="text-lg font-bold text-[#1D3CFF]">
-                  <span th:text="${#numbers.formatInteger(selectedPlan.price, 1, 'COMMA')}">0</span>
+                  <span th:text="${#numbers.formatInteger(selectedPlan.price*1.1, 1, 'COMMA')}">0</span>
                   <span class="text-base font-medium text-[#888]"> C</span>
                 </span>
               </div>
               <div class="flex items-center justify-between" th:if="${member != null and member.cash != null}">
                 <span class="text-xs text-[#888]">결제 후 잔여 캐시</span>
                 <span class="text-sm font-medium text-[#888]"
-                      th:text="${#numbers.formatInteger(member.cash - selectedPlan.price, 1, 'COMMA')} + ' C'">0 C</span>
+                      th:text="${#numbers.formatInteger(member.cash - selectedPlan.price*1.1, 1, 'COMMA')} + ' C'">0 C</span>
               </div>
             </div>
           </div>
@@ -400,7 +400,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
             </svg>
             <span th:if="${selectedPlan != null}"
-                  th:text="${#numbers.formatInteger(selectedPlan.price, 1, 'COMMA')} + ' 캐시로 예약 신청'">예약 신청</span>
+                  th:text="${#numbers.formatInteger(selectedPlan.price*1.1, 1, 'COMMA')} + ' 캐시로 예약 신청'">예약 신청</span>
             <span th:unless="${selectedPlan != null}">예약 신청하기</span>
           </button>
 

@@ -295,9 +295,8 @@
 
             <!-- Price -->
             <div class="mb-4">
-              <p class="text-xs text-[#888] mb-0.5">시작 가격</p>
               <p class="text-3xl font-bold text-[#1A1A1A]">
-                ₩<span th:text="${#numbers.formatInteger(plan.price, 1, 'COMMA')}">0</span>
+                ₩<span th:text="${#numbers.formatInteger(plan.price*1.1, 1, 'COMMA')}">0</span>
               </p>
             </div>
 
