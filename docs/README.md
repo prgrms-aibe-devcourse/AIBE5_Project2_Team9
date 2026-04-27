@@ -43,14 +43,14 @@
 
 ## 기술 스택
 
-| 분류       | 기술                                                                                                                                                                                                                                                                                                                                                                     |
-|----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Backend  | ![Springboot](https://img.shields.io/badge/Spring_boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white) ![Springsecurity](https://img.shields.io/badge/Spring_Security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white) ![Springdatajpa](https://img.shields.io/badge/Spring_Data_JPA-6DB33F?style=for-the-badge&logo=spring&logoColor=white)|
-| Frontend | ![Thymeleaf](https://img.shields.io/badge/Thymeleaf-%23005C0F.svg?style=for-the-badge&logo=Thymeleaf&logoColor=white) ![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)                                                                                                                     |
-| DB       | ![mysql](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)                                                                                                                                                                                                                                                                     |
-| Auth     | ![jwt](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)                                                                                                                                                                                                                                                                 |
-| Storage  | ![Amazon S3](https://img.shields.io/badge/Amazon%20S3-FF9900?style=for-the-badge&logo=amazons3&logoColor=white)                                                                                                                                                                                                                                                        |
-| AI       | ![Google Gemini](https://img.shields.io/badge/google%20gemini-8E75B2?style=for-the-badge&logo=google%20gemini&logoColor=white)                                                                                                                                                                                                                                                                                                                                                         |
+| 분류       | 기술                                                                                                                                                                                                                                                |
+|----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Backend  | ![Springboot](https://img.shields.io/badge/Spring_boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)  ![Springdatajpa](https://img.shields.io/badge/Spring_Data_JPA-6DB33F?style=for-the-badge&logo=spring&logoColor=white)         |
+| Frontend | ![Thymeleaf](https://img.shields.io/badge/Thymeleaf-%23005C0F.svg?style=for-the-badge&logo=Thymeleaf&logoColor=white) ![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white) |
+| DB       | ![mysql](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)                                                                                                                                                |
+| Auth     | ![Springsecurity](https://img.shields.io/badge/Spring_Security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white)                                                                                                                                      |
+| Storage  | ![Amazon S3](https://img.shields.io/badge/Amazon%20S3-FF9900?style=for-the-badge&logo=amazons3&logoColor=white)                                                                                                                                   |
+| AI       | ![Google Gemini](https://img.shields.io/badge/google%20gemini-8E75B2?style=for-the-badge&logo=google%20gemini&logoColor=white)                                                                                                                    |
 
 ---
 
@@ -154,32 +154,24 @@ gemini.api.key=YOUR_GEMINI_API_KEY
 <table>
 <tr>
 <td align="center">
-<a href="https://github.com/Mi-no-Kim">
-<img src="https://github.com/Mi-no-Kim.png" width="100px;" alt="김민호"/><br />
+<a href="https://github.com/Mi-no-Kim"><img src="https://github.com/Mi-no-Kim.png" width="100px;" alt="김민호"/></a><br />
 <sub><b>김민호</b></sub><br />
 <sub>BE, DB</sub>
-</a>
 </td>
 <td align="center">
-<a href="https://github.com/Lee1sd">
-<img src="https://github.com/Lee1sd.png" width="100px;" alt="이건희"/><br />
+<a href="https://github.com/Lee1sd"><img src="https://github.com/Lee1sd.png" width="100px;" alt="이건희"/></a><br />
 <sub><b>이건희</b></sub><br />
 <sub>BE</sub>
-</a>
 </td>
 <td align="center">
-<a href="https://github.com/geunchanlee">
-<img src="https://github.com/geunchanlee.png" width="100px;" alt="이근찬"/><br />
+<a href="https://github.com/geunchanlee"><img src="https://github.com/geunchanlee.png" width="100px;" alt="이근찬"/></a><br />
 <sub><b>이근찬</b></sub><br />
 <sub>FE</sub>
-</a>
 </td>
 <td align="center">
-<a href="https://github.com/jiyoungjae">
-<img src="https://github.com/jiyoungjae.png" width="100px;" alt="지영재"/><br />
+<a href="https://github.com/jiyoungjae"><img src="https://github.com/jiyoungjae.png" width="100px;" alt="지영재"/></a><br />
 <sub><b>지영재</b></sub><br />
 <sub>BE</sub>
-</a>
 </td>
 </tr>
 </table>
