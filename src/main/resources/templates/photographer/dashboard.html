@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layouts/default :: layout(~{::title}, ~{::headExtra}, ~{::content})}">
 <head>
+  <link rel="icon" type="image/png" th:href="@{/images/logo.png}">
     <title>작가 대시보드 - PICKASSO</title>
     <th:block th:fragment="headExtra">
         <style>

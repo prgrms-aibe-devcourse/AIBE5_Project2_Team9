@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layouts/default :: layout(~{::title}, ~{::headExtra}, ~{::content})}">
 <head>
+  <link rel="icon" type="image/png" th:href="@{/images/logo.png}">
     <title>예약 관리 - PICKASSO</title>
     <th:block th:fragment="headExtra">
         <style>

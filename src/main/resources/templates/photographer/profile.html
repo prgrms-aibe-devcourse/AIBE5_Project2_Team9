@@ -3,6 +3,7 @@
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
       th:replace="~{layouts/default :: layout(~{::title}, ~{::pageStyles}, ~{::main})}">
 <head>
+  <link rel="icon" type="image/png" th:href="@{/images/logo.png}">
   <title th:fragment="title">작가 프로필 | PICKASSO</title>
   <th:block th:fragment="pageStyles"></th:block>
 </head>

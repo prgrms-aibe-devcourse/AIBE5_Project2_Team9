@@ -3,6 +3,7 @@
       xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layouts/default :: layout(~{::title}, ~{::pageStyles}, ~{::main})}">
 <head>
+  <link rel="icon" type="image/png" th:href="@{/images/logo.png}">
   <title>페이지를 찾을 수 없습니다 - PICKASSO</title>
   <th:block th:fragment="pageStyles">
     <style>
